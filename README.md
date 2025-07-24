@@ -241,11 +241,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Inspired by competitive programming platforms and chess rating systems
-- Built with modern Python practices and type safety
-- Designed for extensibility and real-world deployment
-
----
-
-**Ready to unleash the power of competitive AI intelligence? Start your arena today!** 🚀 #   L L M _ A r e n a  
- 

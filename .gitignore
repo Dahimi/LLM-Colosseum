@@ -1,0 +1,11 @@
+# Dot files and directories
+.*
+!.gitignore
+
+# Virtual environments
+.venv/
+venv/
+
+# Jupyter Notebooks
+*.ipynb
+.ipynb_checkpoints/

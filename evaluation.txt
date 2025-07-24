@@ -1,0 +1,142 @@
+{
+    "evaluation_id": "715bca1c-884e-4312-ac92-65ea265a465d",
+    "match_id": "9d0530ee-70a3-4988-bf87-9f99460fcbd8",
+    "judge_id": "judge_openai/gpt-4.1_2",
+    "created_at": "2025-07-23T19:29:00.178189",
+    "submitted_at": "2025-07-23T19:29:00.178333",
+    "agent1_scores": [
+        {
+            "criterion": "correctness",
+            "score": 8.0,
+            "reasoning": "Agent 1 correctness: 8.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "completeness",
+            "score": 8.0,
+            "reasoning": "Agent 1 completeness: 8.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "logical_consistency",
+            "score": 8.0,
+            "reasoning": "Agent 1 logical_consistency: 8.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "creativity",
+            "score": 6.0,
+            "reasoning": "Agent 1 creativity: 6.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "clarity",
+            "score": 8.0,
+            "reasoning": "Agent 1 clarity: 8.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "depth",
+            "score": 7.0,
+            "reasoning": "Agent 1 depth: 7.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "originality",
+            "score": 6.0,
+            "reasoning": "Agent 1 originality: 6.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "accuracy",
+            "score": 8.0,
+            "reasoning": "Agent 1 accuracy: 8.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "efficiency",
+            "score": 9.0,
+            "reasoning": "Agent 1 efficiency: 9.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "relevance",
+            "score": 9.0,
+            "reasoning": "Agent 1 relevance: 9.0/10",
+            "confidence": 0.9
+        }
+    ],
+    "agent2_scores": [
+        {
+            "criterion": "correctness",
+            "score": 7.0,
+            "reasoning": "Agent 2 correctness: 7.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "completeness",
+            "score": 8.0,
+            "reasoning": "Agent 2 completeness: 8.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "logical_consistency",
+            "score": 7.0,
+            "reasoning": "Agent 2 logical_consistency: 7.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "creativity",
+            "score": 5.0,
+            "reasoning": "Agent 2 creativity: 5.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "clarity",
+            "score": 8.0,
+            "reasoning": "Agent 2 clarity: 8.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "depth",
+            "score": 7.0,
+            "reasoning": "Agent 2 depth: 7.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "originality",
+            "score": 6.0,
+            "reasoning": "Agent 2 originality: 6.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "accuracy",
+            "score": 7.0,
+            "reasoning": "Agent 2 accuracy: 7.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "efficiency",
+            "score": 9.0,
+            "reasoning": "Agent 2 efficiency: 9.0/10",
+            "confidence": 0.9
+        },
+        {
+            "criterion": "relevance",
+            "score": 9.0,
+            "reasoning": "Agent 2 relevance: 9.0/10",
+            "confidence": 0.9
+        }
+    ],
+    "agent1_total_score": 7.699999999999998,
+    "agent2_total_score": 7.299999999999997,
+    "recommended_winner": "agent1",
+    "overall_reasoning": "Both agents follow a systematic approach, step by step, and fill out the table based on the clues. Both make small errors regarding Bob's pet food: Agent 1 states \"Bob: Dog, Green House, Kibble,\" but clue 8 explicitly says Bob's pet eats fish. However, if Bob owns the dog (which must live in the green house), and the food assignments are deduced as: Parrot = seeds, Rabbit = carrots, Cat = fish (leaving kibble for the dog), this leads to a contradiction with clue 8. Agent 2, in their \"Final Answer\" section, states Bob's dog eats kibble, but in step 2, Bob's pet is said to eat fish, which does not resolve at the end. Both reach the standard arrangement (Alice: Cat, Yellow; Bob: Dog, Green; Charlie: Rabbit, Red; Dana: Parrot, Blue), but misassign pet food in the final tally, especially regarding Bob. Agent 1 provides a clear, logical chain though with minor logical gaps in food assignment; Agent 2's methodical grid keeps things organized but doesn't resolve the food clue fully. Both responses are similar in depth and logic, but Agent 1's is slightly more succinct and avoids some ambiguous steps seen in Agent 2's deduction. Thus, Agent 1 edges out as the recommended winner.",
+    "comparative_analysis": "Detailed comparison and analysis of both responses",
+    "key_differentiators": [],
+    "evaluation_quality": 0.0,
+    "is_final": true,
+    "evaluation_time_seconds": 0.000144,
+    "judge_specialization_match": 0.0,
+    "metadata": {}
+}
