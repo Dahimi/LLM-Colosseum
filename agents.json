@@ -1,0 +1,79 @@
+[
+  {
+    "name": "MixtralPro",
+    "model": "mistralai/mixtral-8x7b-instruct", 
+    "temperature": 0.3,
+    "division": "EXPERT",
+    "specializations": ["general intelligence", "mistralai"]
+  },
+  {
+    "name": "Llama3Mini",
+    "model": "meta-llama/llama-3.1-8b-instruct",
+    "temperature": 0.5,
+    "division": "NOVICE",
+    "specializations": ["general intelligence", "meta-llama"]
+  },
+  {
+    "name": "Llama3Pro",
+    "model": "meta-llama/llama-3.3-70b-instruct",
+    "temperature": 0.4,
+    "division": "EXPERT",
+    "specializations": ["general intelligence", "meta-llama"]
+  },
+  {
+    "name": "MistralSmall",
+    "model": "mistralai/mistral-small-24b-instruct-2501",
+    "temperature": 0.5,
+    "division": "NOVICE",
+    "specializations": ["general intelligence", "mistralai"]
+  },
+  {
+    "name": "MistralSmallV2",
+    "model": "mistralai/mistral-small-3.2-24b-instruct",
+    "temperature": 0.5,
+    "division": "NOVICE",
+    "specializations": ["general intelligence", "mistralai"]
+  },
+  {
+    "name": "GrokMini",
+    "model": "x-ai/grok-3-mini-beta",
+    "temperature": 0.6,
+    "division": "NOVICE",
+    "specializations": ["general intelligence", "x-ai"]
+  },
+  {
+    "name": "GeminiFlash",
+    "model": "google/gemini-2.0-flash-exp:free",
+    "temperature": 0.5,
+    "division": "NOVICE",
+    "specializations": ["general intelligence", "google"]
+  },
+  {
+    "name": "GPT4Mini",
+    "model": "openai/gpt-4.1-mini",
+    "temperature": 0.4,
+    "division": "NOVICE",
+    "specializations": ["general intelligence", "openai"]
+  },
+  {
+    "name": "GPT4oMini",
+    "model": "openai/gpt-4o-mini",
+    "temperature": 0.4,
+    "division": "NOVICE",
+    "specializations": ["general intelligence", "openai"]
+  },
+  {
+    "name": "QwenFree",
+    "model": "qwen/qwen3-235b-a22b-2507:free",
+    "temperature": 0.5,
+    "division": "NOVICE",
+    "specializations": ["general intelligence", "qwen"]
+  },
+  {
+    "name": "MistralNemo",
+    "model": "mistralai/mistral-nemo",
+    "temperature": 0.5,
+    "division": "NOVICE",
+    "specializations": ["general intelligence", "mistralai"]
+  }
+] 

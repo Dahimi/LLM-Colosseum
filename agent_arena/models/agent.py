@@ -45,6 +45,15 @@ class AgentStats(BaseModel):
             return 0.0
         return (self.losses / self.total_matches) * 100
 
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize the object to a JSON-compatible dictionary."""
+        return self.model_dump(mode='json')
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "AgentStats":
+        """Deserialize an object from a dictionary."""
+        return cls.model_validate(data)
+
 
 class AgentProfile(BaseModel):
     """Profile information for an agent."""
@@ -57,6 +66,15 @@ class AgentProfile(BaseModel):
     is_active: bool = Field(default=True, description="Whether agent is currently active")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional agent metadata")
 
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize the object to a JSON-compatible dictionary."""
+        return self.model_dump(mode='json')
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "AgentProfile":
+        """Deserialize an object from a dictionary."""
+        return cls.model_validate(data)
+
 
 class Agent(BaseModel):
     """Main agent class representing a competitor in the arena."""
@@ -66,6 +84,15 @@ class Agent(BaseModel):
     match_history: List[str] = Field(default_factory=list, description="List of match IDs")
     challenge_history: List[str] = Field(default_factory=list, description="List of challenge IDs created")
     division_change_history: List[Dict[str, Any]] = Field(default_factory=list, description="Division promotion/demotion history")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize the object to a JSON-compatible dictionary."""
+        return self.model_dump(mode='json')
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Agent":
+        """Deserialize an object from a dictionary."""
+        return cls.model_validate(data)
     
     def __str__(self) -> str:
         """String representation of the agent."""

@@ -4,16 +4,17 @@ from typing import List, Dict, Optional
 from agent_arena.models.challenge import Challenge
 from agent_arena.models.match import Match, AgentResponse
 from agent_arena.models.evaluation import Evaluation, EvaluationCriteria, JudgeScore
-from agent_arena.core.llm_interface import create_agent_llm, create_structured_llm, EvaluationResponse
+from agent_arena.core.llm_interface import create_system_llm, create_structured_llm, EvaluationResponse
+from agent_arena.models.match import MatchType
 
 
 class LLMJudge:
     """An LLM-based judge that evaluates agent responses."""
     
-    def __init__(self, judge_id: str, model_name: str = "openai/gpt-4.1"):
+    def __init__(self, judge_id: str):
         """Initialize the LLM judge."""
         self.judge_id = judge_id
-        self.llm = create_agent_llm(model_name=model_name)  # Low temp for consistency
+        self.llm = create_system_llm()  # Low temp for consistency
         self.structured_llm = create_structured_llm(self.llm, EvaluationResponse)
     
     def evaluate_match(self, match: Match, challenge: Challenge) -> Evaluation:
@@ -77,7 +78,9 @@ class LLMJudge:
     
     def _create_evaluation_prompt(self, match: Match, challenge: Challenge) -> str:
         """Create a detailed prompt for evaluating agent responses."""
-        
+        if match.match_type == MatchType.DEBATE:
+            return self._create_debate_evaluation_prompt(match, challenge)
+
         agent1_response = match.agent1_response
         agent2_response = match.agent2_response
         
@@ -133,17 +136,48 @@ Provide detailed scores and clear reasoning for your evaluation."""
         
         return prompt
 
+    def _create_debate_evaluation_prompt(self, match: Match, challenge: Challenge) -> str:
+        """Create a prompt for evaluating a debate match."""
+        
+        transcript_text = "\n".join(f"Agent {i%2 + 1} ({res.agent_id}): {res.response_text}" for i, res in enumerate(match.transcript))
+
+        prompt = f"""You are an expert judge in an AI Intelligence Arena. Your job is to evaluate a debate between two AI agents.
+
+**DEBATE TOPIC:**
+Title: {challenge.title}
+Description:
+{challenge.description}
+
+**DEBATE TRANSCRIPT:**
+{transcript_text}
+
+**EVALUATION INSTRUCTIONS:**
+1. Evaluate the entire debate based on the quality of arguments, rebuttals, and overall persuasiveness.
+2. Score each agent on these criteria (0-10 scale):
+   - logical_consistency: Coherence and logical soundness of arguments.
+   - creativity: Originality and depth of thought.
+   - clarity: How clearly and effectively each agent communicated their points.
+   - depth: The level of detail and sophistication in the arguments.
+   - completeness: How well they stayed on topic and addressed the core issues.
+   - correctness: Factual accuracy of claims made.
+3. Provide your overall reasoning for the evaluation, explaining who you thought won the debate and why.
+4. Recommend a winner: 'agent1', 'agent2', or 'draw'.
+5. Rate your confidence in this evaluation (0.0-1.0).
+
+Provide detailed scores and clear reasoning for your evaluation."""
+        return prompt
+
 
 class JudgePanel:
     """A panel of multiple LLM judges for comprehensive evaluation."""
     
-    def __init__(self, judge_count: int = 5, model_name: str = "openai/gpt-4.1"):
+    def __init__(self, judge_count: int = 5):
         """Initialize a panel of judges."""
         self.judges = []
         
         for i in range(judge_count):
-            judge_id = f"judge_{model_name}_{i+1}"
-            judge = LLMJudge(judge_id, model_name)
+            judge_id = f"judge_{i+1}"
+            judge = LLMJudge(judge_id)
             self.judges.append(judge)
     
     def evaluate_match(self, match: Match, challenge: Challenge) -> List[Evaluation]:

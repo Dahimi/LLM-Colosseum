@@ -32,6 +32,7 @@ class MatchType(Enum):
     PROMOTION_MATCH = "promotion_match"
     RELEGATION_MATCH = "relegation_match"
     TOURNAMENT = "tournament"
+    DEBATE = "debate"
 
 
 class AgentResponse(BaseModel):
@@ -43,6 +44,15 @@ class AgentResponse(BaseModel):
     is_structured: bool = Field(default=False, description="Whether response follows structured format")
     structured_data: Optional[Dict[str, Any]] = Field(default=None, description="Parsed structured response")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional response metadata")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize the object to a JSON-compatible dictionary."""
+        return self.model_dump(mode='json')
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "AgentResponse":
+        """Deserialize an object from a dictionary."""
+        return cls.model_validate(data)
 
 
 class Match(BaseModel):
@@ -65,6 +75,7 @@ class Match(BaseModel):
     # Responses
     agent1_response: Optional[AgentResponse] = Field(default=None, description="Agent 1's response")
     agent2_response: Optional[AgentResponse] = Field(default=None, description="Agent 2's response")
+    transcript: List[AgentResponse] = Field(default_factory=list, description="Full transcript of the debate")
     
     # Results
     winner_id: Optional[str] = Field(default=None, description="ID of the winning agent")
@@ -82,6 +93,15 @@ class Match(BaseModel):
     tags: List[str] = Field(default_factory=list, description="Tags for categorization")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional match metadata")
     
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize the object to a JSON-compatible dictionary."""
+        return self.model_dump(mode='json')
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Match":
+        """Deserialize an object from a dictionary."""
+        return cls.model_validate(data)
+
     def __str__(self) -> str:
         """String representation of the match."""
         return f"Match({self.agent1_id} vs {self.agent2_id}, {self.status.value}, {self.match_type.value})"
@@ -103,8 +123,12 @@ class Match(BaseModel):
         else:
             return False
         
-        # Check if both responses are in
-        if self.agent1_response and self.agent2_response:
+        # For debates, add to transcript
+        if self.match_type == MatchType.DEBATE:
+            self.transcript.append(response)
+
+        # Check if both responses are in for non-debate matches
+        if self.match_type != MatchType.DEBATE and self.agent1_response and self.agent2_response:
             self.status = MatchStatus.AWAITING_JUDGMENT
         
         return True
@@ -158,6 +182,10 @@ class Match(BaseModel):
             self.agent2_response is not None
         )
     
+    def is_debate_round_complete(self) -> bool:
+        """Check if both agents have responded in the current debate round."""
+        return len(self.transcript) % 2 == 0
+
     def get_match_duration(self) -> Optional[float]:
         """Get the total match duration in seconds."""
         if self.started_at and self.completed_at:

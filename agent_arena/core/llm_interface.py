@@ -15,24 +15,41 @@ load_dotenv()
 
 # Available OpenRouter models
 AGENT_MODELS = [
-    "anthropic/claude-sonnet-4",
-    "google/gemini-2.5-flash",
+    # Free/Cheap Models
+    "x-ai/grok-3-mini-beta",
     "google/gemini-2.0-flash-001",
-    "anthropic/claude-3.7-sonnet",
-    "anthropic/claude-3.5-sonnet",
-    "meta-llama/llama-3.1-70b-instruct",
-    "openai/gpt-4",
-    "google/gemma-3-27b-it",
-    "qwen/qwen-2.5-72b-instruct",
-    "openai/gpt-4.1",
-    "openai/gpt-4o",
+    "google/gemini-2.0-flash-exp:free",
+    "openai/gpt-4.1-mini",
+    "openai/gpt-4o-mini",
+    "qwen/qwen3-235b-a22b-2507:free",
+    "deepseek/deepseek-r1-distill-llama-70b",
+    "meta-llama/llama-3.1-8b-instruct",
+    "mistralai/mixtral-8x7b-instruct",
+    "meta-llama/llama-3.3-70b-instruct",
+    "mistralai/mistral-small-24b-instruct-2501",
+    "mistralai/mistral-small-3.2-24b-instruct",
+    "mistralai/mistral-nemo",
+    
+    # Premium Models (Commented out)
+    # "anthropic/claude-sonnet-4",
+    # "google/gemini-2.5-flash",
+    # "google/gemini-2.0-flash-001",
+    # "anthropic/claude-3.7-sonnet",
+    # "anthropic/claude-3.5-sonnet",
+    # "meta-llama/llama-3.1-70b-instruct",
+    # "openai/gpt-4",
+    # "google/gemma-3-27b-it",
+    # "qwen/qwen-2.5-72b-instruct",
+    # "openai/gpt-4.1",
+    # "openai/gpt-4o"
 ]
 
 # Models for system tasks (challenges, evaluation)
 SYSTEM_MODELS = [
-    "anthropic/claude-sonnet-4",
-    "google/gemini-2.5-flash",
-    "openai/gpt-4"
+    # Best models for structured output
+    "google/gemini-2.0-flash-001",  # Good structured output support
+    "openai/gpt-4o-mini",           # Mini version but still good at structured tasks
+    "openai/gpt-4.1-mini"           # Another good option for structured output
 ]
 
 def create_agent_llm(model_name: str = None, **kwargs):

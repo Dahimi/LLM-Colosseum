@@ -28,6 +28,15 @@ class JudgeScore(BaseModel):
     reasoning: str = Field(description="Explanation for the score")
     confidence: float = Field(ge=0.0, le=1.0, default=1.0, description="Judge's confidence in this score")
 
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize the object to a JSON-compatible dictionary."""
+        return self.model_dump(mode='json')
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "JudgeScore":
+        """Deserialize an object from a dictionary."""
+        return cls.model_validate(data)
+
 
 class Evaluation(BaseModel):
     """A judge's evaluation of agent responses in a match."""
@@ -62,6 +71,15 @@ class Evaluation(BaseModel):
     judge_specialization_match: float = Field(default=0.0, description="How well judge's specialization matches challenge type")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional evaluation metadata")
     
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize the object to a JSON-compatible dictionary."""
+        return self.model_dump(mode='json')
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Evaluation":
+        """Deserialize an object from a dictionary."""
+        return cls.model_validate(data)
+        
     def __str__(self) -> str:
         """String representation of the evaluation."""
         return f"Evaluation({self.judge_id}, Match: {self.match_id}, Winner: {self.recommended_winner})"

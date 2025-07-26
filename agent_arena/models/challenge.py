@@ -19,6 +19,7 @@ class ChallengeType(Enum):
     LINGUISTIC = "linguistic"
     PATTERN_RECOGNITION = "pattern_recognition"
     ETHICAL_REASONING = "ethical_reasoning"
+    DEBATE = "debate"
 
 
 class ChallengeDifficulty(Enum):
@@ -69,6 +70,15 @@ class Challenge(BaseModel):
     is_active: bool = Field(default=True, description="Whether challenge is currently usable")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional challenge metadata")
     
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize the object to a JSON-compatible dictionary."""
+        return self.model_dump(mode='json')
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Challenge":
+        """Deserialize an object from a dictionary."""
+        return cls.model_validate(data)
+
     def __str__(self) -> str:
         """String representation of the challenge."""
         return f"Challenge({self.title}, {self.challenge_type.value}, Difficulty: {self.difficulty.value})"

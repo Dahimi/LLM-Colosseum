@@ -3,15 +3,15 @@
 import random
 from typing import List, Optional
 from agent_arena.models.challenge import Challenge, ChallengeType, ChallengeDifficulty
-from agent_arena.core.llm_interface import create_agent_llm, create_structured_llm, ChallengeResponse
+from agent_arena.core.llm_interface import create_system_llm, create_structured_llm, ChallengeResponse
 
 
 class ChallengeGenerator:
     """Generates challenges dynamically using LLMs."""
     
-    def __init__(self, model_name: str = "openai/gpt-4.1"):
+    def __init__(self):
         """Initialize the challenge generator with an LLM."""
-        self.llm = create_agent_llm(model_name=model_name)
+        self.llm = create_system_llm()
         self.structured_llm = create_structured_llm(self.llm, ChallengeResponse)
     
     def generate_challenge(
@@ -113,6 +113,11 @@ Requirements: Multiple knowledge domains, integration skills, holistic thinking"
 Focus on: Reasoning about reasoning, strategy evaluation, self-reflection
 Examples: Strategy analysis, cognitive process evaluation, reasoning methodology
 Requirements: Meta-level thinking, process awareness, strategic reasoning""",
+            
+            ChallengeType.DEBATE: """
+Focus on: Argumentation, rebuttal, and synthesis of complex topics. The goal is not to find a "correct" answer, but to see which agent can build a more coherent, persuasive, and well-supported case.
+Examples: "Is consciousness an emergent property or fundamental to the universe?", "Should AI development be open-source or regulated?", "Does free will exist in a deterministic universe?"
+Requirements: A clear, controversial, and debatable resolution. The topic should have sufficient depth for a multi-turn debate. The description should set the stage for the debate, but not take a side."""
         }
         
         # Difficulty-specific guidance
