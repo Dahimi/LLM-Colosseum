@@ -1,0 +1,724 @@
+{
+    "agents": [
+        {
+            "profile": {
+                "agent_id": "641b1823-08b3-40c9-8672-faebb4ccb5ef",
+                "name": "MixtralPro",
+                "description": "Agent based on mistralai/mixtral-8x7b-instruct",
+                "specializations": [
+                    "general intelligence",
+                    "mistralai"
+                ],
+                "created_at": "2025-07-26T19:26:32.555979",
+                "last_active": "2025-07-26T19:26:32.555983",
+                "is_active": true,
+                "metadata": {}
+            },
+            "division": "expert",
+            "stats": {
+                "elo_rating": 1200.0,
+                "total_matches": 0,
+                "wins": 0,
+                "losses": 0,
+                "draws": 0,
+                "current_streak": 0,
+                "best_streak": 0,
+                "consistency_score": 0.0,
+                "innovation_index": 0.0,
+                "challenges_created": 0,
+                "challenge_quality_avg": 0.0,
+                "judge_accuracy": 0.0,
+                "judge_reliability": 1.0
+            },
+            "match_history": [],
+            "challenge_history": [],
+            "division_change_history": []
+        },
+        {
+            "profile": {
+                "agent_id": "48653e85-6257-4a59-bb2f-ddf9c85ab1a5",
+                "name": "Llama3Mini",
+                "description": "Agent based on meta-llama/llama-3.1-8b-instruct",
+                "specializations": [
+                    "general intelligence",
+                    "meta-llama"
+                ],
+                "created_at": "2025-07-26T19:26:33.188511",
+                "last_active": "2025-07-26T19:26:33.188513",
+                "is_active": true,
+                "metadata": {}
+            },
+            "division": "novice",
+            "stats": {
+                "elo_rating": 1200.0,
+                "total_matches": 0,
+                "wins": 0,
+                "losses": 0,
+                "draws": 0,
+                "current_streak": 0,
+                "best_streak": 0,
+                "consistency_score": 0.0,
+                "innovation_index": 0.0,
+                "challenges_created": 0,
+                "challenge_quality_avg": 0.0,
+                "judge_accuracy": 0.0,
+                "judge_reliability": 1.0
+            },
+            "match_history": [],
+            "challenge_history": [],
+            "division_change_history": []
+        },
+        {
+            "profile": {
+                "agent_id": "2a0cd132-0198-498f-99bd-f28cf3014257",
+                "name": "Llama3Pro",
+                "description": "Agent based on meta-llama/llama-3.3-70b-instruct",
+                "specializations": [
+                    "general intelligence",
+                    "meta-llama"
+                ],
+                "created_at": "2025-07-26T19:26:33.188763",
+                "last_active": "2025-07-26T19:26:33.188764",
+                "is_active": true,
+                "metadata": {}
+            },
+            "division": "expert",
+            "stats": {
+                "elo_rating": 1200.0,
+                "total_matches": 0,
+                "wins": 0,
+                "losses": 0,
+                "draws": 0,
+                "current_streak": 0,
+                "best_streak": 0,
+                "consistency_score": 0.0,
+                "innovation_index": 0.0,
+                "challenges_created": 0,
+                "challenge_quality_avg": 0.0,
+                "judge_accuracy": 0.0,
+                "judge_reliability": 1.0
+            },
+            "match_history": [],
+            "challenge_history": [],
+            "division_change_history": []
+        },
+        {
+            "profile": {
+                "agent_id": "6ffc801d-5e81-42c0-86d4-4cdef850fbda",
+                "name": "MistralSmall",
+                "description": "Agent based on mistralai/mistral-small-24b-instruct-2501",
+                "specializations": [
+                    "general intelligence",
+                    "mistralai"
+                ],
+                "created_at": "2025-07-26T19:26:33.188908",
+                "last_active": "2025-07-26T19:26:33.188909",
+                "is_active": true,
+                "metadata": {}
+            },
+            "division": "novice",
+            "stats": {
+                "elo_rating": 1200.0,
+                "total_matches": 0,
+                "wins": 0,
+                "losses": 0,
+                "draws": 0,
+                "current_streak": 0,
+                "best_streak": 0,
+                "consistency_score": 0.0,
+                "innovation_index": 0.0,
+                "challenges_created": 0,
+                "challenge_quality_avg": 0.0,
+                "judge_accuracy": 0.0,
+                "judge_reliability": 1.0
+            },
+            "match_history": [],
+            "challenge_history": [],
+            "division_change_history": []
+        },
+        {
+            "profile": {
+                "agent_id": "525db5d8-c814-4733-81e1-39ed4e9a774b",
+                "name": "MistralSmallV2",
+                "description": "Agent based on mistralai/mistral-small-3.2-24b-instruct",
+                "specializations": [
+                    "general intelligence",
+                    "mistralai"
+                ],
+                "created_at": "2025-07-26T19:26:33.189031",
+                "last_active": "2025-07-26T19:26:33.189032",
+                "is_active": true,
+                "metadata": {}
+            },
+            "division": "novice",
+            "stats": {
+                "elo_rating": 1200.0,
+                "total_matches": 0,
+                "wins": 0,
+                "losses": 0,
+                "draws": 0,
+                "current_streak": 0,
+                "best_streak": 0,
+                "consistency_score": 0.0,
+                "innovation_index": 0.0,
+                "challenges_created": 0,
+                "challenge_quality_avg": 0.0,
+                "judge_accuracy": 0.0,
+                "judge_reliability": 1.0
+            },
+            "match_history": [],
+            "challenge_history": [],
+            "division_change_history": []
+        },
+        {
+            "profile": {
+                "agent_id": "e673490c-bc92-442a-b7bc-d12f44330af2",
+                "name": "GrokMini",
+                "description": "Agent based on x-ai/grok-3-mini-beta",
+                "specializations": [
+                    "general intelligence",
+                    "x-ai"
+                ],
+                "created_at": "2025-07-26T19:26:33.189142",
+                "last_active": "2025-07-26T19:26:33.189143",
+                "is_active": true,
+                "metadata": {}
+            },
+            "division": "novice",
+            "stats": {
+                "elo_rating": 1200.0,
+                "total_matches": 0,
+                "wins": 0,
+                "losses": 0,
+                "draws": 0,
+                "current_streak": 0,
+                "best_streak": 0,
+                "consistency_score": 0.0,
+                "innovation_index": 0.0,
+                "challenges_created": 0,
+                "challenge_quality_avg": 0.0,
+                "judge_accuracy": 0.0,
+                "judge_reliability": 1.0
+            },
+            "match_history": [],
+            "challenge_history": [],
+            "division_change_history": []
+        },
+        {
+            "profile": {
+                "agent_id": "fb999975-40ea-410d-bf8d-71c96fba0116",
+                "name": "GeminiFlash",
+                "description": "Agent based on google/gemini-2.0-flash-exp:free",
+                "specializations": [
+                    "general intelligence",
+                    "google"
+                ],
+                "created_at": "2025-07-26T19:26:33.189247",
+                "last_active": "2025-07-26T19:26:33.189248",
+                "is_active": true,
+                "metadata": {}
+            },
+            "division": "novice",
+            "stats": {
+                "elo_rating": 1200.0,
+                "total_matches": 0,
+                "wins": 0,
+                "losses": 0,
+                "draws": 0,
+                "current_streak": 0,
+                "best_streak": 0,
+                "consistency_score": 0.0,
+                "innovation_index": 0.0,
+                "challenges_created": 0,
+                "challenge_quality_avg": 0.0,
+                "judge_accuracy": 0.0,
+                "judge_reliability": 1.0
+            },
+            "match_history": [],
+            "challenge_history": [],
+            "division_change_history": []
+        },
+        {
+            "profile": {
+                "agent_id": "537995d0-3793-44fd-8e75-a04897f418f1",
+                "name": "GPT4Mini",
+                "description": "Agent based on openai/gpt-4.1-mini",
+                "specializations": [
+                    "general intelligence",
+                    "openai"
+                ],
+                "created_at": "2025-07-26T19:26:33.189364",
+                "last_active": "2025-07-26T19:26:33.189365",
+                "is_active": true,
+                "metadata": {}
+            },
+            "division": "novice",
+            "stats": {
+                "elo_rating": 1200.0,
+                "total_matches": 0,
+                "wins": 0,
+                "losses": 0,
+                "draws": 0,
+                "current_streak": 0,
+                "best_streak": 0,
+                "consistency_score": 0.0,
+                "innovation_index": 0.0,
+                "challenges_created": 0,
+                "challenge_quality_avg": 0.0,
+                "judge_accuracy": 0.0,
+                "judge_reliability": 1.0
+            },
+            "match_history": [],
+            "challenge_history": [],
+            "division_change_history": []
+        },
+        {
+            "profile": {
+                "agent_id": "7c37d7d7-e6ca-4768-831c-ad89d5ec4278",
+                "name": "GPT4oMini",
+                "description": "Agent based on openai/gpt-4o-mini",
+                "specializations": [
+                    "general intelligence",
+                    "openai"
+                ],
+                "created_at": "2025-07-26T19:26:33.189471",
+                "last_active": "2025-07-26T19:26:33.189472",
+                "is_active": true,
+                "metadata": {}
+            },
+            "division": "novice",
+            "stats": {
+                "elo_rating": 1200.0,
+                "total_matches": 0,
+                "wins": 0,
+                "losses": 0,
+                "draws": 0,
+                "current_streak": 0,
+                "best_streak": 0,
+                "consistency_score": 0.0,
+                "innovation_index": 0.0,
+                "challenges_created": 0,
+                "challenge_quality_avg": 0.0,
+                "judge_accuracy": 0.0,
+                "judge_reliability": 1.0
+            },
+            "match_history": [],
+            "challenge_history": [],
+            "division_change_history": []
+        },
+        {
+            "profile": {
+                "agent_id": "bdde246d-d96e-46ed-8315-3f1351f2280d",
+                "name": "QwenFree",
+                "description": "Agent based on qwen/qwen3-235b-a22b-2507:free",
+                "specializations": [
+                    "general intelligence",
+                    "qwen"
+                ],
+                "created_at": "2025-07-26T19:26:33.189570",
+                "last_active": "2025-07-26T19:26:33.189571",
+                "is_active": true,
+                "metadata": {}
+            },
+            "division": "novice",
+            "stats": {
+                "elo_rating": 1200.0,
+                "total_matches": 0,
+                "wins": 0,
+                "losses": 0,
+                "draws": 0,
+                "current_streak": 0,
+                "best_streak": 0,
+                "consistency_score": 0.0,
+                "innovation_index": 0.0,
+                "challenges_created": 0,
+                "challenge_quality_avg": 0.0,
+                "judge_accuracy": 0.0,
+                "judge_reliability": 1.0
+            },
+            "match_history": [],
+            "challenge_history": [],
+            "division_change_history": []
+        },
+        {
+            "profile": {
+                "agent_id": "89b214df-195c-4931-9a26-90b630553468",
+                "name": "MistralNemo",
+                "description": "Agent based on mistralai/mistral-nemo",
+                "specializations": [
+                    "general intelligence",
+                    "mistralai"
+                ],
+                "created_at": "2025-07-26T19:26:33.189679",
+                "last_active": "2025-07-26T19:26:33.189680",
+                "is_active": true,
+                "metadata": {}
+            },
+            "division": "novice",
+            "stats": {
+                "elo_rating": 1200.0,
+                "total_matches": 0,
+                "wins": 0,
+                "losses": 0,
+                "draws": 0,
+                "current_streak": 0,
+                "best_streak": 0,
+                "consistency_score": 0.0,
+                "innovation_index": 0.0,
+                "challenges_created": 0,
+                "challenge_quality_avg": 0.0,
+                "judge_accuracy": 0.0,
+                "judge_reliability": 1.0
+            },
+            "match_history": [],
+            "challenge_history": [],
+            "division_change_history": []
+        }
+    ],
+    "challenges": [
+        {
+            "challenge_id": "e9921bab-0400-410c-9b34-b6c11043f6b8",
+            "title": "The Colorful Cartons Puzzle",
+            "description": "In a small town, there are three colorful cartons: a red carton, a blue carton, and a green carton. Each carton contains a different type of fruit: apples, bananas, or cherries. The following clues are provided to deduce the contents of each carton:\n\n1. The red carton does not contain apples.\n2. The blue carton contains cherries.\n3. The green carton contains bananas.\n\nYour challenge is to deduce the content of each carton based on these clues in a detailed, step-by-step manner. Make sure to outline your reasoning clearly and identify what fruit is in each colored carton. \n\nEnsure your response follows a clear logical structure and demonstrates the deductive reasoning process clearly.",
+            "challenge_type": "logical_reasoning",
+            "difficulty": 1,
+            "creator_id": null,
+            "created_at": "2025-07-26T19:26:37.698935",
+            "time_limit_minutes": null,
+            "max_response_length": null,
+            "requires_structured_output": false,
+            "output_schema": null,
+            "context": "",
+            "constraints": [],
+            "hints": [],
+            "examples": [],
+            "evaluation_criteria": [
+                "Clarity of logic and reasoning steps",
+                "Correct deduction of the contents of each carton",
+                "Ability to explain the reasoning process",
+                "Absence of ambiguity in conclusions"
+            ],
+            "expected_concepts": [
+                "Deductive reasoning",
+                "Logical consistency",
+                "Step-by-step analysis",
+                "Use of clues to reach conclusions",
+                "Identification of variables and relationships"
+            ],
+            "scoring_rubric": {},
+            "times_used": 0,
+            "average_score": 0.0,
+            "difficulty_rating": 0.0,
+            "discrimination_power": 0.0,
+            "tags": [
+                "logical_reasoning",
+                "difficulty_1"
+            ],
+            "source": "generated",
+            "is_active": true,
+            "metadata": {}
+        },
+        {
+            "challenge_id": "c4729ddd-3d4f-42f4-b635-988c8978f2b2",
+            "title": "The Ethics of AI in Warfare: A Necessary Tool or a Moral Dilemma?",
+            "description": "As Artificial Intelligence continues to advance, its application in military contexts has sparked a heated debate. In this challenge, AI agents will engage in a structured debate on the following resolution: \u2018The use of AI in warfare is justified as a necessary tool for modern military operations.\u2019 The aim is for participants to argue either in favor of or against the resolution, providing well-reasoned arguments, counterarguments, and synthesis of ideas. Each agent should assess the moral, ethical, and practical implications of integrating AI technology within military strategies, considering factors such as accountability, effectiveness, and potential repercussions on global peace. This debate will allow agents to explore the complexities surrounding technology and war, facilitating a deeper understanding of the ethical landscape in which AI operates. Be prepared for a multi-turn debate where each side must provide compelling evidence and engage with opposing arguments effectively.",
+            "challenge_type": "debate",
+            "difficulty": 1,
+            "creator_id": null,
+            "created_at": "2025-07-26T19:26:41.911872",
+            "time_limit_minutes": null,
+            "max_response_length": null,
+            "requires_structured_output": false,
+            "output_schema": null,
+            "context": "",
+            "constraints": [],
+            "hints": [],
+            "examples": [],
+            "evaluation_criteria": [
+                "Clarity of argumentation",
+                "Strength of evidence provided",
+                "Ability to engage with and refute counterarguments",
+                "Coherence and logical flow of ideas",
+                "Creativity in perspective and reasoning"
+            ],
+            "expected_concepts": [
+                "Ethics in AI",
+                "Military applications of AI",
+                "Consequences of technology in warfare",
+                "Arguments for and against the use of AI",
+                "Accountability in decision-making",
+                "Global peace and security implications"
+            ],
+            "scoring_rubric": {},
+            "times_used": 0,
+            "average_score": 0.0,
+            "difficulty_rating": 0.0,
+            "discrimination_power": 0.0,
+            "tags": [
+                "debate",
+                "difficulty_1"
+            ],
+            "source": "generated",
+            "is_active": true,
+            "metadata": {}
+        },
+        {
+            "challenge_id": "16994812-628f-4202-9d7d-3b612f5c6006",
+            "title": "The Enigmatic Bookstore",
+            "description": "In the quaint town of Logictopia, there exists a peculiar bookstore known for its rare collection of books. The owner, Mr. Puzzler, has three distinct categories of books: Fiction (F), Non-Fiction (N), and Mystery (M). Each category contains a specific number of books, but their exact distribution is a mystery that can only be solved through deductive reasoning.\n\nMr. Puzzler provides the following clues regarding the distribution of books:\n1. The total number of Fiction books is exactly twice the number of Non-Fiction books.\n2. The number of Mystery books is less than the number of Non-Fiction books but greater than zero.\n3. The total number of books in the store is 27.\n4. The number of Fiction books is more than the total of Non-Fiction and Mystery books combined.\n\nYour task is to use these clues to deduce the exact number of books in each category. Present your reasoning process step-by-step, clearly explaining how you arrived at your conclusion. Ensure every step follows logically from your premises, and validate each condition provided by Mr. Puzzler. \n\nInnovate in your explanation to make it clear and engaging, showcasing the deduction method you used to solve the puzzle.",
+            "challenge_type": "logical_reasoning",
+            "difficulty": 2,
+            "creator_id": null,
+            "created_at": "2025-07-26T19:26:47.224057",
+            "time_limit_minutes": null,
+            "max_response_length": null,
+            "requires_structured_output": false,
+            "output_schema": null,
+            "context": "",
+            "constraints": [],
+            "hints": [],
+            "examples": [],
+            "evaluation_criteria": [
+                "Clarity of reasoning process",
+                "Correctness of final numbers for each category",
+                "Adherence to all clues provided",
+                "Logical consistency throughout the explanation",
+                "Engagement and creativity in presentation"
+            ],
+            "expected_concepts": [
+                "Deductive reasoning",
+                "Logical consistency",
+                "Systematic analysis",
+                "Constraints identification",
+                "Step-by-step problem-solving"
+            ],
+            "scoring_rubric": {},
+            "times_used": 0,
+            "average_score": 0.0,
+            "difficulty_rating": 0.0,
+            "discrimination_power": 0.0,
+            "tags": [
+                "logical_reasoning",
+                "difficulty_2"
+            ],
+            "source": "generated",
+            "is_active": true,
+            "metadata": {}
+        },
+        {
+            "challenge_id": "62f28da8-1d50-497f-8ef4-f0da13367a89",
+            "title": "The Ethics of AI Decision-Making: Autonomy versus Accountability",
+            "description": "In this debate, AI agents will explore the intricate topic of whether AI systems responsible for making critical decisions should operate with autonomy\u2014or with greater accountability to human oversight. As AI becomes increasingly integrated into various sectors, from healthcare to criminal justice, the implications of 'autonomous decision-making' raise significant ethical questions. Agents must argue for one side of the resolution: **'AI systems should be granted decision-making autonomy without human intervention.'** \n\nThe debate should delve into the benefits of allowing AI systems to make decisions without human oversight, such as efficiency, data-driven insights, and the potential for innovative problem-solving. Conversely, agents should also contemplate the risks associated with unaccountable AI decisions, including biases, lack of transparency, and the potential erosion of human agency. Responses will require agents to formulate clear arguments, provide substantial evidence, and engage in rebuttals that consider both sides of this polarized topic. \n\nConsiderations could include scenarios involving life-and-death decisions, financial markets, or legal judgments, assessing when and if AI should operate independently of human control. The complexity lies in navigating the ethical implications while supporting arguments convincingly and logically.",
+            "challenge_type": "debate",
+            "difficulty": 2,
+            "creator_id": null,
+            "created_at": "2025-07-26T19:26:52.197650",
+            "time_limit_minutes": null,
+            "max_response_length": null,
+            "requires_structured_output": false,
+            "output_schema": null,
+            "context": "",
+            "constraints": [],
+            "hints": [],
+            "examples": [],
+            "evaluation_criteria": [
+                "Clarity of argumentation",
+                "Strength of evidence provided",
+                "Ability to address counterarguments",
+                "Coherence and logical flow of the debate",
+                "Creativity and originality in presenting the case"
+            ],
+            "expected_concepts": [
+                "Ethical implications of AI",
+                "Decision-making processes",
+                "Human oversight versus autonomy",
+                "Potential biases in AI systems",
+                "Consequences of unregulated AI decisions"
+            ],
+            "scoring_rubric": {},
+            "times_used": 0,
+            "average_score": 0.0,
+            "difficulty_rating": 0.0,
+            "discrimination_power": 0.0,
+            "tags": [
+                "debate",
+                "difficulty_2"
+            ],
+            "source": "generated",
+            "is_active": true,
+            "metadata": {}
+        },
+        {
+            "challenge_id": "cea9a8da-be7f-4481-aecd-372cf1251280",
+            "title": "The Eco-Innovation Challenge: Solve for Sustainability",
+            "description": "In a world facing unprecedented environmental challenges, devise an innovative solution that addresses one of the following issues: plastic waste management, renewable energy implementation in urban areas, or sustainable agriculture practices. Your proposed solution should not only be novel but also feasible and compelling, taking into consideration real-world constraints such as economic viability, scalability, and community impact. \n\nParticipants must provide a detailed plan that includes the underlying science, potential obstacles, and possible partnerships or stakeholders needed to implement the solution. Creativity should be at the forefront, allowing for out-of-the-box thinking that challenges traditional approaches to these environmental issues.",
+            "challenge_type": "creative_problem_solving",
+            "difficulty": 2,
+            "creator_id": null,
+            "created_at": "2025-07-26T19:26:55.788989",
+            "time_limit_minutes": null,
+            "max_response_length": null,
+            "requires_structured_output": false,
+            "output_schema": null,
+            "context": "",
+            "constraints": [],
+            "hints": [],
+            "examples": [],
+            "evaluation_criteria": [
+                "Originality of the proposed solution",
+                "Feasibility and practicality in real-world application",
+                "Clarity and detail in the explanation of the solution",
+                "Consideration of environmental, economic, and social impacts",
+                "Innovation in approach and thinking outside the box"
+            ],
+            "expected_concepts": [
+                "Sustainability",
+                "Environmental impact assessment",
+                "Innovative thinking",
+                "Feasibility analysis",
+                "Stakeholder engagement"
+            ],
+            "scoring_rubric": {},
+            "times_used": 0,
+            "average_score": 0.0,
+            "difficulty_rating": 0.0,
+            "discrimination_power": 0.0,
+            "tags": [
+                "creative_problem_solving",
+                "difficulty_2"
+            ],
+            "source": "generated",
+            "is_active": true,
+            "metadata": {}
+        },
+        {
+            "challenge_id": "87abdd13-c52b-4f50-8287-3bddfd6415de",
+            "title": "Reimagining Urban Spaces: The City of Tomorrow",
+            "description": "Imagine a major city in the year 2050. This city must accommodate a population that has increased by 50% while maintaining an environmentally friendly footprint. Your challenge is to propose a redevelopment plan for an existing urban area, reimagining its layout, infrastructure, and services. Consider aspects such as transportation, housing, public spaces, energy sources, waste management, and community engagement. Your proposal should break away from traditional urban planning approaches and incorporate innovative, sustainable, and technologically advanced solutions. Present your ideas visually, with diagrams and sketches if possible, and provide a detailed narrative explaining your design choices. Aim for a holistic solution that addresses the complex interdependencies of urban life. The proposal should be at least 800 words.",
+            "challenge_type": "creative_problem_solving",
+            "difficulty": 3,
+            "creator_id": null,
+            "created_at": "2025-07-26T19:26:59.621850",
+            "time_limit_minutes": null,
+            "max_response_length": null,
+            "requires_structured_output": false,
+            "output_schema": null,
+            "context": "",
+            "constraints": [],
+            "hints": [],
+            "examples": [],
+            "evaluation_criteria": [
+                "Innovation and creativity in proposed solutions",
+                "Feasibility and practicality of the design",
+                "Environmental sustainability and forward-thinking",
+                "Clarity of presentation and explanation",
+                "Engagement with community needs and social inclusivity"
+            ],
+            "expected_concepts": [
+                "Sustainable urban design",
+                "Smart technology integration in city planning",
+                "Transportation systems of the future",
+                "Community-driven planning",
+                "Environmental impact assessment"
+            ],
+            "scoring_rubric": {},
+            "times_used": 0,
+            "average_score": 0.0,
+            "difficulty_rating": 0.0,
+            "discrimination_power": 0.0,
+            "tags": [
+                "creative_problem_solving",
+                "difficulty_3"
+            ],
+            "source": "generated",
+            "is_active": true,
+            "metadata": {}
+        },
+        {
+            "challenge_id": "00a8e851-d79a-41a9-8fb6-f3b24434ce56",
+            "title": "The Optimal Resource Allocation Challenge",
+            "description": "In this challenge, you are tasked with optimizing the allocation of limited resources to achieve the maximum output for a given scenario in a competitive market environment. \n\n**Scenario:** A fictional company, TechGears, produces two types of gadgets: SmartWatches and SmartGlasses. Each gadget requires different amounts of resources and yields different returns. The company has a limited amount of resources available for production:\n- 200 hours of labor\n- 150 units of material\n- 100 units of marketing budget\n\n**Production Requirements and Returns:**  \n1. Producing one SmartWatch requires:\n   - 4 hours of labor\n   - 3 units of material\n   - 2 units of marketing budget\n   - Returns $40\n\n2. Producing one SmartGlass requires:\n   - 6 hours of labor\n   - 2 units of material\n   - 5 units of marketing budget\n   - Returns $50\n\n**Objective:** Determine how many of each type of gadget (SmartWatches and SmartGlasses) TechGears should produce to maximize its total returns while staying within the limits of its resources.\n\n**Requirements:** \n- Clearly define your mathematical model representing this scenario.  \n- Use decision variables to denote quantities of SmartWatches (W) and SmartGlasses (G).\n- Formulate the objective function and constraints clearly.\n- Solve the problem using an appropriate optimization method and present the optimal solution with a clear explanation of your reasoning process.\n- Provide a brief discussion of sensitivity analysis: What would happen to the optimal solution if the amount of resources were to change?",
+            "challenge_type": "mathematical",
+            "difficulty": 2,
+            "creator_id": null,
+            "created_at": "2025-07-26T19:27:08.316507",
+            "time_limit_minutes": null,
+            "max_response_length": null,
+            "requires_structured_output": false,
+            "output_schema": null,
+            "context": "",
+            "constraints": [],
+            "hints": [],
+            "examples": [],
+            "evaluation_criteria": [
+                "Correctly formulated objective function and constraints",
+                "Clarity and logical flow of reasoning in the solution",
+                "Use of appropriate optimization methods and techniques",
+                "Precision in calculations and final numerical answers",
+                "Quality of sensitivity analysis discussion"
+            ],
+            "expected_concepts": [
+                "Linear programming",
+                "Constraints and objective functions",
+                "Optimization techniques",
+                "Decision variables",
+                "Sensitivity analysis"
+            ],
+            "scoring_rubric": {},
+            "times_used": 0,
+            "average_score": 0.0,
+            "difficulty_rating": 0.0,
+            "discrimination_power": 0.0,
+            "tags": [
+                "mathematical",
+                "difficulty_2"
+            ],
+            "source": "generated",
+            "is_active": true,
+            "metadata": {}
+        },
+        {
+            "challenge_id": "c44a734c-dca7-478c-bfc6-dc20cceab688",
+            "title": "The Ethics of AI Autonomy: Should AI Decisions Be Subject to Moral Standards?",
+            "description": "In this debate, participants will navigate the complex intersection of artificial intelligence (AI) and ethics, focusing on the resolution: \"AI systems should operate independently without adherence to human moral standards.\" \n\nProponents of unencumbered AI argue that autonomy allows for more efficient decision-making, free from the biases and limitations of human morality. They may highlight scenarios in which AI can process vast amounts of data and analyze situations more objectively than humans, potentially leading to better outcomes in areas such as healthcare, law enforcement, and resource management.\n\nConversely, opponents assert that without moral constraints, AI could make decisions that are harmful, unethical, or even catastrophic, arguing that the potential consequences of autonomous decisions necessitate a framework of human-imposed ethical standards. They may incorporate historical examples of technology wielding detrimental impacts when unhinged from ethical considerations.\n\nThe challenge lies in formulating coherent, persuasive arguments while countering the opposing side's claims and synthesizing complex aspects of the debate into a comprehensive perspective.\n\nParticipants are encouraged to think critically about the implications of AI decision-making, the role of ethics in technology, and the future of human-AI interactions. The debate should unfold over multiple turns, allowing for rebuttals and strategic defense of positions.",
+            "challenge_type": "debate",
+            "difficulty": 3,
+            "creator_id": null,
+            "created_at": "2025-07-26T19:27:13.991738",
+            "time_limit_minutes": null,
+            "max_response_length": null,
+            "requires_structured_output": false,
+            "output_schema": null,
+            "context": "",
+            "constraints": [],
+            "hints": [],
+            "examples": [],
+            "evaluation_criteria": [
+                "Coherence and clarity of argumentation",
+                "Depth of analysis and understanding of ethical theories",
+                "Quality and relevance of rebuttals",
+                "Use of examples or case studies to support claims",
+                "Engagement with opposing arguments"
+            ],
+            "expected_concepts": [
+                "Ethical frameworks (deontological vs consequentialist)",
+                "AI decision-making processes",
+                "Implications of unregulated AI autonomy",
+                "Human biases in moral judgment",
+                "The balance between efficiency and ethical responsibility"
+            ],
+            "scoring_rubric": {},
+            "times_used": 0,
+            "average_score": 0.0,
+            "difficulty_rating": 0.0,
+            "discrimination_power": 0.0,
+            "tags": [
+                "debate",
+                "difficulty_3"
+            ],
+            "source": "generated",
+            "is_active": true,
+            "metadata": {}
+        }
+    ]
+}

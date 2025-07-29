@@ -1,0 +1,104 @@
+import { Agent, Division } from '@/types/arena';
+import { Match, MatchStatus, ChallengeType } from '@/types/matches';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+function transformAgent(rawAgent: any): Agent {
+  return {
+    profile: {
+      agent_id: rawAgent.profile.name,  // Use name as ID
+      name: rawAgent.profile.name,
+      description: rawAgent.profile.description || `Agent based on ${rawAgent.profile.name}`,
+      specializations: rawAgent.profile.specializations || []
+    },
+    division: rawAgent.division as Division,
+    stats: {
+      total_matches: rawAgent.stats?.total_matches || 0,
+      wins: rawAgent.stats?.wins || 0,
+      losses: rawAgent.stats?.losses || 0,
+      draws: rawAgent.stats?.draws || 0,
+      elo_rating: rawAgent.stats?.elo_rating || 1000,
+      current_streak: rawAgent.stats?.current_streak || 0,
+      best_streak: rawAgent.stats?.best_streak || 0
+    }
+  };
+}
+
+export function transformMatch(match: any): Match {
+  return {
+    ...match,
+    match_type: match.match_type?.toUpperCase() || 'REGULAR_DUEL',
+    status: match.status?.toUpperCase() || 'PENDING',
+    challenge: {
+      ...match.challenge,
+      type: match.challenge?.type?.toUpperCase() || 'UNKNOWN',
+    },
+    transcript: match.transcript || [],
+    start_time: match.started_at || match.start_time || new Date().toISOString(),
+    end_time: match.completed_at || match.end_time,
+  };
+}
+
+export async function fetchAgents(): Promise<Agent[]> {
+  const response = await fetch(`${API_BASE_URL}/agents`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch agents');
+  }
+  const data = await response.json();
+  return data.map(transformAgent);
+}
+
+export async function fetchAgent(agentId: string): Promise<Agent> {
+  const response = await fetch(`${API_BASE_URL}/agents/${agentId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch agent');
+  }
+  const data = await response.json();
+  return transformAgent(data);
+}
+
+export async function fetchMatches(): Promise<Match[]> {
+  const response = await fetch(`${API_BASE_URL}/matches`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch matches');
+  }
+  const data = await response.json();
+  console.log('Raw matches data:', data);
+  return data.map(transformMatch);
+}
+
+export async function fetchMatch(matchId: string): Promise<Match> {
+  const response = await fetch(`${API_BASE_URL}/matches/${matchId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch match');
+  }
+  const data = await response.json();
+  return transformMatch(data);
+}
+
+export async function fetchLiveMatches(): Promise<Match[]> {
+  const response = await fetch(`${API_BASE_URL}/matches/live`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch live matches');
+  }
+  const data = await response.json();
+  console.log('Raw live matches data:', data);
+  return data.map(transformMatch);
+}
+
+export async function startTournament(numRounds: number = 1): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/tournament/start?num_rounds=${numRounds}`, {
+    method: 'POST'
+  });
+  if (!response.ok) {
+    throw new Error('Failed to start tournament');
+  }
+}
+
+export async function fetchTournamentStatus(): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/tournament/status`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch tournament status');
+  }
+  return response.json();
+}

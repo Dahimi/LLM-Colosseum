@@ -3,14 +3,17 @@ import json
 import os
 import random
 import time
+import asyncio
 from typing import List, Dict, Optional, Tuple
+import threading
 
 from agent_arena.models.agent import Agent, AgentProfile, Division
 from agent_arena.models.challenge import Challenge, ChallengeType, ChallengeDifficulty
-from agent_arena.models.match import Match, MatchType, AgentResponse
+from agent_arena.models.match import Match, MatchType, AgentResponse, MatchStatus
 from agent_arena.core.llm_interface import create_agent_llm, get_content, create_system_llm
 from agent_arena.core.challenge_generator import ChallengeGenerator
 from agent_arena.core.judge_system import evaluate_match_with_llm_judges
+from agent_arena.core.match_store import MatchStore
 from agent_arena.utils.logging import arena_logger, get_logger
 
 logger = get_logger(__name__)
@@ -23,7 +26,72 @@ class Arena:
         self.agents: List[Agent] = []
         self.challenges: List[Challenge] = []
         self.agent_llms: Dict[str, any] = {}
+        # Initialize match store with a file in the same directory as state_file
+        match_store_file = os.path.join(os.path.dirname(state_file), "matches.json")
+        self.match_store = MatchStore(match_store_file)
+        self._state_lock = threading.Lock()  # Add lock for thread safety
         self.load_state()
+
+    def start_match_async(self, agent1: Agent, agent2: Agent, challenge: Challenge) -> Match:
+        """Start a match asynchronously and return immediately."""
+        match = Match(
+            match_type=MatchType.DEBATE if challenge.challenge_type == ChallengeType.DEBATE else MatchType.REGULAR_DUEL,
+            challenge_id=challenge.challenge_id,
+            agent1_id=agent1.profile.name,  # Use name instead of UUID
+            agent2_id=agent2.profile.name,  # Use name instead of UUID
+            division=agent1.division.value
+        )
+        match.start_match()
+        self.match_store.add_match(match)
+
+        # Run the match in a background thread
+        def run_match():
+            try:
+                if challenge.challenge_type == ChallengeType.DEBATE:
+                    self.simulate_debate_match(agent1, agent2, challenge)
+                else:
+                    self.simulate_realistic_match(agent1, agent2, challenge)
+            except Exception as e:
+                logger.error(f"Error in background match: {e}")
+                # In case of error, mark the match as cancelled
+                match.status = MatchStatus.CANCELLED
+                self.match_store.update_match(match)
+
+        thread = threading.Thread(target=run_match)
+        thread.daemon = True  # Make thread daemon so it doesn't block program exit
+        thread.start()
+
+        return match
+
+    def start_quick_match(self, division: str) -> Match:
+        """Start a quick match between random agents in a division."""
+        # Get agents in the division
+        division_agents = [
+            agent for agent in self.agents 
+            if agent.division.value.lower() == division.lower()
+        ]
+        
+        if len(division_agents) < 2:
+            raise ValueError(f"Not enough agents in {division} division")
+        
+        # Select random agents and challenge
+        agent1, agent2 = random.sample(division_agents, 2)
+        
+        # Select appropriate challenge
+        if division.lower() == Division.NOVICE.value:
+            appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 2]
+        elif division.lower() == Division.EXPERT.value:
+            appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 3]
+        else:
+            appropriate_challenges = [c for c in self.challenges if c.difficulty.value >= 3]
+        
+        if not appropriate_challenges:
+            appropriate_challenges = self.challenges
+        
+        challenge = random.choice(appropriate_challenges)
+        
+        # Start match asynchronously
+        return self.start_match_async(agent1, agent2, challenge)
 
     def load_agents_from_config(self):
         """Loads agents from the configuration file."""
@@ -60,16 +128,26 @@ class Arena:
 
     def save_state(self):
         """Saves the current state of the arena to a file."""
-        state = {
-            "agents": [agent.to_dict() for agent in self.agents],
-            "challenges": [challenge.to_dict() for challenge in self.challenges]
-        }
-        try:
-            with open(self.state_file, 'w') as f:
-                json.dump(state, f, indent=4)
-            logger.info(f"Arena state saved to {self.state_file}")
-        except Exception as e:
-            logger.error(f"Error saving arena state: {e}")
+        with self._state_lock:  # Use lock when saving state
+            state = {
+                "agents": [agent.to_dict() for agent in self.agents],
+                "challenges": [challenge.to_dict() for challenge in self.challenges]
+            }
+            try:
+                # First write to a temporary file
+                temp_file = self.state_file + '.tmp'
+                with open(temp_file, 'w') as f:
+                    json.dump(state, f, indent=4)
+                # Then atomically rename it
+                os.replace(temp_file, self.state_file)
+                logger.info(f"Arena state saved to {self.state_file}")
+                # Debug log agent stats
+                for agent in self.agents:
+                    logger.info(f"Agent {agent.profile.name}: ELO={agent.stats.elo_rating:.0f}, W/L/D={agent.stats.wins}/{agent.stats.losses}/{agent.stats.draws}")
+            except Exception as e:
+                logger.error(f"Error saving arena state: {e}")
+                logger.error(f"Current agents: {[str(a) for a in self.agents]}")
+                raise  # Re-raise to see the full error
 
     def load_state(self):
         """Loads the arena state from a file, or initializes a new state."""
@@ -84,6 +162,9 @@ class Arena:
                 self.recreate_llm_clients()
 
                 logger.info(f"Arena state loaded from {self.state_file}")
+                # Debug log loaded agent stats
+                for agent in self.agents:
+                    logger.info(f"Loaded agent {agent.profile.name}: ELO={agent.stats.elo_rating:.0f}, W/L/D={agent.stats.wins}/{agent.stats.losses}/{agent.stats.draws}")
             except Exception as e:
                 logger.error(f"Error loading state from {self.state_file}, creating new state. Error: {e}")
                 self.initialize_new_state()
@@ -121,14 +202,19 @@ class Arena:
     def simulate_realistic_match(self, agent1: Agent, agent2: Agent, challenge: Challenge) -> Tuple[Optional[str], Dict[str, float]]:
         """Simulate a complete match with real LLM responses and evaluation."""
         try:
-            match = Match(
-                match_type=MatchType.REGULAR_DUEL,
-                challenge_id=challenge.challenge_id,
-                agent1_id=agent1.profile.agent_id,
-                agent2_id=agent2.profile.agent_id,
-                division=agent1.division.value
+            # Find the existing match for these agents and challenge
+            match = next(
+                (m for m in self.match_store.get_live_matches()
+                 if m.agent1_id == agent1.profile.name
+                 and m.agent2_id == agent2.profile.name
+                 and m.challenge_id == challenge.challenge_id),
+                None
             )
-            match.start_match()
+            
+            if not match:
+                print(f"      ❌ No active match found for {agent1.profile.name} vs {agent2.profile.name}")
+                return None, {}
+
             prompt = challenge.get_prompt()
 
             print(f"      🤖 Getting real LLM responses...")
@@ -144,11 +230,12 @@ class Arena:
             response2_text = get_content(response2_obj)
             response2_time = time.time() - start_time
 
-            response1 = AgentResponse(agent_id=agent1.profile.agent_id, response_text=response1_text, response_time=response1_time)
-            response2 = AgentResponse(agent_id=agent2.profile.agent_id, response_text=response2_text, response_time=response2_time)
+            response1 = AgentResponse(agent_id=agent1.profile.name, response_text=response1_text, response_time=response1_time)
+            response2 = AgentResponse(agent_id=agent2.profile.name, response_text=response2_text, response_time=response2_time)
 
-            match.submit_response(agent1.profile.agent_id, response1)
-            match.submit_response(agent2.profile.agent_id, response2)
+            match.submit_response(agent1.profile.name, response1)
+            match.submit_response(agent2.profile.name, response2)
+            self.match_store.update_match(match)  # Update match in store
 
             print(f"      ⚖️  Evaluating with real LLM judges...")
             evaluation_result = evaluate_match_with_llm_judges(match, challenge, judge_count=2)
@@ -158,36 +245,54 @@ class Arena:
             final_score_agent2 = evaluation_result.get("agent2_avg", 5.0)
 
             if winner_agent_num == "agent1":
-                winner_id = agent1.profile.agent_id
+                winner_id = agent1.profile.name
             elif winner_agent_num == "agent2":
-                winner_id = agent2.profile.agent_id
+                winner_id = agent2.profile.name
             else:
                 winner_id = None
 
             scores = {
-                agent1.profile.agent_id: final_score_agent1,
-                agent2.profile.agent_id: final_score_agent2
+                agent1.profile.name: final_score_agent1,
+                agent2.profile.name: final_score_agent2
             }
+
+            # Update match with results
+            match.complete_match(winner_id, scores)
+            self.match_store.update_match(match)
+
+            # Update agent stats with match ID
+            print("update_agent_stats_and_elo realistic match")
+            self.update_agent_stats_and_elo(agent1, agent2, winner_id, scores, match_id=match.match_id)
+
             return winner_id, scores
         except Exception as e:
             print(f"      ❌ Match simulation failed: {e}")
-            winner_id = random.choice([agent1.profile.agent_id, agent2.profile.agent_id])
-            return winner_id, {agent1.profile.agent_id: 6.0, agent2.profile.agent_id: 5.5}
+            winner_id = random.choice([agent1.profile.name, agent2.profile.name])
+            scores = {agent1.profile.name: 6.0, agent2.profile.name: 5.5}
+            match.complete_match(winner_id, scores)
+            self.match_store.update_match(match)
+            # Update agent stats even on failure
+            self.update_agent_stats_and_elo(agent1, agent2, winner_id, scores, match_id=match.match_id)
+            return winner_id, scores
 
-    def simulate_debate_match(self, agent1: Agent, agent2: Agent, challenge: Challenge, num_turns: int = 10) -> Tuple[Optional[str], Dict[str, float]]:
+    def simulate_debate_match(self, agent1: Agent, agent2: Agent, challenge: Challenge, num_turns: int = 1) -> Tuple[Optional[str], Dict[str, float]]:
         """Simulate a complete debate match."""
         stances = ["for", "against"]
         random.shuffle(stances)
         agent1_stance, agent2_stance = stances
 
-        match = Match(
-            match_type=MatchType.DEBATE,
-            challenge_id=challenge.challenge_id,
-            agent1_id=agent1.profile.agent_id,
-            agent2_id=agent2.profile.agent_id,
-            division=agent1.division.value
+        # Find the existing match for these agents and challenge
+        match = next(
+            (m for m in self.match_store.get_live_matches()
+             if m.agent1_id == agent1.profile.name
+             and m.agent2_id == agent2.profile.name
+             and m.challenge_id == challenge.challenge_id),
+            None
         )
-        match.start_match()
+        
+        if not match:
+            print(f"      ❌ No active match found for {agent1.profile.name} vs {agent2.profile.name}")
+            return None, {}
 
         print(f"      Debate Topic: {challenge.title}")
         print(f"      {agent1.profile.name} will argue: {agent1_stance.upper()}")
@@ -220,73 +325,87 @@ class Arena:
             except Exception as e:
                 print(f"      ❌ Error getting response from {agent_to_respond.profile.name}: {e}")
                 print(f"      {opponent_agent.profile.name} wins by default as their opponent failed to respond.")
-                winner_id = opponent_agent.profile.agent_id
+                winner_id = opponent_agent.profile.name
                 scores = {
-                    opponent_agent.profile.agent_id: 8.0,
-                    agent_to_respond.profile.agent_id: 2.0,
+                    opponent_agent.profile.name: 8.0,
+                    agent_to_respond.profile.name: 2.0,
                 }
+                match.complete_match(winner_id, scores)
+                self.match_store.update_match(match)
                 return winner_id, scores
 
             current_transcript.append({"agent_name": agent_to_respond.profile.name, "response_text": response_text})
             
             response = AgentResponse(
-                agent_id=agent_to_respond.profile.agent_id,
+                agent_id=agent_to_respond.profile.name,
                 response_text=response_text,
                 response_time=0  # Not timing turns for now
             )
             match.transcript.append(response)
-            with open("transcript.txt", "w", encoding="utf-8") as f:
-                f.write(prompt)
+            self.match_store.update_match(match)  # Update match in store
 
         print(f"      ⚖️  Evaluating debate with real LLM judges...")
         evaluation_result = evaluate_match_with_llm_judges(match, challenge, judge_count=2)
         winner_agent_num = evaluation_result.get("winner")
         if winner_agent_num == "agent1":
-            winner_id = agent1.profile.agent_id
+            winner_id = agent1.profile.name
         elif winner_agent_num == "agent2":
-            winner_id = agent2.profile.agent_id
+            winner_id = agent2.profile.name
         else:
             winner_id = None
         
         scores = {
-            agent1.profile.agent_id: evaluation_result.get("agent1_avg", 5.0),
-            agent2.profile.agent_id: evaluation_result.get("agent2_avg", 5.0)
+            agent1.profile.name: evaluation_result.get("agent1_avg", 5.0),
+            agent2.profile.name: evaluation_result.get("agent2_avg", 5.0)
         }
+
+        match.complete_match(winner_id, scores)
+        self.match_store.update_match(match)
+        print("update_agent_stats_and_elo debate match")
+        self.update_agent_stats_and_elo(agent1, agent2, winner_id, scores, match_id=match.match_id)
         return winner_id, scores
 
-    def update_agent_stats_and_elo(self, agent1: Agent, agent2: Agent, winner_id: Optional[str], scores: Dict[str, float]):
+    def update_agent_stats_and_elo(self, agent1: Agent, agent2: Agent, winner_id: Optional[str], scores: Dict[str, float], match_id: str):
         """Update agent statistics and ELO ratings after a match."""
-        agent1.stats.total_matches += 1
-        agent2.stats.total_matches += 1
-        k_factor = 32
-        agent1_elo = agent1.stats.elo_rating
-        agent2_elo = agent2.stats.elo_rating
-        expected1 = 1 / (1 + 10 ** ((agent2_elo - agent1_elo) / 400))
-        expected2 = 1 / (1 + 10 ** ((agent1_elo - agent2_elo) / 400))
+        with self._state_lock:  # Use lock when updating agent stats
+            # Add match to both agents' history
+            agent1.add_match(match_id)
+            agent2.add_match(match_id)
 
-        if winner_id == agent1.profile.agent_id:
-            actual1, actual2 = 1, 0
-            agent1.stats.wins += 1
-            agent2.stats.losses += 1
-            agent1.stats.current_streak = max(1, agent1.stats.current_streak + 1)
-            agent2.stats.current_streak = min(-1, agent2.stats.current_streak - 1)
-        elif winner_id == agent2.profile.agent_id:
-            actual1, actual2 = 0, 1
-            agent2.stats.wins += 1
-            agent1.stats.losses += 1
-            agent2.stats.current_streak = max(1, agent2.stats.current_streak + 1)
-            agent1.stats.current_streak = min(-1, agent1.stats.current_streak - 1)
-        else:
-            actual1, actual2 = 0.5, 0.5
-            agent1.stats.draws += 1
-            agent2.stats.draws += 1
-            agent1.stats.current_streak = 0
-            agent2.stats.current_streak = 0
+            agent1.stats.total_matches += 1
+            agent2.stats.total_matches += 1
+            k_factor = 32
+            agent1_elo = agent1.stats.elo_rating
+            agent2_elo = agent2.stats.elo_rating
+            expected1 = 1 / (1 + 10 ** ((agent2_elo - agent1_elo) / 400))
+            expected2 = 1 / (1 + 10 ** ((agent1_elo - agent2_elo) / 400))
 
-        agent1.stats.elo_rating += k_factor * (actual1 - expected1)
-        agent2.stats.elo_rating += k_factor * (actual2 - expected2)
-        agent1.stats.best_streak = max(agent1.stats.best_streak, agent1.stats.current_streak)
-        agent2.stats.best_streak = max(agent2.stats.best_streak, agent2.stats.current_streak)
+            if winner_id == agent1.profile.name:
+                actual1, actual2 = 1, 0
+                agent1.stats.wins += 1
+                agent2.stats.losses += 1
+                agent1.stats.current_streak = max(1, agent1.stats.current_streak + 1)
+                agent2.stats.current_streak = min(-1, agent2.stats.current_streak - 1)
+            elif winner_id == agent2.profile.name:
+                actual1, actual2 = 0, 1
+                agent2.stats.wins += 1
+                agent1.stats.losses += 1
+                agent2.stats.current_streak = max(1, agent2.stats.current_streak + 1)
+                agent1.stats.current_streak = min(-1, agent1.stats.current_streak - 1)
+            else:
+                actual1, actual2 = 0.5, 0.5
+                agent1.stats.draws += 1
+                agent2.stats.draws += 1
+                agent1.stats.current_streak = 0
+                agent2.stats.current_streak = 0
+
+            agent1.stats.elo_rating += k_factor * (actual1 - expected1)
+            agent2.stats.elo_rating += k_factor * (actual2 - expected2)
+            agent1.stats.best_streak = max(agent1.stats.best_streak, agent1.stats.current_streak)
+            agent2.stats.best_streak = max(agent2.stats.best_streak, agent2.stats.current_streak)
+
+            # Save state after updating stats
+            self.save_state()
 
     def apply_realistic_division_changes(self):
         """Apply promotion and demotion rules based on performance metrics."""
@@ -412,16 +531,16 @@ class Arena:
                     winner_id, scores = self.simulate_realistic_match(agent1, agent2, challenge)
                 match_duration = time.time() - start_time
                 
-                self.update_agent_stats_and_elo(agent1, agent2, winner_id, scores)
+                self.update_agent_stats_and_elo(agent1, agent2, winner_id, scores, match_id=f"round_{round_num}_match_{match_count+1}")
                 
                 if winner_id:
-                    winner_name = agent1.profile.name if winner_id == agent1.profile.agent_id else agent2.profile.name
+                    winner_name = agent1.profile.name if winner_id == agent1.profile.name else agent2.profile.name
                     print(f"      🏆 Winner: {winner_name}")
                 else:
                     print(f"      🤝 Draw")
                 
-                print(f"      📊 Scores: {agent1.profile.name}: {scores.get(agent1.profile.agent_id, 0):.1f}, "
-                      f"{agent2.profile.name}: {scores.get(agent2.profile.agent_id, 0):.1f}")
+                print(f"      📊 Scores: {agent1.profile.name}: {scores.get(agent1.profile.name, 0):.1f}, "
+                      f"{agent2.profile.name}: {scores.get(agent2.profile.name, 0):.1f}")
                 print(f"      ⏱️  Match duration: {match_duration:.1f}s")
                 
                 match_count += 1
