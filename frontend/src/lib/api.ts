@@ -4,6 +4,19 @@ import { Match, MatchStatus, ChallengeType } from '@/types/matches';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 export { API_BASE_URL };
 
+export function transformMatch(rawMatch: any): Match {
+  if (!rawMatch) return rawMatch;
+  return {
+    ...rawMatch,
+    status: rawMatch.status?.toUpperCase() as MatchStatus,
+    match_type: rawMatch.match_type?.toUpperCase() as 'REGULAR_DUEL' | 'DEBATE',
+    challenge: {
+      ...rawMatch.challenge,
+      type: rawMatch.challenge.type?.toUpperCase() as ChallengeType,
+    },
+  };
+}
+
 function transformAgent(rawAgent: any): Agent {
   return {
     profile: {
@@ -22,21 +35,6 @@ function transformAgent(rawAgent: any): Agent {
       current_streak: rawAgent.stats?.current_streak || 0,
       best_streak: rawAgent.stats?.best_streak || 0
     }
-  };
-}
-
-export function transformMatch(match: any): Match {
-  return {
-    ...match,
-    match_type: match.match_type?.toUpperCase() || 'REGULAR_DUEL',
-    status: match.status?.toUpperCase() || 'PENDING',
-    challenge: {
-      ...match.challenge,
-      type: match.challenge?.type?.toUpperCase() || 'UNKNOWN',
-    },
-    transcript: match.transcript || [],
-    start_time: match.started_at || match.start_time || new Date().toISOString(),
-    end_time: match.completed_at || match.end_time,
   };
 }
 

@@ -29,7 +29,6 @@ class Arena:
         # Initialize match store with a file in the same directory as state_file
         match_store_file = os.path.join(os.path.dirname(state_file), "matches.json")
         self.match_store = MatchStore(match_store_file)
-        self._state_lock = threading.Lock()  # Add lock for thread safety
         self.load_state()
 
     def start_match_async(self, agent1: Agent, agent2: Agent, challenge: Challenge) -> Match:
@@ -128,26 +127,27 @@ class Arena:
 
     def save_state(self):
         """Saves the current state of the arena to a file."""
-        with self._state_lock:  # Use lock when saving state
-            state = {
-                "agents": [agent.to_dict() for agent in self.agents],
-                "challenges": [challenge.to_dict() for challenge in self.challenges]
-            }
-            try:
-                # First write to a temporary file
-                temp_file = self.state_file + '.tmp'
-                with open(temp_file, 'w') as f:
-                    json.dump(state, f, indent=4)
-                # Then atomically rename it
-                os.replace(temp_file, self.state_file)
-                logger.info(f"Arena state saved to {self.state_file}")
-                # Debug log agent stats
-                for agent in self.agents:
-                    logger.info(f"Agent {agent.profile.name}: ELO={agent.stats.elo_rating:.0f}, W/L/D={agent.stats.wins}/{agent.stats.losses}/{agent.stats.draws}")
-            except Exception as e:
-                logger.error(f"Error saving arena state: {e}")
-                logger.error(f"Current agents: {[str(a) for a in self.agents]}")
-                raise  # Re-raise to see the full error
+        print("Saving arena state to", self.state_file)
+        state = {
+            "agents": [agent.to_dict() for agent in self.agents],
+            "challenges": [challenge.to_dict() for challenge in self.challenges]
+        }
+        try:
+            # First write to a temporary file
+            temp_file = self.state_file + '.tmp'
+            with open(temp_file, 'w') as f:
+                json.dump(state, f, indent=4)
+            # Then atomically rename it
+            os.replace(temp_file, self.state_file)
+            print("Arena state saved successfully")
+            
+            # Debug log agent stats
+            for agent in self.agents:
+                logger.info(f"Agent {agent.profile.name}: ELO={agent.stats.elo_rating:.0f}, W/L/D={agent.stats.wins}/{agent.stats.losses}/{agent.stats.draws}")
+        except Exception as e:
+            logger.error(f"Error saving arena state: {e}")
+            logger.error(f"Current agents: {[str(a) for a in self.agents]}")
+            raise  # Re-raise to see the full error
 
     def load_state(self):
         """Loads the arena state from a file, or initializes a new state."""
@@ -358,7 +358,7 @@ class Arena:
             agent1.profile.name: evaluation_result.get("agent1_avg", 5.0),
             agent2.profile.name: evaluation_result.get("agent2_avg", 5.0)
         }
-
+        
         match.complete_match(winner_id, scores)
         self.match_store.update_match(match)
         print("update_agent_stats_and_elo debate match")
@@ -367,45 +367,60 @@ class Arena:
 
     def update_agent_stats_and_elo(self, agent1: Agent, agent2: Agent, winner_id: Optional[str], scores: Dict[str, float], match_id: str):
         """Update agent statistics and ELO ratings after a match."""
-        with self._state_lock:  # Use lock when updating agent stats
-            # Add match to both agents' history
-            agent1.add_match(match_id)
-            agent2.add_match(match_id)
+        print("Updating agent stats and ELO for", agent1.profile.name, "and", agent2.profile.name)
+        
+        # Find the actual agents in self.agents
+        arena_agent1 = next(a for a in self.agents if a.profile.name == agent1.profile.name)
+        arena_agent2 = next(a for a in self.agents if a.profile.name == agent2.profile.name)
 
-            agent1.stats.total_matches += 1
-            agent2.stats.total_matches += 1
-            k_factor = 32
-            agent1_elo = agent1.stats.elo_rating
-            agent2_elo = agent2.stats.elo_rating
-            expected1 = 1 / (1 + 10 ** ((agent2_elo - agent1_elo) / 400))
-            expected2 = 1 / (1 + 10 ** ((agent1_elo - agent2_elo) / 400))
+        # Add match to both agents' history
+        arena_agent1.add_match(match_id)
+        arena_agent2.add_match(match_id)
 
-            if winner_id == agent1.profile.name:
-                actual1, actual2 = 1, 0
-                agent1.stats.wins += 1
-                agent2.stats.losses += 1
-                agent1.stats.current_streak = max(1, agent1.stats.current_streak + 1)
-                agent2.stats.current_streak = min(-1, agent2.stats.current_streak - 1)
-            elif winner_id == agent2.profile.name:
-                actual1, actual2 = 0, 1
-                agent2.stats.wins += 1
-                agent1.stats.losses += 1
-                agent2.stats.current_streak = max(1, agent2.stats.current_streak + 1)
-                agent1.stats.current_streak = min(-1, agent1.stats.current_streak - 1)
-            else:
-                actual1, actual2 = 0.5, 0.5
-                agent1.stats.draws += 1
-                agent2.stats.draws += 1
-                agent1.stats.current_streak = 0
-                agent2.stats.current_streak = 0
+        arena_agent1.stats.total_matches += 1
+        arena_agent2.stats.total_matches += 1
+        k_factor = 32
+        agent1_elo = arena_agent1.stats.elo_rating
+        agent2_elo = arena_agent2.stats.elo_rating
+        expected1 = 1 / (1 + 10 ** ((agent2_elo - agent1_elo) / 400))
+        expected2 = 1 / (1 + 10 ** ((agent1_elo - agent2_elo) / 400))
 
-            agent1.stats.elo_rating += k_factor * (actual1 - expected1)
-            agent2.stats.elo_rating += k_factor * (actual2 - expected2)
-            agent1.stats.best_streak = max(agent1.stats.best_streak, agent1.stats.current_streak)
-            agent2.stats.best_streak = max(agent2.stats.best_streak, agent2.stats.current_streak)
+        if winner_id == arena_agent1.profile.name:
+            actual1, actual2 = 1, 0
+            arena_agent1.stats.wins += 1
+            arena_agent2.stats.losses += 1
+            arena_agent1.stats.current_streak = max(1, arena_agent1.stats.current_streak + 1)
+            arena_agent2.stats.current_streak = min(-1, arena_agent2.stats.current_streak - 1)
+        elif winner_id == arena_agent2.profile.name:
+            actual1, actual2 = 0, 1
+            arena_agent2.stats.wins += 1
+            arena_agent1.stats.losses += 1
+            arena_agent2.stats.current_streak = max(1, arena_agent2.stats.current_streak + 1)
+            arena_agent1.stats.current_streak = min(-1, arena_agent1.stats.current_streak - 1)
+        else:
+            actual1, actual2 = 0.5, 0.5
+            arena_agent1.stats.draws += 1
+            arena_agent2.stats.draws += 1
+            arena_agent1.stats.current_streak = 0
+            arena_agent2.stats.current_streak = 0
 
-            # Save state after updating stats
-            self.save_state()
+        arena_agent1.stats.elo_rating += k_factor * (actual1 - expected1)
+        arena_agent2.stats.elo_rating += k_factor * (actual2 - expected2)
+        arena_agent1.stats.best_streak = max(arena_agent1.stats.best_streak, arena_agent1.stats.current_streak)
+        arena_agent2.stats.best_streak = max(arena_agent2.stats.best_streak, arena_agent2.stats.current_streak)
+
+        # also updating the argument agents
+        agent1.stats = arena_agent1.stats.model_copy()
+        agent2.stats = arena_agent2.stats.model_copy()
+        agent1.add_match(match_id)
+        agent2.add_match(match_id)
+
+        # Save state after updating stats
+        print("Updated ELO ratings:", 
+              f"{arena_agent1.profile.name}: {arena_agent1.stats.elo_rating:.0f}",
+              f"{arena_agent2.profile.name}: {arena_agent2.stats.elo_rating:.0f}")
+        
+        self.save_state()
 
     def apply_realistic_division_changes(self):
         """Apply promotion and demotion rules based on performance metrics."""

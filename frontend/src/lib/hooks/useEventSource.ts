@@ -1,20 +1,22 @@
 import { useEffect, useState, useRef } from 'react';
 
-interface UseEventSourceOptions {
-  onMessage?: (data: any) => void;
+interface UseEventSourceOptions<T> {
+  onMessage?: (data: T) => void;
   onError?: (error: Event) => void;
   enabled?: boolean;
   maxRetries?: number;
   initialRetryDelay?: number;
+  transformer?: (data: any) => T;
 }
 
-export function useEventSource(url: string, options: UseEventSourceOptions = {}) {
+export function useEventSource<T>(url: string, options: UseEventSourceOptions<T> = {}) {
   const {
     onMessage,
     onError,
     enabled = true,
     maxRetries = 5,
     initialRetryDelay = 1000,
+    transformer = (data) => data as T,
   } = options;
 
   const [error, setError] = useState<Event | null>(null);
@@ -33,7 +35,8 @@ export function useEventSource(url: string, options: UseEventSourceOptions = {})
 
       eventSource.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
+          const rawData = JSON.parse(event.data);
+          const data = transformer(rawData);
           onMessage?.(data);
           // Reset retry count on successful message
           retryCount.current = 0;

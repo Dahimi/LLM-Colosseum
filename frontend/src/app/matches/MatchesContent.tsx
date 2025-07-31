@@ -5,10 +5,15 @@ import { Match } from '@/types/matches';
 import { Agent } from '@/types/arena';
 import { MatchCard } from '@/components/MatchCard';
 import { useEventSource } from '@/lib/hooks/useEventSource';
-import { API_BASE_URL } from '@/lib/api';
+import { API_BASE_URL, transformMatch } from '@/lib/api';
 
 interface MatchesContentProps {
   agentsMap: { [key: string]: Agent };
+}
+
+interface MatchUpdate {
+  matches: Match[];
+  liveMatches: Match[];
 }
 
 export function MatchesContent({ agentsMap }: MatchesContentProps) {
@@ -17,7 +22,7 @@ export function MatchesContent({ agentsMap }: MatchesContentProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Use SSE for real-time updates
-  useEventSource(`${API_BASE_URL}/matches/stream`, {
+  useEventSource<MatchUpdate>(`${API_BASE_URL}/matches/stream`, {
     onMessage: (data) => {
       setMatches(data.matches);
       setLiveMatches(data.liveMatches);
@@ -26,6 +31,10 @@ export function MatchesContent({ agentsMap }: MatchesContentProps) {
     onError: () => {
       setError('Failed to connect to match updates stream');
     },
+    transformer: (data: any) => ({
+      matches: data.matches.map(transformMatch),
+      liveMatches: data.liveMatches.map(transformMatch),
+    }),
   });
 
   if (error) {

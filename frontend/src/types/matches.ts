@@ -30,6 +30,15 @@ export interface AgentResponse {
   score?: number;
 }
 
+export interface JudgeEvaluation {
+  overall_reasoning: string;
+  comparative_analysis: string;
+  key_differentiators: string[];
+  agent1_total_score: number;
+  agent2_total_score: number;
+  recommended_winner: string | null;
+}
+
 export interface Match {
   match_id: string;
   challenge: Challenge;
@@ -41,9 +50,13 @@ export interface Match {
   created_at: string;
   completed_at?: string;
   winner_id?: string;
+  result?: 'WIN' | 'LOSS' | 'DRAW';  // Match result from agent1's perspective
   agent1_response?: AgentResponse;
   agent2_response?: AgentResponse;
   transcript?: AgentResponse[];  // For debate matches
   judge_feedback?: string[];
-  match_type: 'REGULAR_DUEL' | 'DEBATE';  // Add match type
+  evaluations?: JudgeEvaluation[];  // Judge evaluations
+  match_type: 'REGULAR_DUEL' | 'DEBATE';
+  final_scores?: { [key: string]: number };
+  division?: string;  // Division where the match takes place
 } 

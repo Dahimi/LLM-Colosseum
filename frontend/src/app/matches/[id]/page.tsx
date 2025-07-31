@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Match, MatchStatus } from '@/types/matches';
 import { Agent } from '@/types/arena';
-import { fetchMatch, fetchAgents, API_BASE_URL } from '@/lib/api';
+import { fetchMatch, fetchAgents, API_BASE_URL, transformMatch } from '@/lib/api';
 import { useEventSource } from '@/lib/hooks/useEventSource';
 import { use } from 'react';
 
@@ -43,7 +43,7 @@ export default function MatchPage({ params }: PageProps) {
   }, [id]);
 
   // Use SSE for real-time updates
-  useEventSource(`${API_BASE_URL}/matches/${id}/stream`, {
+  useEventSource<Match>(`${API_BASE_URL}/matches/${id}/stream`, {
     onMessage: (data) => {
       setMatch(data);
       setError(null);
@@ -53,6 +53,7 @@ export default function MatchPage({ params }: PageProps) {
     },
     // Only enable SSE after initial data is loaded
     enabled: !isLoading && !!match,
+    transformer: transformMatch,
   });
 
   if (isLoading) {
@@ -121,11 +122,26 @@ export default function MatchPage({ params }: PageProps) {
                 Ended: <span className="font-medium">{new Date(match.completed_at).toLocaleString()}</span>
               </p>
             )}
-            {match.winner_id && (
-              <p className="font-semibold mt-2 text-emerald-700">
-                Winner: {match.winner_id}
-              </p>
+            {match.status === MatchStatus.COMPLETED && (
+              <div className="mt-2">
+                {match.winner_id ? (
+                  <p className="font-semibold text-emerald-700">
+                    Winner: {match.winner_id}
+                  </p>
+                ) : (
+                  <p className="font-semibold text-amber-700">
+                    Result: Draw
+                  </p>
+                )}
+              </div>
             )}
+          </div>
+
+          {/* Challenge Description */}
+          <div className="mt-8 p-4 bg-indigo-50 rounded-lg">
+            <h3 className="font-semibold mb-2 text-indigo-900">Challenge</h3>
+            <p className="text-lg font-medium text-indigo-900 mb-2">{match.challenge.title}</p>
+            <p className="whitespace-pre-wrap text-indigo-900">{match.challenge.description}</p>
           </div>
 
           {/* Match Responses */}
@@ -135,7 +151,7 @@ export default function MatchPage({ params }: PageProps) {
               {match.transcript && match.transcript.length > 0 ? (
                 <div className="space-y-4">
                   {match.transcript.map((response, index) => {
-                    const isAgent1 = response.agent_id === agent1.profile.name;
+                    const isAgent1 = response.agent_id === match.agent1_id;
                     const agent = isAgent1 ? agent1 : agent2;
                     return (
                       <div 
@@ -148,15 +164,17 @@ export default function MatchPage({ params }: PageProps) {
                               {agent.profile.name}
                             </span>
                             <span className={`text-sm ${isAgent1 ? 'text-blue-700' : 'text-purple-700'}`}>
-                              {index === 0 ? '(Opening Statement)' : `(Turn ${index})`}
+                              {index === 0 ? '(Opening Statement)' : `(Turn ${Math.floor(index/2 + 1)})`}
                             </span>
                           </div>
                           <p className={`whitespace-pre-wrap ${isAgent1 ? 'text-blue-900' : 'text-purple-900'}`}>
                             {response.response_text}
                           </p>
-                          <p className={`text-sm mt-2 ${isAgent1 ? 'text-blue-700' : 'text-purple-700'}`}>
-                            Response time: {response.response_time.toFixed(2)}s
-                          </p>
+                          {response.response_time > 0 && (
+                            <p className={`text-sm mt-2 ${isAgent1 ? 'text-blue-700' : 'text-purple-700'}`}>
+                              Response time: {response.response_time.toFixed(2)}s
+                            </p>
+                          )}
                         </div>
                       </div>
                     );
@@ -169,6 +187,27 @@ export default function MatchPage({ params }: PageProps) {
                       ? 'This debate has concluded.'
                       : 'Waiting for agents to begin the debate...'}
                   </p>
+                </div>
+              )}
+
+              {/* Show final scores for completed debates */}
+              {match.status === MatchStatus.COMPLETED && match.final_scores && (
+                <div className="mt-6 bg-indigo-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-indigo-900 mb-2">Final Scores</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-blue-800">{agent1.profile.name}</p>
+                      <p className="text-blue-900 font-medium">
+                        {match.final_scores[match.agent1_id]?.toFixed(1) || 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-purple-800">{agent2.profile.name}</p>
+                      <p className="text-purple-900 font-medium">
+                        {match.final_scores[match.agent2_id]?.toFixed(1) || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -213,18 +252,78 @@ export default function MatchPage({ params }: PageProps) {
                   <p className="text-indigo-900">Waiting for agent responses...</p>
                 </div>
               )}
+
+              {/* Show final scores for completed regular matches */}
+              {match.status === MatchStatus.COMPLETED && match.final_scores && (
+                <div className="mt-6 bg-indigo-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-indigo-900 mb-2">Final Scores</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-blue-800">{agent1.profile.name}</p>
+                      <p className="text-blue-900 font-medium">
+                        {match.final_scores[match.agent1_id]?.toFixed(1) || 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-purple-800">{agent2.profile.name}</p>
+                      <p className="text-purple-900 font-medium">
+                        {match.final_scores[match.agent2_id]?.toFixed(1) || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Judge Feedback */}
-          {match.judge_feedback && match.judge_feedback.length > 0 && (
+          {/* Judge Evaluations */}
+          {match.status === MatchStatus.COMPLETED && match.evaluations && match.evaluations.length > 0 && (
             <div className="mt-8">
-              <h3 className="font-semibold mb-4 text-indigo-900">Judge Feedback</h3>
-              <div className="space-y-4">
-                {match.judge_feedback.map((feedback, index) => (
+              <h3 className="font-semibold mb-4 text-indigo-900">Judge Evaluations</h3>
+              <div className="space-y-6">
+                {match.evaluations.map((evaluation, index) => (
                   <div key={index} className="bg-emerald-50 p-4 rounded-lg">
-                    <p className="text-sm font-medium text-emerald-800 mb-2">Judge {index + 1}</p>
-                    <p className="whitespace-pre-wrap text-emerald-900">{feedback}</p>
+                    <h4 className="font-medium text-emerald-800 mb-4">Judge {index + 1}</h4>
+                    
+                    {/* Overall Reasoning */}
+                    <div className="mb-4">
+                      <p className="font-medium text-emerald-800 mb-1">Overall Analysis</p>
+                      <p className="whitespace-pre-wrap text-emerald-900">{evaluation.overall_reasoning}</p>
+                    </div>
+
+                    {/* Comparative Analysis */}
+                    <div className="mb-4">
+                      <p className="font-medium text-emerald-800 mb-1">Comparative Analysis</p>
+                      <p className="whitespace-pre-wrap text-emerald-900">{evaluation.comparative_analysis}</p>
+                    </div>
+
+                    {/* Key Differentiators */}
+                    {evaluation.key_differentiators.length > 0 && (
+                      <div className="mb-4">
+                        <p className="font-medium text-emerald-800 mb-1">Key Differentiators</p>
+                        <ul className="list-disc list-inside space-y-1">
+                          {evaluation.key_differentiators.map((point, i) => (
+                            <li key={i} className="text-emerald-900">{point}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Scores */}
+                    <div className="mt-4 grid grid-cols-2 gap-4 bg-emerald-100/50 p-3 rounded-lg">
+                      <div>
+                        <p className="text-blue-800">{agent1.profile.name}</p>
+                        <p className="text-blue-900 font-medium">
+                          Score: {evaluation.agent1_total_score.toFixed(1)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-purple-800">{agent2.profile.name}</p>
+                        <p className="text-purple-900 font-medium">
+                          Score: {evaluation.agent2_total_score.toFixed(1)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
