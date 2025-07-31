@@ -1,5 +1,8 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from sse_starlette.sse import EventSourceResponse
+from typing import AsyncGenerator
+import asyncio
 import json
 from datetime import datetime
 import random
@@ -18,6 +21,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["content-type", "content-length"],  # Required for SSE
 )
 
 # Initialize arena
@@ -98,6 +102,91 @@ async def get_agent(agent_id: str):
                 "division_changes": agent.division_change_history
             }
     raise HTTPException(status_code=404, detail="Agent not found")
+
+# SSE endpoints must come before other /matches endpoints to avoid routing conflicts
+@app.get("/matches/stream")
+async def stream_matches(request: Request):
+    """SSE endpoint for streaming match updates."""
+    try:
+        return EventSourceResponse(
+            match_updates(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Content-Type": "text/event-stream",
+                "Access-Control-Allow-Origin": "http://localhost:3000",
+                "Access-Control-Allow-Credentials": "true",
+            }
+        )
+    except Exception as e:
+        print(f"Error setting up SSE stream: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+async def match_updates() -> AsyncGenerator[dict, None]:
+    """Generate match updates for SSE."""
+    while True:
+        try:
+            # Get current matches state
+            matches = arena.match_store.get_recent_matches(limit=10)
+            live_matches = arena.match_store.get_live_matches()
+            
+            # Create update payload
+            payload = {
+                "matches": [match_to_json(m) for m in matches],
+                "liveMatches": [match_to_json(m) for m in live_matches]
+            }
+            
+            yield {
+                "event": "message",
+                "data": json.dumps(payload),
+                "retry": 15000  # Reconnect after 15s if connection lost
+            }
+        except Exception as e:
+            print(f"Error in match_updates: {e}")
+            yield {
+                "event": "error",
+                "data": str(e)
+            }
+        await asyncio.sleep(2)  # Wait 2 seconds between updates
+
+@app.get("/matches/{match_id}/stream")
+async def stream_match(match_id: str, request: Request):
+    """SSE endpoint for streaming specific match updates."""
+    try:
+        return EventSourceResponse(
+            specific_match_updates(match_id),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Content-Type": "text/event-stream",
+                "Access-Control-Allow-Origin": "http://localhost:3000",
+                "Access-Control-Allow-Credentials": "true",
+            }
+        )
+    except Exception as e:
+        print(f"Error setting up SSE stream: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+async def specific_match_updates(match_id: str) -> AsyncGenerator[dict, None]:
+    """Generate updates for a specific match."""
+    while True:
+        try:
+            match = arena.match_store.get_match(match_id)
+            if match:
+                yield {
+                    "event": "message",
+                    "data": json.dumps(match_to_json(match)),
+                    "retry": 15000  # Reconnect after 15s if connection lost
+                }
+        except Exception as e:
+            print(f"Error in specific_match_updates: {e}")
+            yield {
+                "event": "error",
+                "data": str(e)
+            }
+        await asyncio.sleep(1)  # More frequent updates for specific match
 
 @app.get("/matches")
 async def get_matches():

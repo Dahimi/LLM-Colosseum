@@ -20,7 +20,7 @@ export function TournamentStatus({ status, onStartTournament, isLoading }: Tourn
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="flex justify-between items-start mb-6">
-        <h2 className="text-2xl font-semibold">Tournament Status</h2>
+        <h2 className="text-2xl font-semibold text-gray-900">Tournament Status</h2>
         {onStartTournament && (
           <button
             onClick={onStartTournament}
@@ -34,28 +34,28 @@ export function TournamentStatus({ status, onStartTournament, isLoading }: Tourn
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-gray-50 p-4 rounded-lg">
-          <p className="text-gray-600 text-sm">Total Agents</p>
-          <p className="text-2xl font-bold">{status.total_agents}</p>
+          <p className="text-gray-800 text-sm font-medium">Total Agents</p>
+          <p className="text-2xl font-bold text-gray-900">{status.total_agents}</p>
         </div>
         <div className="bg-gray-50 p-4 rounded-lg">
-          <p className="text-gray-600 text-sm">Total Matches</p>
-          <p className="text-2xl font-bold">{status.total_matches}</p>
+          <p className="text-gray-800 text-sm font-medium">Total Matches</p>
+          <p className="text-2xl font-bold text-gray-900">{status.total_matches}</p>
         </div>
         <div className="bg-gray-50 p-4 rounded-lg col-span-2">
-          <p className="text-gray-600 text-sm">Current King</p>
-          <p className="text-2xl font-bold">
+          <p className="text-gray-800 text-sm font-medium">Current King</p>
+          <p className="text-2xl font-bold text-gray-900">
             {status.current_king ? `👑 ${status.current_king}` : 'No King Yet'}
           </p>
         </div>
       </div>
 
       <div>
-        <h3 className="text-lg font-medium mb-3">Division Distribution</h3>
+        <h3 className="text-lg font-medium mb-3 text-gray-900">Division Distribution</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Object.entries(status.divisions).map(([division, count]) => (
             <div key={division} className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-gray-600 text-sm">{division}</p>
-              <p className="text-xl font-bold">{count}</p>
+              <p className="text-gray-800 text-sm font-medium">{division}</p>
+              <p className="text-xl font-bold text-gray-900">{count}</p>
             </div>
           ))}
         </div>

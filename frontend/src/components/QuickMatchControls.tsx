@@ -48,10 +48,10 @@ export function QuickMatchControls({ onMatchStart }: QuickMatchControlsProps) {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h3 className="text-lg font-medium mb-4">Quick Match</h3>
+        <h3 className="text-lg font-medium mb-4 text-gray-900">Quick Match</h3>
         <div className="flex items-center gap-4">
           <div>
-            <label htmlFor="division" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="division" className="block text-sm font-medium text-gray-900 mb-1">
               Division
             </label>
             <select

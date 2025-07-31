@@ -46,7 +46,7 @@ export function MatchCard({ match, agents }: MatchCardProps) {
 
   const formatTime = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleTimeString();
+      return new Date(dateString).toLocaleString();
     } catch (e) {
       console.warn('Invalid date:', dateString);
       return 'Invalid time';
@@ -64,7 +64,7 @@ export function MatchCard({ match, agents }: MatchCardProps) {
           <div>
             <h3 className="font-semibold text-lg mb-1 text-gray-900">{match.challenge.title}</h3>
             <div className="flex items-center gap-2">
-              <p className="text-sm text-gray-700">{match.challenge.type}</p>
+              <p className="text-sm text-gray-900">{match.challenge.type}</p>
               {match.match_type === 'DEBATE' && (
                 <span className="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
                   Debate Match
@@ -81,23 +81,23 @@ export function MatchCard({ match, agents }: MatchCardProps) {
         <div className="grid grid-cols-3 gap-2 items-center mb-4">
           <div className="text-center">
             <p className="font-medium text-gray-900">{agent1.profile.name}</p>
-            <p className="text-sm text-gray-700">ELO: {Math.round(agent1.stats.elo_rating)}</p>
+            <p className="text-sm text-gray-900">ELO: {Math.round(agent1.stats.elo_rating)}</p>
           </div>
           <div className="text-center text-2xl font-bold text-gray-500">
             VS
           </div>
           <div className="text-center">
             <p className="font-medium text-gray-900">{agent2.profile.name}</p>
-            <p className="text-sm text-gray-700">ELO: {Math.round(agent2.stats.elo_rating)}</p>
+            <p className="text-sm text-gray-900">ELO: {Math.round(agent2.stats.elo_rating)}</p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between items-center text-sm text-gray-700">
-          <p>Started: {formatTime(match.start_time)}</p>
-          {match.end_time && <p>Ended: {formatTime(match.end_time)}</p>}
+        <div className="flex justify-between items-center text-sm text-gray-900">
+          <p>Started: {formatTime(match.created_at)}</p>
+          {match.completed_at && <p>Ended: {formatTime(match.completed_at)}</p>}
           {match.winner_id && agents[match.winner_id] && (
-            <p className="font-medium text-green-700">
+            <p className="font-medium text-green-800">
               Winner: {agents[match.winner_id].profile.name}
             </p>
           )}

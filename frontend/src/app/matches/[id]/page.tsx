@@ -1,7 +1,12 @@
-import { fetchMatch, fetchAgent } from '@/lib/api';
-import { MatchStatus } from '@/types/matches';
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { Match, MatchStatus } from '@/types/matches';
+import { Agent } from '@/types/arena';
+import { fetchMatch, fetchAgents, API_BASE_URL } from '@/lib/api';
+import { useEventSource } from '@/lib/hooks/useEventSource';
+import { use } from 'react';
 
 interface PageProps {
   params: Promise<{
@@ -9,113 +14,126 @@ interface PageProps {
   }>;
 }
 
-export default async function MatchPage({ params }: PageProps) {
-  const { id } = await params;
+export default function MatchPage({ params }: PageProps) {
+  // Unwrap params using React.use()
+  const { id } = use(params);
   
-  try {
-    const match = await fetchMatch(id);
-    const [agent1, agent2] = await Promise.all([
-      fetchAgent(match.agent1_id),
-      fetchAgent(match.agent2_id),
-    ]);
+  const [match, setMatch] = useState<Match | null>(null);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-    const getStatusColor = (status: MatchStatus) => {
-      switch (status) {
-        case MatchStatus.IN_PROGRESS:
-          return 'bg-yellow-100 text-yellow-800';
-        case MatchStatus.COMPLETED:
-          return 'bg-green-100 text-green-800';
-        case MatchStatus.CANCELLED:
-          return 'bg-red-100 text-red-800';
-        default:
-          return 'bg-gray-100 text-gray-800';
+  // Load initial data
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        const [matchData, agentsData] = await Promise.all([
+          fetchMatch(id),
+          fetchAgents(),
+        ]);
+        setMatch(matchData);
+        setAgents(agentsData);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load match data');
+      } finally {
+        setIsLoading(false);
       }
     };
+    loadInitialData();
+  }, [id]);
 
-    const formatTime = (dateString: string) => {
-      return new Date(dateString).toLocaleString();
-    };
+  // Use SSE for real-time updates
+  useEventSource(`${API_BASE_URL}/matches/${id}/stream`, {
+    onMessage: (data) => {
+      setMatch(data);
+      setError(null);
+    },
+    onError: () => {
+      setError('Failed to connect to match updates stream');
+    },
+    // Only enable SSE after initial data is loaded
+    enabled: !isLoading && !!match,
+  });
 
-    return (
-      <main className="min-h-screen p-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Navigation */}
-          <Link 
-            href="/matches" 
-            className="text-blue-600 hover:text-blue-800 mb-6 inline-flex items-center"
-          >
+  if (isLoading) {
+    return <div>Loading match details...</div>;
+  }
+
+  if (error || !match) {
+    return <div className="text-red-600">{error || 'Match not found'}</div>;
+  }
+
+  const agent1 = agents.find(a => a.profile.name === match.agent1_id);
+  const agent2 = agents.find(a => a.profile.name === match.agent2_id);
+
+  if (!agent1 || !agent2) {
+    return <div className="text-red-600">Failed to load agent data</div>;
+  }
+
+  return (
+    <main className="min-h-screen p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <Link href="/matches" className="text-blue-600 hover:text-blue-800">
             ← Back to Matches
           </Link>
+        </div>
 
-          {/* Match Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{match.challenge.title}</h1>
-                <p className="text-gray-700">{match.challenge.description}</p>
-              </div>
-              <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(match.status)}`}>
-                {match.status}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h1 className="text-2xl font-bold mb-6 text-indigo-900">
+            Match Details
+            {match.status === MatchStatus.IN_PROGRESS && (
+              <span className="ml-2 px-2 py-1 bg-red-100 text-red-600 text-sm rounded-full animate-pulse">
+                LIVE
               </span>
-            </div>
+            )}
+          </h1>
 
-            {/* Challenge Info */}
-            <div className="grid grid-cols-2 gap-4 text-sm mb-6">
-              <div>
-                <p className="text-gray-700 font-medium">Challenge Type</p>
-                <p className="text-gray-900">{match.challenge.type}</p>
-              </div>
-              <div>
-                <p className="text-gray-700 font-medium">Difficulty</p>
-                <p className="text-gray-900">{match.challenge.difficulty}</p>
-              </div>
-            </div>
-
-            {/* Agents */}
-            <div className="grid grid-cols-3 gap-4 items-center mb-6">
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <p className="font-semibold text-lg text-gray-900 mb-1">{agent1.profile.name}</p>
-                <p className="text-sm text-gray-700">ELO: {Math.round(agent1.stats.elo_rating)}</p>
-                {match.winner_id === agent1.profile.agent_id && (
-                  <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 rounded text-sm font-medium">
-                    Winner 🏆
-                  </span>
-                )}
-              </div>
-              <div className="text-center text-3xl font-bold text-gray-500">
-                VS
-              </div>
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <p className="font-semibold text-lg text-gray-900 mb-1">{agent2.profile.name}</p>
-                <p className="text-sm text-gray-700">ELO: {Math.round(agent2.stats.elo_rating)}</p>
-                {match.winner_id === agent2.profile.agent_id && (
-                  <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 rounded text-sm font-medium">
-                    Winner 🏆
-                  </span>
-                )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Agent 1 */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-blue-800">{agent1.profile.name}</h2>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p className="text-blue-900">Division: {agent1.division}</p>
+                <p className="text-blue-900">Rating: {Math.round(agent1.stats.elo_rating)}</p>
               </div>
             </div>
 
-            {/* Match Timeline */}
-            <div className="text-sm text-gray-700">
-              <p>Started: {formatTime(match.start_time)}</p>
-              {match.end_time && <p>Ended: {formatTime(match.end_time)}</p>}
+            {/* Agent 2 */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-purple-800">{agent2.profile.name}</h2>
+              <div className="bg-purple-50 p-4 rounded-lg">
+                <p className="text-purple-900">Division: {agent2.division}</p>
+                <p className="text-purple-900">Rating: {Math.round(agent2.stats.elo_rating)}</p>
+              </div>
             </div>
           </div>
 
-          {/* Responses */}
+          {/* Match Status */}
+          <div className="mt-8 p-4 bg-indigo-50 rounded-lg">
+            <h3 className="font-semibold mb-2 text-indigo-900">Match Status</h3>
+            <p className="text-indigo-900">Status: <span className="font-medium">{match.status}</span></p>
+            <p className="text-indigo-900">
+              Started: <span className="font-medium">{match.created_at ? new Date(match.created_at).toLocaleString() : 'Not started'}</span>
+            </p>
+            {match.completed_at && (
+              <p className="text-indigo-900">
+                Ended: <span className="font-medium">{new Date(match.completed_at).toLocaleString()}</span>
+              </p>
+            )}
+            {match.winner_id && (
+              <p className="font-semibold mt-2 text-emerald-700">
+                Winner: {match.winner_id}
+              </p>
+            )}
+          </div>
+
+          {/* Match Responses */}
           {match.match_type === 'DEBATE' ? (
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                Debate Transcript
-                {match.status === 'IN_PROGRESS' && (
-                  <span className="ml-2 text-sm text-yellow-600 font-normal">
-                    (Debate in progress...)
-                  </span>
-                )}
-              </h2>
+            <div className="mt-8">
+              <h3 className="font-semibold mb-4 text-indigo-900">Debate Transcript</h3>
               {match.transcript && match.transcript.length > 0 ? (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {match.transcript.map((response, index) => {
                     const isAgent1 = response.agent_id === agent1.profile.name;
                     const agent = isAgent1 ? agent1 : agent2;
@@ -124,15 +142,19 @@ export default async function MatchPage({ params }: PageProps) {
                         key={index}
                         className={`flex ${isAgent1 ? 'justify-start' : 'justify-end'}`}
                       >
-                        <div className={`max-w-[80%] ${isAgent1 ? 'bg-blue-50' : 'bg-green-50'} p-4 rounded-lg`}>
+                        <div className={`max-w-[80%] ${isAgent1 ? 'bg-blue-50' : 'bg-purple-50'} p-4 rounded-lg`}>
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="font-medium text-gray-900">{agent.profile.name}</span>
-                            <span className="text-sm text-gray-600">
+                            <span className={`font-medium ${isAgent1 ? 'text-blue-800' : 'text-purple-800'}`}>
+                              {agent.profile.name}
+                            </span>
+                            <span className={`text-sm ${isAgent1 ? 'text-blue-700' : 'text-purple-700'}`}>
                               {index === 0 ? '(Opening Statement)' : `(Turn ${index})`}
                             </span>
                           </div>
-                          <p className="whitespace-pre-wrap text-gray-800">{response.response_text}</p>
-                          <p className="text-sm text-gray-600 mt-2">
+                          <p className={`whitespace-pre-wrap ${isAgent1 ? 'text-blue-900' : 'text-purple-900'}`}>
+                            {response.response_text}
+                          </p>
+                          <p className={`text-sm mt-2 ${isAgent1 ? 'text-blue-700' : 'text-purple-700'}`}>
                             Response time: {response.response_time.toFixed(2)}s
                           </p>
                         </div>
@@ -140,36 +162,26 @@ export default async function MatchPage({ params }: PageProps) {
                     );
                   })}
                 </div>
-              ) : match.status === 'COMPLETED' ? (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-700">
-                    This debate has concluded. Final scores:
-                  </p>
-                  <div className="mt-2 space-y-1">
-                    <p className="text-gray-800">
-                      {agent1.profile.name}: {match.final_scores?.[agent1.profile.name] || 0}
-                    </p>
-                    <p className="text-gray-800">
-                      {agent2.profile.name}: {match.final_scores?.[agent2.profile.name] || 0}
-                    </p>
-                  </div>
-                </div>
               ) : (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-700">Waiting for agents to begin the debate...</p>
+                <div className="bg-indigo-50 p-4 rounded-lg">
+                  <p className="text-indigo-900">
+                    {match.status === MatchStatus.COMPLETED 
+                      ? 'This debate has concluded.'
+                      : 'Waiting for agents to begin the debate...'}
+                  </p>
                 </div>
               )}
             </div>
-          ) : (match.agent1_response || match.agent2_response) && (
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Agent Responses</h2>
-              
+          ) : (
+            <div className="mt-8">
+              <h3 className="font-semibold mb-4 text-indigo-900">Agent Responses</h3>
+              {/* Agent 1 Response */}
               {match.agent1_response && (
                 <div className="mb-6">
-                  <h3 className="font-medium text-gray-900 mb-2">{agent1.profile.name}'s Response</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="whitespace-pre-wrap text-gray-800">{match.agent1_response.response_text}</p>
-                    <p className="text-sm text-gray-700 mt-2">
+                  <h4 className="font-medium text-blue-800 mb-2">{agent1.profile.name}'s Response</h4>
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <p className="whitespace-pre-wrap text-blue-900">{match.agent1_response.response_text}</p>
+                    <p className="text-sm text-blue-700 mt-2">
                       Response time: {match.agent1_response.response_time.toFixed(2)}s
                       {match.agent1_response.score !== undefined && (
                         <span className="ml-4">Score: {match.agent1_response.score.toFixed(1)}</span>
@@ -178,13 +190,14 @@ export default async function MatchPage({ params }: PageProps) {
                   </div>
                 </div>
               )}
-              
+
+              {/* Agent 2 Response */}
               {match.agent2_response && (
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">{agent2.profile.name}'s Response</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="whitespace-pre-wrap text-gray-800">{match.agent2_response.response_text}</p>
-                    <p className="text-sm text-gray-700 mt-2">
+                  <h4 className="font-medium text-purple-800 mb-2">{agent2.profile.name}'s Response</h4>
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <p className="whitespace-pre-wrap text-purple-900">{match.agent2_response.response_text}</p>
+                    <p className="text-sm text-purple-700 mt-2">
                       Response time: {match.agent2_response.response_time.toFixed(2)}s
                       {match.agent2_response.score !== undefined && (
                         <span className="ml-4">Score: {match.agent2_response.score.toFixed(1)}</span>
@@ -193,27 +206,32 @@ export default async function MatchPage({ params }: PageProps) {
                   </div>
                 </div>
               )}
+
+              {/* No responses yet */}
+              {!match.agent1_response && !match.agent2_response && (
+                <div className="bg-indigo-50 p-4 rounded-lg">
+                  <p className="text-indigo-900">Waiting for agent responses...</p>
+                </div>
+              )}
             </div>
           )}
 
           {/* Judge Feedback */}
           {match.judge_feedback && match.judge_feedback.length > 0 && (
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Judge Feedback</h2>
+            <div className="mt-8">
+              <h3 className="font-semibold mb-4 text-indigo-900">Judge Feedback</h3>
               <div className="space-y-4">
                 {match.judge_feedback.map((feedback, index) => (
-                  <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm font-medium text-gray-800 mb-2">Judge {index + 1}</p>
-                    <p className="whitespace-pre-wrap text-gray-800">{feedback}</p>
+                  <div key={index} className="bg-emerald-50 p-4 rounded-lg">
+                    <p className="text-sm font-medium text-emerald-800 mb-2">Judge {index + 1}</p>
+                    <p className="whitespace-pre-wrap text-emerald-900">{feedback}</p>
                   </div>
                 ))}
               </div>
             </div>
           )}
         </div>
-      </main>
-    );
-  } catch (error) {
-    notFound();
-  }
+      </div>
+    </main>
+  );
 } 

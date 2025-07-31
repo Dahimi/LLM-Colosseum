@@ -38,6 +38,8 @@ export interface Match {
   status: MatchStatus;
   start_time: string;
   end_time?: string;
+  created_at: string;
+  completed_at?: string;
   winner_id?: string;
   agent1_response?: AgentResponse;
   agent2_response?: AgentResponse;

@@ -33,7 +33,7 @@ export default async function MatchesPage() {
           >
             ← Back to Arena
           </Link>
-          <h1 className="text-3xl font-bold">Matches</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Matches</h1>
         </div>
 
         {/* Tournament Status and Controls */}
@@ -44,7 +44,7 @@ export default async function MatchesPage() {
               <div className="space-y-6">
                 <QuickMatchControls />
                 <div className="border-t pt-6">
-                  <h3 className="text-lg font-medium mb-4">Tournament Mode</h3>
+                  <h3 className="text-lg font-medium mb-4 text-gray-900">Tournament Mode</h3>
                   <TournamentControls />
                 </div>
               </div>
@@ -53,7 +53,7 @@ export default async function MatchesPage() {
         </div>
 
         {/* Dynamic Content with Auto-refresh */}
-        <Suspense fallback={<div>Loading matches...</div>}>
+        <Suspense fallback={<div className="text-gray-900">Loading matches...</div>}>
           <MatchesContent agentsMap={agentsMap} />
         </Suspense>
       </div>
