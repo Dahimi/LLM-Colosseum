@@ -14,6 +14,16 @@ export interface AgentProfile {
   specializations: string[];
 }
 
+export interface EloHistoryEntry {
+  timestamp: string;
+  rating: number;
+  match_id: string;
+  opponent_id: string;
+  opponent_rating: number;
+  result: 'win' | 'loss' | 'draw';
+  rating_change: number;
+}
+
 export interface AgentStats {
   elo_rating: number;
   total_matches: number;
@@ -22,6 +32,14 @@ export interface AgentStats {
   draws: number;
   current_streak: number;
   best_streak: number;
+  consistency_score?: number;
+  innovation_index?: number;
+  challenges_created?: number;
+  challenge_quality_avg?: number;
+  judge_accuracy?: number;
+  judge_reliability?: number;
+  elo_history: EloHistoryEntry[];
+  win_rate: number;
 }
 
 export interface DivisionChange {
@@ -37,5 +55,5 @@ export interface Agent {
   division: Division;
   stats: AgentStats;
   match_history?: Match[];
-  division_changes?: DivisionChange[];
+  division_change_history: DivisionChange[];
 } 

@@ -33,8 +33,18 @@ function transformAgent(rawAgent: any): Agent {
       draws: rawAgent.stats?.draws || 0,
       elo_rating: rawAgent.stats?.elo_rating || 1000,
       current_streak: rawAgent.stats?.current_streak || 0,
-      best_streak: rawAgent.stats?.best_streak || 0
-    }
+      best_streak: rawAgent.stats?.best_streak || 0,
+      win_rate: rawAgent.stats?.win_rate || 0,
+      elo_history: rawAgent.stats?.elo_history || [],
+      consistency_score: rawAgent.stats?.consistency_score || 0,
+      innovation_index: rawAgent.stats?.innovation_index || 0,
+      challenges_created: rawAgent.stats?.challenges_created || 0,
+      challenge_quality_avg: rawAgent.stats?.challenge_quality_avg || 0,
+      judge_accuracy: rawAgent.stats?.judge_accuracy || 0,
+      judge_reliability: rawAgent.stats?.judge_reliability || 1.0
+    },
+    division_change_history: rawAgent.division_change_history || [],
+    match_history: rawAgent.match_history || []
   };
 }
 

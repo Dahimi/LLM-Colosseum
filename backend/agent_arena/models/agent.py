@@ -15,6 +15,16 @@ class Division(Enum):
     KING = "king"
 
 
+class EloHistoryEntry(BaseModel):
+    """Entry for tracking ELO rating changes."""
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    rating: float
+    match_id: str
+    opponent_id: str
+    opponent_rating: float
+    result: str  # "win", "loss", or "draw"
+    rating_change: float
+
 class AgentStats(BaseModel):
     """Statistical tracking for agent performance."""
     elo_rating: float = Field(default=1200.0, description="ELO rating score")
@@ -30,6 +40,7 @@ class AgentStats(BaseModel):
     challenge_quality_avg: float = Field(default=0.0, description="Average quality of created challenges")
     judge_accuracy: float = Field(default=0.0, description="Accuracy when acting as judge")
     judge_reliability: float = Field(default=1.0, description="Reliability weight for judging (0-1)")
+    elo_history: List[EloHistoryEntry] = Field(default_factory=list, description="History of ELO rating changes")
     
     @property
     def win_rate(self) -> float:
@@ -164,3 +175,20 @@ class Agent(BaseModel):
             self.stats.current_streak <= -5 or
             (self.stats.win_rate < 30 and self.stats.total_matches >= 10)
         ) 
+
+    def update_elo(self, new_rating: float, match_id: str, opponent_id: str, opponent_rating: float, result: str, rating_change: float) -> None:
+        """Update ELO rating and record the change in history."""
+        old_rating = self.stats.elo_rating
+        self.stats.elo_rating = new_rating
+        
+        # Record the change in history
+        entry = EloHistoryEntry(
+            rating=new_rating,
+            match_id=match_id,
+            opponent_id=opponent_id,
+            opponent_rating=opponent_rating,
+            result=result,
+            rating_change=rating_change
+        )
+        self.stats.elo_history.append(entry)
+        self.update_last_active() 

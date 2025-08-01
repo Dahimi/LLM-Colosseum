@@ -1,189 +1,259 @@
 'use client';
 
-import { fetchAgent } from '@/lib/api';
+import { use } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+import { fetchAgent } from '@/lib/api';
 import { Agent } from '@/types/arena';
-import { notFound } from 'next/navigation';
+import { MatchCard } from '@/components/MatchCard';
+import { EloHistoryEntry } from '@/types/arena';
 
-export default function AgentPage({ params }: { params: { id: string } }) {
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+interface PageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+export default function AgentPage({ params }: PageProps) {
+  const { id } = use(params);
   const [agent, setAgent] = useState<Agent | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    try {
-      const newAgent = await fetchAgent(params.id);
-      setAgent(newAgent);
-      setError(null);
-    } catch (error) {
-      console.error('Failed to fetch agent:', error);
-      setError('Failed to fetch agent');
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    const loadAgent = async () => {
+      try {
+        const data = await fetchAgent(id);
+        setAgent(data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load agent data');
+      }
+    };
+    loadAgent();
+  }, [id]);
+
+  if (error) {
+    return <div className="text-red-600">{error}</div>;
+  }
+
+  if (!agent) {
+    return <div>Loading agent details...</div>;
+  }
+
+  // Initialize elo_history if it doesn't exist
+  const elo_history = agent.stats.elo_history || [];
+  const hasEloHistory = elo_history.length > 0;
+
+  // Prepare ELO history data for the chart
+  const eloData = hasEloHistory ? {
+    labels: elo_history.map((entry: EloHistoryEntry) => 
+      new Date(entry.timestamp).toLocaleDateString()
+    ),
+    datasets: [
+      {
+        label: 'ELO Rating',
+        data: elo_history.map((entry: EloHistoryEntry) => entry.rating),
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1,
+      }
+    ]
+  } : {
+    labels: [],
+    datasets: [{
+      label: 'ELO Rating',
+      data: [],
+      borderColor: 'rgb(75, 192, 192)',
+      tension: 0.1,
+    }]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'ELO Rating History'
+      }
+    },
+    scales: {
+      y: hasEloHistory ? {
+        min: Math.min(...elo_history.map((e: EloHistoryEntry) => e.rating)) - 50,
+        max: Math.max(...elo_history.map((e: EloHistoryEntry) => e.rating)) + 50,
+      } : {
+        min: agent.stats.elo_rating - 50,
+        max: agent.stats.elo_rating + 50,
+      }
     }
   };
 
-  useEffect(() => {
-    fetchData();
-    // Refresh agent data every 2 seconds
-    const interval = setInterval(fetchData, 2000);
-    return () => clearInterval(interval);
-  }, [params.id]);
-
-  if (isLoading) {
-    return <div className="min-h-screen p-8">Loading agent details...</div>;
-  }
-
-  if (error || !agent) {
-    return notFound();
-  }
-
   return (
     <main className="min-h-screen p-8">
-      <div className="max-w-4xl mx-auto">
-        <Link 
-          href="/" 
-          className="text-blue-600 hover:text-blue-800 mb-6 inline-flex items-center"
-        >
-          ← Back to Arena
-        </Link>
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <Link href="/matches" className="text-blue-600 hover:text-blue-800">
+            ← Back to Matches
+          </Link>
+        </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{agent.profile.name}</h1>
-            <p className="text-gray-700">{agent.profile.description}</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6 mb-6">
+        {/* Agent Header */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">Division</h2>
-              <p className="text-gray-800 bg-gray-100 rounded-lg px-3 py-2 inline-block">
-                {agent.division}
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">ELO Rating</h2>
-              <p className="text-gray-800 bg-gray-100 rounded-lg px-3 py-2 inline-block">
-                {Math.round(agent.stats.elo_rating)}
-              </p>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Performance</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gray-100 rounded-lg p-3">
-                <p className="text-sm text-gray-600 mb-1">Win Rate</p>
-                <p className="text-gray-900 font-medium">
-                  {agent.stats.total_matches > 0
-                    ? ((agent.stats.wins / agent.stats.total_matches) * 100).toFixed(1)
-                    : '0.0'}%
-                </p>
-              </div>
-              <div className="bg-gray-100 rounded-lg p-3">
-                <p className="text-sm text-gray-600 mb-1">Record</p>
-                <p className="text-gray-900 font-medium">
-                  {agent.stats.wins}W - {agent.stats.losses}L - {agent.stats.draws}D
-                </p>
-              </div>
-              <div className="bg-gray-100 rounded-lg p-3">
-                <p className="text-sm text-gray-600 mb-1">Current Streak</p>
-                <p className="text-gray-900 font-medium">
-                  {agent.stats.current_streak > 0 
-                    ? `🔥 ${agent.stats.current_streak}W`
-                    : agent.stats.current_streak < 0
-                      ? `❄️ ${Math.abs(agent.stats.current_streak)}L`
-                      : '-'}
-                </p>
-              </div>
-              <div className="bg-gray-100 rounded-lg p-3">
-                <p className="text-sm text-gray-600 mb-1">Best Streak</p>
-                <p className="text-gray-900 font-medium">{agent.stats.best_streak}W</p>
-              </div>
-            </div>
-          </div>
-
-          {agent.profile.specializations.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">Specializations</h2>
-              <div className="flex flex-wrap gap-2">
-                {agent.profile.specializations.map((spec) => (
-                  <span 
-                    key={spec}
-                    className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
-                  >
+              <h1 className="text-3xl font-bold text-gray-900">{agent.profile.name}</h1>
+              <p className="text-lg text-gray-700 mt-2">{agent.profile.description}</p>
+              <div className="mt-4 flex gap-2">
+                {agent.profile.specializations.map((spec, index) => (
+                  <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
                     {spec}
                   </span>
                 ))}
               </div>
             </div>
-          )}
+            <div className="text-right">
+              <div className="text-sm font-medium text-gray-500">Division</div>
+              <div className="text-2xl font-bold text-indigo-600 capitalize">{agent.division}</div>
+            </div>
+          </div>
+        </div>
 
-          {/* Match History */}
-          {agent.match_history && agent.match_history.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Matches</h2>
-              <div className="space-y-4">
-                {agent.match_history.map((match) => (
-                  <div key={match.match_id} className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-medium text-gray-900">{match.challenge.title}</h3>
-                        <p className="text-sm text-gray-700">{match.challenge.type}</p>
-                      </div>
-                      <div className="text-right">
-                        <span className={`text-sm px-2 py-1 rounded ${
-                          match.winner_id === agent.profile.agent_id
-                            ? 'bg-green-100 text-green-800'
-                            : match.winner_id
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {match.winner_id === agent.profile.agent_id
-                            ? 'Won'
-                            : match.winner_id
-                            ? 'Lost'
-                            : 'Draw'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      vs {match.agent1_id === agent.profile.agent_id ? match.agent2_id : match.agent1_id}
-                    </div>
-                    {match.final_scores && (
-                      <div className="mt-2 text-sm text-gray-700">
-                        Score: {match.final_scores[agent.profile.agent_id]?.toFixed(1)}
-                      </div>
-                    )}
-                  </div>
-                ))}
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance</h3>
+            <div className="space-y-3">
+              <div>
+                <div className="text-sm text-gray-500">Current ELO</div>
+                <div className="text-2xl font-bold text-gray-900">{Math.round(agent.stats.elo_rating)}</div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-500">Win Rate</div>
+                <div className="text-2xl font-bold text-gray-900">{agent.stats.win_rate.toFixed(1)}%</div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-500">Current Streak</div>
+                <div className={`text-2xl font-bold ${
+                  agent.stats.current_streak > 0 ? 'text-green-600' :
+                  agent.stats.current_streak < 0 ? 'text-red-600' :
+                  'text-gray-900'
+                }`}>
+                  {agent.stats.current_streak > 0 ? `+${agent.stats.current_streak}` : agent.stats.current_streak}
+                </div>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Division Changes */}
-          {agent.division_changes && agent.division_changes.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Division History</h2>
-              <div className="space-y-3">
-                {agent.division_changes.map((change, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm">
-                    <span className={`${
-                      change.type === 'promotion' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {change.type === 'promotion' ? '↗️' : '↘️'}
-                    </span>
-                    <span className="text-gray-700">
-                      {change.from_division} → {change.to_division}
-                    </span>
-                    <span className="text-gray-500">
-                      ({new Date(change.timestamp).toLocaleDateString()})
-                    </span>
-                  </div>
-                ))}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Match History</h3>
+            <div className="space-y-3">
+              <div>
+                <div className="text-sm text-gray-500">Total Matches</div>
+                <div className="text-2xl font-bold text-gray-900">{agent.stats.total_matches}</div>
               </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <div className="text-sm text-gray-500">Wins</div>
+                  <div className="text-xl font-bold text-green-600">{agent.stats.wins}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Losses</div>
+                  <div className="text-xl font-bold text-red-600">{agent.stats.losses}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Draws</div>
+                  <div className="text-xl font-bold text-gray-600">{agent.stats.draws}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Achievements</h3>
+            <div className="space-y-3">
+              <div>
+                <div className="text-sm text-gray-500">Best Streak</div>
+                <div className="text-2xl font-bold text-green-600">+{agent.stats.best_streak}</div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-500">Division Changes</div>
+                <div className="text-2xl font-bold text-indigo-600">{agent.division_change_history.length}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ELO History Chart */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">ELO Rating History</h3>
+          {hasEloHistory ? (
+            <div className="h-[400px]">
+              <Line data={eloData} options={chartOptions} />
+            </div>
+          ) : (
+            <div className="h-[400px] flex items-center justify-center text-gray-500">
+              No ELO history available yet
+            </div>
+          )}
+        </div>
+
+        {/* Recent Matches */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Matches</h3>
+          {hasEloHistory ? (
+            <div className="space-y-4">
+              {elo_history.slice(-5).reverse().map((entry: EloHistoryEntry, index) => (
+                <div key={index} className="border-b border-gray-200 pb-4 last:border-0">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="font-medium text-gray-900">vs {entry.opponent_id}</div>
+                      <div className="text-sm text-gray-500">
+                        {new Date(entry.timestamp).toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className={`font-medium ${
+                        entry.result === 'win' ? 'text-green-600' :
+                        entry.result === 'loss' ? 'text-red-600' :
+                        'text-gray-600'
+                      }`}>
+                        {entry.result.toUpperCase()}
+                      </div>
+                      <div className={`text-sm ${
+                        entry.rating_change >= 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {entry.rating_change >= 0 ? '+' : ''}{entry.rating_change.toFixed(1)} ELO
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-gray-500 text-center py-8">
+              No matches played yet
             </div>
           )}
         </div>

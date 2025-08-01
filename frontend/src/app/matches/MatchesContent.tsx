@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Match } from '@/types/matches';
 import { Agent } from '@/types/arena';
 import { MatchCard } from '@/components/MatchCard';
@@ -21,6 +21,9 @@ export function MatchesContent({ agentsMap: initialAgentsMap }: MatchesContentPr
   const [liveMatches, setLiveMatches] = useState<Match[]>([]);
   const [agentsMap, setAgentsMap] = useState(initialAgentsMap);
   const [error, setError] = useState<string | null>(null);
+  
+  // Keep track of previous live matches
+  const previousLiveMatchesRef = useRef<Match[]>([]);
 
   // Function to update agents data
   const refreshAgents = useCallback(async () => {
@@ -39,17 +42,32 @@ export function MatchesContent({ agentsMap: initialAgentsMap }: MatchesContentPr
   // Use SSE for real-time updates
   useEventSource<MatchUpdate>(`${API_BASE_URL}/matches/stream`, {
     onMessage: async (data) => {
-      setMatches(data.matches);
-      setLiveMatches(data.liveMatches);
-      setError(null);
+      console.log("=== SSE Update Received ===");
       
-      // If any match is completed, refresh agents to get updated stats
-      const hasCompletedMatch = data.liveMatches.some(
-        match => match.status === 'COMPLETED'
-      );
-      if (hasCompletedMatch) {
+      // Check if any match from previous live matches is now completed
+      const newlyCompletedMatch = previousLiveMatchesRef.current.some(oldMatch => {
+        // Check if this match is no longer in live matches but is in completed matches
+        const isNoLongerLive = !data.liveMatches.find(m => m.match_id === oldMatch.match_id);
+        const isNowCompleted = data.matches.find(m => m.match_id === oldMatch.match_id)?.status === 'COMPLETED';
+        
+        if (isNoLongerLive && isNowCompleted) {
+          console.log(`Match ${oldMatch.match_id} just completed`);
+          return true;
+        }
+        return false;
+      });
+
+      if (newlyCompletedMatch) {
+        console.log("Match just completed, refreshing agents");
         await refreshAgents();
       }
+
+      // Update state
+      setMatches(data.matches);
+      setLiveMatches(data.liveMatches);
+      // Update our ref of previous live matches
+      previousLiveMatchesRef.current = data.liveMatches;
+      setError(null);
     },
     onError: () => {
       setError('Failed to connect to match updates stream');

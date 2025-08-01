@@ -391,29 +391,48 @@ class Arena:
             arena_agent2.stats.losses += 1
             arena_agent1.stats.current_streak = max(1, arena_agent1.stats.current_streak + 1)
             arena_agent2.stats.current_streak = min(-1, arena_agent2.stats.current_streak - 1)
+            result1, result2 = "win", "loss"
         elif winner_id == arena_agent2.profile.name:
             actual1, actual2 = 0, 1
             arena_agent2.stats.wins += 1
             arena_agent1.stats.losses += 1
             arena_agent2.stats.current_streak = max(1, arena_agent2.stats.current_streak + 1)
             arena_agent1.stats.current_streak = min(-1, arena_agent1.stats.current_streak - 1)
+            result1, result2 = "loss", "win"
         else:
             actual1, actual2 = 0.5, 0.5
             arena_agent1.stats.draws += 1
             arena_agent2.stats.draws += 1
             arena_agent1.stats.current_streak = 0
             arena_agent2.stats.current_streak = 0
+            result1 = result2 = "draw"
 
-        arena_agent1.stats.elo_rating += k_factor * (actual1 - expected1)
-        arena_agent2.stats.elo_rating += k_factor * (actual2 - expected2)
+        # Calculate ELO changes
+        rating_change1 = k_factor * (actual1 - expected1)
+        rating_change2 = k_factor * (actual2 - expected2)
+        new_rating1 = arena_agent1.stats.elo_rating + rating_change1
+        new_rating2 = arena_agent2.stats.elo_rating + rating_change2
+
+        # Update ELO ratings and record history
+        arena_agent1.update_elo(
+            new_rating=new_rating1,
+            match_id=match_id,
+            opponent_id=arena_agent2.profile.name,
+            opponent_rating=agent2_elo,
+            result=result1,
+            rating_change=rating_change1
+        )
+        arena_agent2.update_elo(
+            new_rating=new_rating2,
+            match_id=match_id,
+            opponent_id=arena_agent1.profile.name,
+            opponent_rating=agent1_elo,
+            result=result2,
+            rating_change=rating_change2
+        )
+
         arena_agent1.stats.best_streak = max(arena_agent1.stats.best_streak, arena_agent1.stats.current_streak)
         arena_agent2.stats.best_streak = max(arena_agent2.stats.best_streak, arena_agent2.stats.current_streak)
-
-        # also updating the argument agents
-        agent1.stats = arena_agent1.stats.model_copy()
-        agent2.stats = arena_agent2.stats.model_copy()
-        agent1.add_match(match_id)
-        agent2.add_match(match_id)
 
         # Save state after updating stats
         print("Updated ELO ratings:", 

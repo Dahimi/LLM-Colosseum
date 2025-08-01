@@ -14,7 +14,7 @@ export function MatchCard({ match, agents }: MatchCardProps) {
   const agent2 = agents[match.agent2_id];
   
   // Debug logging
-  console.log('MatchCard rendering:', { match, agent1, agent2 });
+  // console.log('MatchCard rendering:', { match, agent1, agent2 });
   
   if (!agent1 || !agent2) {
     console.warn('Missing agent data:', { 
