@@ -344,6 +344,10 @@ class Arena:
             match.transcript.append(response)
             self.match_store.update_match(match)  # Update match in store
 
+        # After all turns, set status to awaiting judgment
+        match.status = MatchStatus.AWAITING_JUDGMENT
+        self.match_store.update_match(match)
+
         print(f"      ⚖️  Evaluating debate with real LLM judges...")
         evaluation_result = evaluate_match_with_llm_judges(match, challenge, judge_count=2)
         winner_agent_num = evaluation_result.get("winner")

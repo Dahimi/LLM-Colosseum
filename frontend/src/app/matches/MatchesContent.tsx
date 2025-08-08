@@ -22,8 +22,8 @@ export function MatchesContent({ agentsMap: initialAgentsMap }: MatchesContentPr
   const [agentsMap, setAgentsMap] = useState(initialAgentsMap);
   const [error, setError] = useState<string | null>(null);
   
-  // Keep track of previous live matches
-  const previousLiveMatchesRef = useRef<Match[]>([]);
+  // Keep track of previous matches
+  const previousMatchesRef = useRef<Match[]>([]);
 
   // Function to update agents data
   const refreshAgents = useCallback(async () => {
@@ -44,14 +44,18 @@ export function MatchesContent({ agentsMap: initialAgentsMap }: MatchesContentPr
     onMessage: async (data) => {
       console.log("=== SSE Update Received ===");
       
-      // Check if any match from previous live matches is now completed
-      const newlyCompletedMatch = previousLiveMatchesRef.current.some(oldMatch => {
-        // Check if this match is no longer in live matches but is in completed matches
-        const isNoLongerLive = !data.liveMatches.find(m => m.match_id === oldMatch.match_id);
-        const isNowCompleted = data.matches.find(m => m.match_id === oldMatch.match_id)?.status === 'COMPLETED';
+      // Check if any match has just become completed
+      const newlyCompletedMatch = data.matches.some(newMatch => {
+        // Find this match in our previous matches
+        const previousMatch = previousMatchesRef.current.find(m => m.match_id === newMatch.match_id);
         
-        if (isNoLongerLive && isNowCompleted) {
-          console.log(`Match ${oldMatch.match_id} just completed`);
+        // If the match existed before and its status just changed to COMPLETED
+        const justCompleted = previousMatch && 
+                            previousMatch.status !== 'COMPLETED' && 
+                            newMatch.status === 'COMPLETED';
+        
+        if (justCompleted) {
+          console.log(`Match ${newMatch.match_id} just completed. Previous status: ${previousMatch.status}`);
           return true;
         }
         return false;
@@ -65,8 +69,8 @@ export function MatchesContent({ agentsMap: initialAgentsMap }: MatchesContentPr
       // Update state
       setMatches(data.matches);
       setLiveMatches(data.liveMatches);
-      // Update our ref of previous live matches
-      previousLiveMatchesRef.current = data.liveMatches;
+      // Update our ref of previous matches
+      previousMatchesRef.current = data.matches;
       setError(null);
     },
     onError: () => {

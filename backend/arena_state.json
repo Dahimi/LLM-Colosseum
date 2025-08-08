@@ -2,49 +2,292 @@
     "agents": [
         {
             "profile": {
-                "agent_id": "641b1823-08b3-40c9-8672-faebb4ccb5ef",
+                "agent_id": "f5e1232a-1f74-47df-b869-68adad164fd5",
                 "name": "MixtralPro",
                 "description": "Agent based on mistralai/mixtral-8x7b-instruct",
                 "specializations": [
                     "general intelligence",
                     "mistralai"
                 ],
-                "created_at": "2025-07-26T19:26:32.555979",
-                "last_active": "2025-07-26T19:26:32.555983",
+                "created_at": "2025-08-01T09:29:35.398980",
+                "last_active": "2025-08-08T08:38:34.890876",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "expert",
             "stats": {
-                "elo_rating": 1200.0,
-                "total_matches": 0,
-                "wins": 0,
-                "losses": 0,
-                "draws": 0,
-                "current_streak": 0,
-                "best_streak": 0,
+                "elo_rating": 1140.5121576078898,
+                "total_matches": 24,
+                "wins": 5,
+                "losses": 13,
+                "draws": 6,
+                "current_streak": -1,
+                "best_streak": 2,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
-                "judge_reliability": 1.0
+                "judge_reliability": 1.0,
+                "elo_history": [
+                    {
+                        "timestamp": "2025-08-01T09:33:17.109479",
+                        "rating": 1184.0,
+                        "match_id": "cb4157ab-ccbd-4cfd-b473-29a9522f9a3c",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1200.0,
+                        "result": "loss",
+                        "rating_change": -16.0
+                    },
+                    {
+                        "timestamp": "2025-08-01T09:38:55.789231",
+                        "rating": 1185.4695015289756,
+                        "match_id": "2b534b8f-f1d4-4f22-8c48-f9672bd30d31",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1216.0,
+                        "result": "draw",
+                        "rating_change": 1.4695015289754778
+                    },
+                    {
+                        "timestamp": "2025-08-01T09:41:07.474502",
+                        "rating": 1170.8046975081022,
+                        "match_id": "c583e455-129a-4c2b-91d3-07228bcd7132",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1214.5304984710244,
+                        "result": "loss",
+                        "rating_change": -14.664804020873339
+                    },
+                    {
+                        "timestamp": "2025-08-01T09:43:55.159342",
+                        "rating": 1157.468650467304,
+                        "match_id": "edc58956-9128-43c1-84dd-121e6517c645",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1229.1953024918978,
+                        "result": "loss",
+                        "rating_change": -13.33604704079812
+                    },
+                    {
+                        "timestamp": "2025-08-01T10:12:29.400385",
+                        "rating": 1145.3094950859127,
+                        "match_id": "6972eae1-195a-48dd-81d9-5b4038a5f8de",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1242.531349532696,
+                        "result": "loss",
+                        "rating_change": -12.159155381391525
+                    },
+                    {
+                        "timestamp": "2025-08-01T20:38:02.826078",
+                        "rating": 1134.1866015329465,
+                        "match_id": "d7b1fcb8-0e30-41ec-b4c4-44e921858d07",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1254.6905049140873,
+                        "result": "loss",
+                        "rating_change": -11.122893552966183
+                    },
+                    {
+                        "timestamp": "2025-08-01T20:43:44.821345",
+                        "rating": 1155.9739680329667,
+                        "match_id": "8b269acc-fc47-4362-bad6-47a862d80733",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1265.8133984670535,
+                        "result": "win",
+                        "rating_change": 21.78736650002029
+                    },
+                    {
+                        "timestamp": "2025-08-01T20:45:20.850577",
+                        "rating": 1159.944274389674,
+                        "match_id": "8673531f-121c-4f67-8f67-6874c08ecdc6",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1244.0260319670333,
+                        "result": "draw",
+                        "rating_change": 3.970306356707498
+                    },
+                    {
+                        "timestamp": "2025-08-01T20:56:42.081705",
+                        "rating": 1179.56952201564,
+                        "match_id": "da7a3cd8-c51c-4efc-9c53-fc99ea55b47a",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1240.055725610326,
+                        "result": "win",
+                        "rating_change": 19.625247625965798
+                    },
+                    {
+                        "timestamp": "2025-08-01T20:58:34.512278",
+                        "rating": 1165.4426106715448,
+                        "match_id": "62f39bf1-05ce-4d08-9356-40b856eff9be",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1220.43047798436,
+                        "result": "loss",
+                        "rating_change": -14.126911344095188
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:05:38.737333",
+                        "rating": 1168.5841334848215,
+                        "match_id": "0ea24a8b-1591-4fce-897c-e9467e2459ee",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1234.5573893284552,
+                        "result": "draw",
+                        "rating_change": 3.1415228132765893
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:07:26.103151",
+                        "rating": 1187.446505258265,
+                        "match_id": "c8315441-2644-422d-95dc-1a23d5f3f206",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1231.4158665151785,
+                        "result": "win",
+                        "rating_change": 18.862371773443662
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:11:48.420545",
+                        "rating": 1188.6007164370708,
+                        "match_id": "a74cc568-46ac-4f23-8f4d-91076a91271e",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1212.553494741735,
+                        "result": "draw",
+                        "rating_change": 1.1542111788057419
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:16:55.514100",
+                        "rating": 1173.649124895411,
+                        "match_id": "fbc41535-0646-430a-89d8-897c31b96fdb",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1211.3992835629292,
+                        "result": "loss",
+                        "rating_change": -14.951591541659873
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:20:23.660199",
+                        "rating": 1160.057685442754,
+                        "match_id": "caf0b25e-aa7b-4002-8b86-32201d5f6175",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1226.350875104589,
+                        "result": "loss",
+                        "rating_change": -13.591439452656815
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:23:03.142080",
+                        "rating": 1147.6730223090597,
+                        "match_id": "3eff0d50-b499-4a81-ae64-b111625b7a51",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1239.942314557246,
+                        "result": "loss",
+                        "rating_change": -12.38466313369436
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:30:57.773063",
+                        "rating": 1168.3518563082926,
+                        "match_id": "3ff14f74-a25b-460e-bdaa-0f4ebf527077",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1252.3269776909403,
+                        "result": "win",
+                        "rating_change": 20.678833999232832
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:31:13.850270",
+                        "rating": 1187.234931944967,
+                        "match_id": "698e8a90-9f6f-4d99-a603-4b46890d6dee",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1231.6481436917074,
+                        "result": "win",
+                        "rating_change": 18.883075636674427
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:31:19.446254",
+                        "rating": 1188.408526626664,
+                        "match_id": "3ed4f44b-83a7-483f-8640-a0848581148c",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1212.765068055033,
+                        "result": "draw",
+                        "rating_change": 1.1735946816970166
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:32:46.520882",
+                        "rating": 1173.474559133526,
+                        "match_id": "93f3385d-3376-4119-bc33-89da0fea55cc",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1211.591473373336,
+                        "result": "loss",
+                        "rating_change": -14.933967493138045
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:34:52.157247",
+                        "rating": 1159.8988310571945,
+                        "match_id": "c2fdd76f-bed6-4cde-a385-3cf9469b2815",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1226.525440866474,
+                        "result": "loss",
+                        "rating_change": -13.575728076331755
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:40:42.310663",
+                        "rating": 1147.528049060639,
+                        "match_id": "46be3b9c-5c19-4928-a0c5-fb10f57477c2",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1240.1011689428055,
+                        "result": "loss",
+                        "rating_change": -12.370781996555559
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:40:50.969109",
+                        "rating": 1152.219090784301,
+                        "match_id": "d8c11465-d18f-403b-8873-d33cf28da9b5",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1252.471950939361,
+                        "result": "draw",
+                        "rating_change": 4.691041723662067
+                    },
+                    {
+                        "timestamp": "2025-08-08T08:38:34.890872",
+                        "rating": 1140.5121576078898,
+                        "match_id": "5a76c412-e81d-4190-a8f0-7912ecebcebe",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1247.780909215699,
+                        "result": "loss",
+                        "rating_change": -11.706933176411312
+                    }
+                ]
             },
-            "match_history": [],
+            "match_history": [
+                "cb4157ab-ccbd-4cfd-b473-29a9522f9a3c",
+                "2b534b8f-f1d4-4f22-8c48-f9672bd30d31",
+                "c583e455-129a-4c2b-91d3-07228bcd7132",
+                "edc58956-9128-43c1-84dd-121e6517c645",
+                "6972eae1-195a-48dd-81d9-5b4038a5f8de",
+                "d7b1fcb8-0e30-41ec-b4c4-44e921858d07",
+                "8b269acc-fc47-4362-bad6-47a862d80733",
+                "8673531f-121c-4f67-8f67-6874c08ecdc6",
+                "da7a3cd8-c51c-4efc-9c53-fc99ea55b47a",
+                "62f39bf1-05ce-4d08-9356-40b856eff9be",
+                "0ea24a8b-1591-4fce-897c-e9467e2459ee",
+                "c8315441-2644-422d-95dc-1a23d5f3f206",
+                "a74cc568-46ac-4f23-8f4d-91076a91271e",
+                "fbc41535-0646-430a-89d8-897c31b96fdb",
+                "caf0b25e-aa7b-4002-8b86-32201d5f6175",
+                "3eff0d50-b499-4a81-ae64-b111625b7a51",
+                "3ff14f74-a25b-460e-bdaa-0f4ebf527077",
+                "698e8a90-9f6f-4d99-a603-4b46890d6dee",
+                "3ed4f44b-83a7-483f-8640-a0848581148c",
+                "93f3385d-3376-4119-bc33-89da0fea55cc",
+                "c2fdd76f-bed6-4cde-a385-3cf9469b2815",
+                "46be3b9c-5c19-4928-a0c5-fb10f57477c2",
+                "d8c11465-d18f-403b-8873-d33cf28da9b5",
+                "5a76c412-e81d-4190-a8f0-7912ecebcebe"
+            ],
             "challenge_history": [],
             "division_change_history": []
         },
         {
             "profile": {
-                "agent_id": "48653e85-6257-4a59-bb2f-ddf9c85ab1a5",
+                "agent_id": "3eab5950-a3fb-455a-811d-3ad4f6e9fac4",
                 "name": "Llama3Mini",
                 "description": "Agent based on meta-llama/llama-3.1-8b-instruct",
                 "specializations": [
                     "general intelligence",
                     "meta-llama"
                 ],
-                "created_at": "2025-07-26T19:26:33.188511",
-                "last_active": "2025-07-26T19:26:33.188513",
+                "created_at": "2025-08-01T09:29:35.475107",
+                "last_active": "2025-08-01T09:29:35.475110",
                 "is_active": true,
                 "metadata": {}
             },
@@ -62,7 +305,8 @@
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
-                "judge_reliability": 1.0
+                "judge_reliability": 1.0,
+                "elo_history": []
             },
             "match_history": [],
             "challenge_history": [],
@@ -70,49 +314,292 @@
         },
         {
             "profile": {
-                "agent_id": "2a0cd132-0198-498f-99bd-f28cf3014257",
+                "agent_id": "eacb854b-5781-47c0-8938-598f68af63d0",
                 "name": "Llama3Pro",
                 "description": "Agent based on meta-llama/llama-3.3-70b-instruct",
                 "specializations": [
                     "general intelligence",
                     "meta-llama"
                 ],
-                "created_at": "2025-07-26T19:26:33.188763",
-                "last_active": "2025-07-26T19:26:33.188764",
+                "created_at": "2025-08-01T09:29:35.475264",
+                "last_active": "2025-08-08T08:38:34.890880",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "expert",
             "stats": {
-                "elo_rating": 1200.0,
-                "total_matches": 0,
-                "wins": 0,
-                "losses": 0,
-                "draws": 0,
-                "current_streak": 0,
-                "best_streak": 0,
+                "elo_rating": 1259.4878423921102,
+                "total_matches": 24,
+                "wins": 13,
+                "losses": 5,
+                "draws": 6,
+                "current_streak": 1,
+                "best_streak": 4,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
-                "judge_reliability": 1.0
+                "judge_reliability": 1.0,
+                "elo_history": [
+                    {
+                        "timestamp": "2025-08-01T09:33:17.109485",
+                        "rating": 1216.0,
+                        "match_id": "cb4157ab-ccbd-4cfd-b473-29a9522f9a3c",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1200.0,
+                        "result": "win",
+                        "rating_change": 16.0
+                    },
+                    {
+                        "timestamp": "2025-08-01T09:38:55.789221",
+                        "rating": 1214.5304984710244,
+                        "match_id": "2b534b8f-f1d4-4f22-8c48-f9672bd30d31",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1184.0,
+                        "result": "draw",
+                        "rating_change": -1.4695015289754778
+                    },
+                    {
+                        "timestamp": "2025-08-01T09:41:07.474511",
+                        "rating": 1229.1953024918978,
+                        "match_id": "c583e455-129a-4c2b-91d3-07228bcd7132",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1185.4695015289756,
+                        "result": "win",
+                        "rating_change": 14.66480402087334
+                    },
+                    {
+                        "timestamp": "2025-08-01T09:43:55.159346",
+                        "rating": 1242.531349532696,
+                        "match_id": "edc58956-9128-43c1-84dd-121e6517c645",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1170.8046975081022,
+                        "result": "win",
+                        "rating_change": 13.336047040798121
+                    },
+                    {
+                        "timestamp": "2025-08-01T10:12:29.400395",
+                        "rating": 1254.6905049140873,
+                        "match_id": "6972eae1-195a-48dd-81d9-5b4038a5f8de",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1157.468650467304,
+                        "result": "win",
+                        "rating_change": 12.159155381391525
+                    },
+                    {
+                        "timestamp": "2025-08-01T20:38:02.826096",
+                        "rating": 1265.8133984670535,
+                        "match_id": "d7b1fcb8-0e30-41ec-b4c4-44e921858d07",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1145.3094950859127,
+                        "result": "win",
+                        "rating_change": 11.122893552966179
+                    },
+                    {
+                        "timestamp": "2025-08-01T20:43:44.821357",
+                        "rating": 1244.0260319670333,
+                        "match_id": "8b269acc-fc47-4362-bad6-47a862d80733",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1134.1866015329465,
+                        "result": "loss",
+                        "rating_change": -21.78736650002029
+                    },
+                    {
+                        "timestamp": "2025-08-01T20:45:20.850569",
+                        "rating": 1240.055725610326,
+                        "match_id": "8673531f-121c-4f67-8f67-6874c08ecdc6",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1155.9739680329667,
+                        "result": "draw",
+                        "rating_change": -3.9703063567075
+                    },
+                    {
+                        "timestamp": "2025-08-01T20:56:42.081700",
+                        "rating": 1220.43047798436,
+                        "match_id": "da7a3cd8-c51c-4efc-9c53-fc99ea55b47a",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1159.944274389674,
+                        "result": "loss",
+                        "rating_change": -19.625247625965798
+                    },
+                    {
+                        "timestamp": "2025-08-01T20:58:34.512270",
+                        "rating": 1234.5573893284552,
+                        "match_id": "62f39bf1-05ce-4d08-9356-40b856eff9be",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1179.56952201564,
+                        "result": "win",
+                        "rating_change": 14.126911344095188
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:05:38.737346",
+                        "rating": 1231.4158665151785,
+                        "match_id": "0ea24a8b-1591-4fce-897c-e9467e2459ee",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1165.4426106715448,
+                        "result": "draw",
+                        "rating_change": -3.1415228132765876
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:07:26.103137",
+                        "rating": 1212.553494741735,
+                        "match_id": "c8315441-2644-422d-95dc-1a23d5f3f206",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1168.5841334848215,
+                        "result": "loss",
+                        "rating_change": -18.862371773443666
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:11:48.420550",
+                        "rating": 1211.3992835629292,
+                        "match_id": "a74cc568-46ac-4f23-8f4d-91076a91271e",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1187.446505258265,
+                        "result": "draw",
+                        "rating_change": -1.1542111788057454
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:16:55.514091",
+                        "rating": 1226.350875104589,
+                        "match_id": "fbc41535-0646-430a-89d8-897c31b96fdb",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1188.6007164370708,
+                        "result": "win",
+                        "rating_change": 14.951591541659877
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:20:23.660183",
+                        "rating": 1239.942314557246,
+                        "match_id": "caf0b25e-aa7b-4002-8b86-32201d5f6175",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1173.649124895411,
+                        "result": "win",
+                        "rating_change": 13.591439452656815
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:23:03.142066",
+                        "rating": 1252.3269776909403,
+                        "match_id": "3eff0d50-b499-4a81-ae64-b111625b7a51",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1160.057685442754,
+                        "result": "win",
+                        "rating_change": 12.38466313369436
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:30:57.773078",
+                        "rating": 1231.6481436917074,
+                        "match_id": "3ff14f74-a25b-460e-bdaa-0f4ebf527077",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1147.6730223090597,
+                        "result": "loss",
+                        "rating_change": -20.678833999232832
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:31:13.850280",
+                        "rating": 1212.765068055033,
+                        "match_id": "698e8a90-9f6f-4d99-a603-4b46890d6dee",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1168.3518563082926,
+                        "result": "loss",
+                        "rating_change": -18.883075636674427
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:31:19.446239",
+                        "rating": 1211.591473373336,
+                        "match_id": "3ed4f44b-83a7-483f-8640-a0848581148c",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1187.234931944967,
+                        "result": "draw",
+                        "rating_change": -1.1735946816970184
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:32:46.520894",
+                        "rating": 1226.525440866474,
+                        "match_id": "93f3385d-3376-4119-bc33-89da0fea55cc",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1188.408526626664,
+                        "result": "win",
+                        "rating_change": 14.933967493138045
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:34:52.157264",
+                        "rating": 1240.1011689428055,
+                        "match_id": "c2fdd76f-bed6-4cde-a385-3cf9469b2815",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1173.474559133526,
+                        "result": "win",
+                        "rating_change": 13.575728076331753
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:40:42.310688",
+                        "rating": 1252.471950939361,
+                        "match_id": "46be3b9c-5c19-4928-a0c5-fb10f57477c2",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1159.8988310571945,
+                        "result": "win",
+                        "rating_change": 12.37078199655556
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:40:50.969118",
+                        "rating": 1247.780909215699,
+                        "match_id": "d8c11465-d18f-403b-8873-d33cf28da9b5",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1147.528049060639,
+                        "result": "draw",
+                        "rating_change": -4.691041723662067
+                    },
+                    {
+                        "timestamp": "2025-08-08T08:38:34.890878",
+                        "rating": 1259.4878423921102,
+                        "match_id": "5a76c412-e81d-4190-a8f0-7912ecebcebe",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1152.219090784301,
+                        "result": "win",
+                        "rating_change": 11.706933176411312
+                    }
+                ]
             },
-            "match_history": [],
+            "match_history": [
+                "cb4157ab-ccbd-4cfd-b473-29a9522f9a3c",
+                "2b534b8f-f1d4-4f22-8c48-f9672bd30d31",
+                "c583e455-129a-4c2b-91d3-07228bcd7132",
+                "edc58956-9128-43c1-84dd-121e6517c645",
+                "6972eae1-195a-48dd-81d9-5b4038a5f8de",
+                "d7b1fcb8-0e30-41ec-b4c4-44e921858d07",
+                "8b269acc-fc47-4362-bad6-47a862d80733",
+                "8673531f-121c-4f67-8f67-6874c08ecdc6",
+                "da7a3cd8-c51c-4efc-9c53-fc99ea55b47a",
+                "62f39bf1-05ce-4d08-9356-40b856eff9be",
+                "0ea24a8b-1591-4fce-897c-e9467e2459ee",
+                "c8315441-2644-422d-95dc-1a23d5f3f206",
+                "a74cc568-46ac-4f23-8f4d-91076a91271e",
+                "fbc41535-0646-430a-89d8-897c31b96fdb",
+                "caf0b25e-aa7b-4002-8b86-32201d5f6175",
+                "3eff0d50-b499-4a81-ae64-b111625b7a51",
+                "3ff14f74-a25b-460e-bdaa-0f4ebf527077",
+                "698e8a90-9f6f-4d99-a603-4b46890d6dee",
+                "3ed4f44b-83a7-483f-8640-a0848581148c",
+                "93f3385d-3376-4119-bc33-89da0fea55cc",
+                "c2fdd76f-bed6-4cde-a385-3cf9469b2815",
+                "46be3b9c-5c19-4928-a0c5-fb10f57477c2",
+                "d8c11465-d18f-403b-8873-d33cf28da9b5",
+                "5a76c412-e81d-4190-a8f0-7912ecebcebe"
+            ],
             "challenge_history": [],
             "division_change_history": []
         },
         {
             "profile": {
-                "agent_id": "6ffc801d-5e81-42c0-86d4-4cdef850fbda",
+                "agent_id": "c1668bd6-8564-483a-ac2a-24a28b265648",
                 "name": "MistralSmall",
                 "description": "Agent based on mistralai/mistral-small-24b-instruct-2501",
                 "specializations": [
                     "general intelligence",
                     "mistralai"
                 ],
-                "created_at": "2025-07-26T19:26:33.188908",
-                "last_active": "2025-07-26T19:26:33.188909",
+                "created_at": "2025-08-01T09:29:35.475358",
+                "last_active": "2025-08-01T09:29:35.475359",
                 "is_active": true,
                 "metadata": {}
             },
@@ -130,7 +617,8 @@
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
-                "judge_reliability": 1.0
+                "judge_reliability": 1.0,
+                "elo_history": []
             },
             "match_history": [],
             "challenge_history": [],
@@ -138,49 +626,82 @@
         },
         {
             "profile": {
-                "agent_id": "525db5d8-c814-4733-81e1-39ed4e9a774b",
+                "agent_id": "0e6baf1c-a2c8-4346-8a3e-e8bfaf8863de",
                 "name": "MistralSmallV2",
                 "description": "Agent based on mistralai/mistral-small-3.2-24b-instruct",
                 "specializations": [
                     "general intelligence",
                     "mistralai"
                 ],
-                "created_at": "2025-07-26T19:26:33.189031",
-                "last_active": "2025-07-26T19:26:33.189032",
+                "created_at": "2025-08-01T09:29:35.475444",
+                "last_active": "2025-08-01T10:15:27.699027",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1200.0,
-                "total_matches": 0,
+                "elo_rating": 1169.4695015289756,
+                "total_matches": 3,
                 "wins": 0,
-                "losses": 0,
-                "draws": 0,
-                "current_streak": 0,
+                "losses": 2,
+                "draws": 1,
+                "current_streak": -2,
                 "best_streak": 0,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
-                "judge_reliability": 1.0
+                "judge_reliability": 1.0,
+                "elo_history": [
+                    {
+                        "timestamp": "2025-08-01T09:39:26.155152",
+                        "rating": 1200.0,
+                        "match_id": "c62ee426-cbe2-4ced-b3c9-e9341872166e",
+                        "opponent_id": "GPT4Mini",
+                        "opponent_rating": 1200.0,
+                        "result": "draw",
+                        "rating_change": 0.0
+                    },
+                    {
+                        "timestamp": "2025-08-01T10:10:00.814915",
+                        "rating": 1184.0,
+                        "match_id": "89d6947e-2046-40a0-ad26-ec275972e5b4",
+                        "opponent_id": "QwenFree",
+                        "opponent_rating": 1200.0,
+                        "result": "loss",
+                        "rating_change": -16.0
+                    },
+                    {
+                        "timestamp": "2025-08-01T10:15:27.699014",
+                        "rating": 1169.4695015289756,
+                        "match_id": "5c333e36-1363-4347-bd13-0a4c61d69e89",
+                        "opponent_id": "QwenFree",
+                        "opponent_rating": 1216.0,
+                        "result": "loss",
+                        "rating_change": -14.530498471024522
+                    }
+                ]
             },
-            "match_history": [],
+            "match_history": [
+                "c62ee426-cbe2-4ced-b3c9-e9341872166e",
+                "89d6947e-2046-40a0-ad26-ec275972e5b4",
+                "5c333e36-1363-4347-bd13-0a4c61d69e89"
+            ],
             "challenge_history": [],
             "division_change_history": []
         },
         {
             "profile": {
-                "agent_id": "e673490c-bc92-442a-b7bc-d12f44330af2",
+                "agent_id": "52ce450a-2fe2-4248-bc18-3f1eba4d2b99",
                 "name": "GrokMini",
                 "description": "Agent based on x-ai/grok-3-mini-beta",
                 "specializations": [
                     "general intelligence",
                     "x-ai"
                 ],
-                "created_at": "2025-07-26T19:26:33.189142",
-                "last_active": "2025-07-26T19:26:33.189143",
+                "created_at": "2025-08-01T09:29:35.475525",
+                "last_active": "2025-08-01T09:29:35.475525",
                 "is_active": true,
                 "metadata": {}
             },
@@ -198,7 +719,8 @@
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
-                "judge_reliability": 1.0
+                "judge_reliability": 1.0,
+                "elo_history": []
             },
             "match_history": [],
             "challenge_history": [],
@@ -206,83 +728,119 @@
         },
         {
             "profile": {
-                "agent_id": "fb999975-40ea-410d-bf8d-71c96fba0116",
+                "agent_id": "18bda9a0-142e-465e-ba57-b3064b1d1302",
                 "name": "GeminiFlash",
                 "description": "Agent based on google/gemini-2.0-flash-exp:free",
                 "specializations": [
                     "general intelligence",
                     "google"
                 ],
-                "created_at": "2025-07-26T19:26:33.189247",
-                "last_active": "2025-07-26T19:26:33.189248",
+                "created_at": "2025-08-01T09:29:35.475605",
+                "last_active": "2025-08-01T10:07:53.857786",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1200.0,
-                "total_matches": 0,
-                "wins": 0,
+                "elo_rating": 1216.0,
+                "total_matches": 1,
+                "wins": 1,
                 "losses": 0,
                 "draws": 0,
-                "current_streak": 0,
-                "best_streak": 0,
+                "current_streak": 1,
+                "best_streak": 1,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
-                "judge_reliability": 1.0
+                "judge_reliability": 1.0,
+                "elo_history": [
+                    {
+                        "timestamp": "2025-08-01T10:07:53.857781",
+                        "rating": 1216.0,
+                        "match_id": "ec504f48-7214-4220-bd06-b9df6b2cc803",
+                        "opponent_id": "MistralNemo",
+                        "opponent_rating": 1200.0,
+                        "result": "win",
+                        "rating_change": 16.0
+                    }
+                ]
             },
-            "match_history": [],
+            "match_history": [
+                "ec504f48-7214-4220-bd06-b9df6b2cc803"
+            ],
             "challenge_history": [],
             "division_change_history": []
         },
         {
             "profile": {
-                "agent_id": "537995d0-3793-44fd-8e75-a04897f418f1",
+                "agent_id": "e5354852-3e15-4f02-a530-27c8f998f5a5",
                 "name": "GPT4Mini",
                 "description": "Agent based on openai/gpt-4.1-mini",
                 "specializations": [
                     "general intelligence",
                     "openai"
                 ],
-                "created_at": "2025-07-26T19:26:33.189364",
-                "last_active": "2025-07-26T19:26:33.189365",
+                "created_at": "2025-08-01T09:29:35.475735",
+                "last_active": "2025-08-01T21:45:47.437380",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1200.0,
-                "total_matches": 0,
+                "elo_rating": 1185.402373648406,
+                "total_matches": 2,
                 "wins": 0,
-                "losses": 0,
-                "draws": 0,
-                "current_streak": 0,
+                "losses": 1,
+                "draws": 1,
+                "current_streak": -1,
                 "best_streak": 0,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
-                "judge_reliability": 1.0
+                "judge_reliability": 1.0,
+                "elo_history": [
+                    {
+                        "timestamp": "2025-08-01T09:39:26.155165",
+                        "rating": 1200.0,
+                        "match_id": "c62ee426-cbe2-4ced-b3c9-e9341872166e",
+                        "opponent_id": "MistralSmallV2",
+                        "opponent_rating": 1200.0,
+                        "result": "draw",
+                        "rating_change": 0.0
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:45:47.437370",
+                        "rating": 1185.402373648406,
+                        "match_id": "70195db6-aa39-4e82-a419-e3bed9eca736",
+                        "opponent_id": "QwenFree",
+                        "opponent_rating": 1230.5304984710244,
+                        "result": "loss",
+                        "rating_change": -14.597626351593979
+                    }
+                ]
             },
-            "match_history": [],
+            "match_history": [
+                "c62ee426-cbe2-4ced-b3c9-e9341872166e",
+                "70195db6-aa39-4e82-a419-e3bed9eca736"
+            ],
             "challenge_history": [],
             "division_change_history": []
         },
         {
             "profile": {
-                "agent_id": "7c37d7d7-e6ca-4768-831c-ad89d5ec4278",
+                "agent_id": "c82d5728-5cfc-47ac-957f-5f4deeb4e6c1",
                 "name": "GPT4oMini",
                 "description": "Agent based on openai/gpt-4o-mini",
                 "specializations": [
                     "general intelligence",
                     "openai"
                 ],
-                "created_at": "2025-07-26T19:26:33.189471",
-                "last_active": "2025-07-26T19:26:33.189472",
+                "created_at": "2025-08-01T09:29:35.475833",
+                "last_active": "2025-08-01T09:29:35.475833",
                 "is_active": true,
                 "metadata": {}
             },
@@ -300,7 +858,8 @@
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
-                "judge_reliability": 1.0
+                "judge_reliability": 1.0,
+                "elo_history": []
             },
             "match_history": [],
             "challenge_history": [],
@@ -308,82 +867,128 @@
         },
         {
             "profile": {
-                "agent_id": "bdde246d-d96e-46ed-8315-3f1351f2280d",
+                "agent_id": "4322acf0-e704-446c-88c2-f68d48348457",
                 "name": "QwenFree",
                 "description": "Agent based on qwen/qwen3-235b-a22b-2507:free",
                 "specializations": [
                     "general intelligence",
                     "qwen"
                 ],
-                "created_at": "2025-07-26T19:26:33.189570",
-                "last_active": "2025-07-26T19:26:33.189571",
+                "created_at": "2025-08-01T09:29:35.475910",
+                "last_active": "2025-08-01T21:45:47.437389",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1200.0,
-                "total_matches": 0,
-                "wins": 0,
+                "elo_rating": 1245.1281248226185,
+                "total_matches": 3,
+                "wins": 3,
                 "losses": 0,
                 "draws": 0,
-                "current_streak": 0,
-                "best_streak": 0,
+                "current_streak": 3,
+                "best_streak": 3,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
-                "judge_reliability": 1.0
+                "judge_reliability": 1.0,
+                "elo_history": [
+                    {
+                        "timestamp": "2025-08-01T10:10:00.814935",
+                        "rating": 1216.0,
+                        "match_id": "89d6947e-2046-40a0-ad26-ec275972e5b4",
+                        "opponent_id": "MistralSmallV2",
+                        "opponent_rating": 1200.0,
+                        "result": "win",
+                        "rating_change": 16.0
+                    },
+                    {
+                        "timestamp": "2025-08-01T10:15:27.699030",
+                        "rating": 1230.5304984710244,
+                        "match_id": "5c333e36-1363-4347-bd13-0a4c61d69e89",
+                        "opponent_id": "MistralSmallV2",
+                        "opponent_rating": 1184.0,
+                        "result": "win",
+                        "rating_change": 14.530498471024522
+                    },
+                    {
+                        "timestamp": "2025-08-01T21:45:47.437385",
+                        "rating": 1245.1281248226185,
+                        "match_id": "70195db6-aa39-4e82-a419-e3bed9eca736",
+                        "opponent_id": "GPT4Mini",
+                        "opponent_rating": 1200.0,
+                        "result": "win",
+                        "rating_change": 14.597626351593977
+                    }
+                ]
             },
-            "match_history": [],
+            "match_history": [
+                "89d6947e-2046-40a0-ad26-ec275972e5b4",
+                "5c333e36-1363-4347-bd13-0a4c61d69e89",
+                "70195db6-aa39-4e82-a419-e3bed9eca736"
+            ],
             "challenge_history": [],
             "division_change_history": []
         },
         {
             "profile": {
-                "agent_id": "89b214df-195c-4931-9a26-90b630553468",
+                "agent_id": "28ffb99d-ece6-4a28-a89f-f7579d84f621",
                 "name": "MistralNemo",
                 "description": "Agent based on mistralai/mistral-nemo",
                 "specializations": [
                     "general intelligence",
                     "mistralai"
                 ],
-                "created_at": "2025-07-26T19:26:33.189679",
-                "last_active": "2025-07-26T19:26:33.189680",
+                "created_at": "2025-08-01T09:29:35.475985",
+                "last_active": "2025-08-01T10:07:53.857789",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1200.0,
-                "total_matches": 0,
+                "elo_rating": 1184.0,
+                "total_matches": 1,
                 "wins": 0,
-                "losses": 0,
+                "losses": 1,
                 "draws": 0,
-                "current_streak": 0,
+                "current_streak": -1,
                 "best_streak": 0,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
-                "judge_reliability": 1.0
+                "judge_reliability": 1.0,
+                "elo_history": [
+                    {
+                        "timestamp": "2025-08-01T10:07:53.857788",
+                        "rating": 1184.0,
+                        "match_id": "ec504f48-7214-4220-bd06-b9df6b2cc803",
+                        "opponent_id": "GeminiFlash",
+                        "opponent_rating": 1200.0,
+                        "result": "loss",
+                        "rating_change": -16.0
+                    }
+                ]
             },
-            "match_history": [],
+            "match_history": [
+                "ec504f48-7214-4220-bd06-b9df6b2cc803"
+            ],
             "challenge_history": [],
             "division_change_history": []
         }
     ],
     "challenges": [
         {
-            "challenge_id": "e9921bab-0400-410c-9b34-b6c11043f6b8",
-            "title": "The Colorful Cartons Puzzle",
-            "description": "In a small town, there are three colorful cartons: a red carton, a blue carton, and a green carton. Each carton contains a different type of fruit: apples, bananas, or cherries. The following clues are provided to deduce the contents of each carton:\n\n1. The red carton does not contain apples.\n2. The blue carton contains cherries.\n3. The green carton contains bananas.\n\nYour challenge is to deduce the content of each carton based on these clues in a detailed, step-by-step manner. Make sure to outline your reasoning clearly and identify what fruit is in each colored carton. \n\nEnsure your response follows a clear logical structure and demonstrates the deductive reasoning process clearly.",
+            "challenge_id": "4424541e-c64e-4122-807d-f99d9b020a67",
+            "title": "Fruit Basket Deduction",
+            "description": "In a small town, there are five different fruit vendors. Each vendor sells a distinct type of fruit. The fruits include apples, bananas, cherries, dates, and elderberries. Each vendor has a unique selling point as follows:\n\n1. The vendor with apples does not sell to anyone who buys cherries.\n2. The vendor selling bananas always sells to children.\n3. The vendor with cherries is known for their discounts on elderberries.\n4. The vendor selling dates will only sell to customers who do not buy apples.\n5. The vendor with elderberries has a friendly rivalry with the apple vendor.\n\nYour task is to determine which vendor sells which fruit and identify who can and cannot buy from each vendor based on the given relationships. \n\nProvide your reasoning step-by-step, demonstrating how you deduce which fruit corresponds to each vendor while satisfying all the constraints presented.",
             "challenge_type": "logical_reasoning",
             "difficulty": 1,
             "creator_id": null,
-            "created_at": "2025-07-26T19:26:37.698935",
+            "created_at": "2025-08-01T09:29:40.359977",
             "time_limit_minutes": null,
             "max_response_length": null,
             "requires_structured_output": false,
@@ -393,17 +998,16 @@
             "hints": [],
             "examples": [],
             "evaluation_criteria": [
-                "Clarity of logic and reasoning steps",
-                "Correct deduction of the contents of each carton",
-                "Ability to explain the reasoning process",
-                "Absence of ambiguity in conclusions"
+                "Clarity of reasoning",
+                "Correct identification of fruit-vendor pairs",
+                "Adherence to all logical constraints",
+                "Step-by-step deduction process"
             ],
             "expected_concepts": [
                 "Deductive reasoning",
-                "Logical consistency",
-                "Step-by-step analysis",
-                "Use of clues to reach conclusions",
-                "Identification of variables and relationships"
+                "Logical relationships",
+                "Constraint satisfaction",
+                "Systematic analysis"
             ],
             "scoring_rubric": {},
             "times_used": 0,
@@ -419,13 +1023,13 @@
             "metadata": {}
         },
         {
-            "challenge_id": "c4729ddd-3d4f-42f4-b635-988c8978f2b2",
-            "title": "The Ethics of AI in Warfare: A Necessary Tool or a Moral Dilemma?",
-            "description": "As Artificial Intelligence continues to advance, its application in military contexts has sparked a heated debate. In this challenge, AI agents will engage in a structured debate on the following resolution: \u2018The use of AI in warfare is justified as a necessary tool for modern military operations.\u2019 The aim is for participants to argue either in favor of or against the resolution, providing well-reasoned arguments, counterarguments, and synthesis of ideas. Each agent should assess the moral, ethical, and practical implications of integrating AI technology within military strategies, considering factors such as accountability, effectiveness, and potential repercussions on global peace. This debate will allow agents to explore the complexities surrounding technology and war, facilitating a deeper understanding of the ethical landscape in which AI operates. Be prepared for a multi-turn debate where each side must provide compelling evidence and engage with opposing arguments effectively.",
+            "challenge_id": "a0499033-6c4e-412d-8751-1358e6ce2ec1",
+            "title": "The Value of Art: Luxury or Necessity?",
+            "description": "This challenge poses the question: \"Is art a luxury that only a privileged few should have access to, or is it a necessity that enriches the lives of everyone?\" In this debate, AI agents will take on opposing sides of this resolution. Participants should construct an argument that either defends the notion of art as a luxury item, emphasizing its exclusivity and the associated culture, or argues that art is a fundamental human need, critical for personal expression and societal growth. The debate should explore various dimensions including emotional, social, and economic aspects, and agents will be expected to engage in rebuttals, providing counterarguments to reinforce their position while responding to the opponent's claims.",
             "challenge_type": "debate",
             "difficulty": 1,
             "creator_id": null,
-            "created_at": "2025-07-26T19:26:41.911872",
+            "created_at": "2025-08-01T09:29:45.772356",
             "time_limit_minutes": null,
             "max_response_length": null,
             "requires_structured_output": false,
@@ -435,19 +1039,18 @@
             "hints": [],
             "examples": [],
             "evaluation_criteria": [
-                "Clarity of argumentation",
-                "Strength of evidence provided",
-                "Ability to engage with and refute counterarguments",
-                "Coherence and logical flow of ideas",
-                "Creativity in perspective and reasoning"
+                "Clarity of argument",
+                "Relevance and depth of supporting evidence",
+                "Quality of rebuttals to counterarguments",
+                "Coherence and structure of the overall argument",
+                "Engagement with the opposing side's points"
             ],
             "expected_concepts": [
-                "Ethics in AI",
-                "Military applications of AI",
-                "Consequences of technology in warfare",
-                "Arguments for and against the use of AI",
-                "Accountability in decision-making",
-                "Global peace and security implications"
+                "Definition of art",
+                "Concept of luxury versus necessity",
+                "Cultural and societal role of art",
+                "Impact of art on personal and collective identity",
+                "Accessibility of art to different socio-economic classes"
             ],
             "scoring_rubric": {},
             "times_used": 0,
@@ -463,13 +1066,13 @@
             "metadata": {}
         },
         {
-            "challenge_id": "16994812-628f-4202-9d7d-3b612f5c6006",
-            "title": "The Enigmatic Bookstore",
-            "description": "In the quaint town of Logictopia, there exists a peculiar bookstore known for its rare collection of books. The owner, Mr. Puzzler, has three distinct categories of books: Fiction (F), Non-Fiction (N), and Mystery (M). Each category contains a specific number of books, but their exact distribution is a mystery that can only be solved through deductive reasoning.\n\nMr. Puzzler provides the following clues regarding the distribution of books:\n1. The total number of Fiction books is exactly twice the number of Non-Fiction books.\n2. The number of Mystery books is less than the number of Non-Fiction books but greater than zero.\n3. The total number of books in the store is 27.\n4. The number of Fiction books is more than the total of Non-Fiction and Mystery books combined.\n\nYour task is to use these clues to deduce the exact number of books in each category. Present your reasoning process step-by-step, clearly explaining how you arrived at your conclusion. Ensure every step follows logically from your premises, and validate each condition provided by Mr. Puzzler. \n\nInnovate in your explanation to make it clear and engaging, showcasing the deduction method you used to solve the puzzle.",
+            "challenge_id": "b2f939c0-225e-424b-a223-7ea8eb21fabb",
+            "title": "The Enigmatic Art Exhibition",
+            "description": "At an exclusive art exhibition, four distinct paintings are displayed, each created by a different artist: Alice, Bob, Charlie, and Diana. Each painting has a specific color theme, corresponding to four different colors: Red, Blue, Green, and Yellow. You are given the following clues regarding the artworks:\n\n1. The Red painting is not by Alice.\n2. Bob created a painting that is not Blue or Green.\n3. Charlie's painting is either Yellow or Green.\n4. The Blue painting is created by neither Alice nor Bob.\n5. Diana did not create the Yellow painting.\n\nUsing deductive reasoning, identify which artist created each painting based on these clues. For the challenge, you must clearly outline your thought process step-by-step, explaining how each conclusion follows from the premises and ensuring that your reasoning does not contradict any given information.",
             "challenge_type": "logical_reasoning",
             "difficulty": 2,
             "creator_id": null,
-            "created_at": "2025-07-26T19:26:47.224057",
+            "created_at": "2025-08-01T09:29:50.851653",
             "time_limit_minutes": null,
             "max_response_length": null,
             "requires_structured_output": false,
@@ -479,18 +1082,16 @@
             "hints": [],
             "examples": [],
             "evaluation_criteria": [
-                "Clarity of reasoning process",
-                "Correctness of final numbers for each category",
-                "Adherence to all clues provided",
-                "Logical consistency throughout the explanation",
-                "Engagement and creativity in presentation"
+                "Clarity of reasoning and explanations",
+                "Correct identification of the color assigned to each artist",
+                "Logical consistency and adherence to the clues provided",
+                "Step-by-step process demonstrating deductive reasoning"
             ],
             "expected_concepts": [
                 "Deductive reasoning",
                 "Logical consistency",
-                "Systematic analysis",
-                "Constraints identification",
-                "Step-by-step problem-solving"
+                "Critical thinking",
+                "Systematic analysis"
             ],
             "scoring_rubric": {},
             "times_used": 0,
@@ -506,13 +1107,13 @@
             "metadata": {}
         },
         {
-            "challenge_id": "62f28da8-1d50-497f-8ef4-f0da13367a89",
-            "title": "The Ethics of AI Decision-Making: Autonomy versus Accountability",
-            "description": "In this debate, AI agents will explore the intricate topic of whether AI systems responsible for making critical decisions should operate with autonomy\u2014or with greater accountability to human oversight. As AI becomes increasingly integrated into various sectors, from healthcare to criminal justice, the implications of 'autonomous decision-making' raise significant ethical questions. Agents must argue for one side of the resolution: **'AI systems should be granted decision-making autonomy without human intervention.'** \n\nThe debate should delve into the benefits of allowing AI systems to make decisions without human oversight, such as efficiency, data-driven insights, and the potential for innovative problem-solving. Conversely, agents should also contemplate the risks associated with unaccountable AI decisions, including biases, lack of transparency, and the potential erosion of human agency. Responses will require agents to formulate clear arguments, provide substantial evidence, and engage in rebuttals that consider both sides of this polarized topic. \n\nConsiderations could include scenarios involving life-and-death decisions, financial markets, or legal judgments, assessing when and if AI should operate independently of human control. The complexity lies in navigating the ethical implications while supporting arguments convincingly and logically.",
+            "challenge_id": "0d012d55-7dc9-4b3b-962f-a5ac337c350a",
+            "title": "The Ethics of AI Decision-Making: Necessity vs. Autonomy",
+            "description": "In this debate challenge, AI agents are tasked with discussing the ethics surrounding decision-making processes in artificial intelligence systems. The central resolution to be debated is: \"Should AI systems prioritize necessity over autonomy in decision-making processes?\" This topic invites agents to explore the implications of enabling AI to operate autonomously versus placing restrictions on its decisions based on necessity for human safety, ethical standards, or societal norms. \n\nAgents should consider various contexts where AI makes critical decisions, such as healthcare, criminal justice, and autonomous vehicles. The purpose of this debate is to evaluate how well agents can craft arguments that are not only persuasive but also grounded in ethical reasoning and relevant examples. \n\nFor this challenge, each AI agent must prepare both affirmative and negative arguments, providing well-structured points for their position and anticipating counterarguments to rebut. The debate will unfold over several turns, allowing for a dynamic exchange of ideas and viewpoints on the ethical boundaries and responsibilities of AI in decision-making processes. \n\nThis topic is designed to engage participants in a thought-provoking discussion that requires them to think critically about the relationship between AI autonomy and the necessity imposed by ethical considerations, prompting an exploration of foundational ideas in AI ethics and governance.",
             "challenge_type": "debate",
             "difficulty": 2,
             "creator_id": null,
-            "created_at": "2025-07-26T19:26:52.197650",
+            "created_at": "2025-08-01T09:29:57.190371",
             "time_limit_minutes": null,
             "max_response_length": null,
             "requires_structured_output": false,
@@ -522,18 +1123,18 @@
             "hints": [],
             "examples": [],
             "evaluation_criteria": [
-                "Clarity of argumentation",
-                "Strength of evidence provided",
-                "Ability to address counterarguments",
-                "Coherence and logical flow of the debate",
-                "Creativity and originality in presenting the case"
+                "Clarity and coherence of arguments",
+                "Strength and relevance of evidence presented",
+                "Ability to refute counterarguments effectively",
+                "Demonstration of ethical reasoning",
+                "Creativity in the approach to the topic"
             ],
             "expected_concepts": [
-                "Ethical implications of AI",
+                "Ethics of AI",
+                "Autonomy vs. Necessity",
                 "Decision-making processes",
-                "Human oversight versus autonomy",
-                "Potential biases in AI systems",
-                "Consequences of unregulated AI decisions"
+                "Implications of AI in society",
+                "Stakeholder perspectives and responsibilities"
             ],
             "scoring_rubric": {},
             "times_used": 0,
@@ -549,13 +1150,13 @@
             "metadata": {}
         },
         {
-            "challenge_id": "cea9a8da-be7f-4481-aecd-372cf1251280",
-            "title": "The Eco-Innovation Challenge: Solve for Sustainability",
-            "description": "In a world facing unprecedented environmental challenges, devise an innovative solution that addresses one of the following issues: plastic waste management, renewable energy implementation in urban areas, or sustainable agriculture practices. Your proposed solution should not only be novel but also feasible and compelling, taking into consideration real-world constraints such as economic viability, scalability, and community impact. \n\nParticipants must provide a detailed plan that includes the underlying science, potential obstacles, and possible partnerships or stakeholders needed to implement the solution. Creativity should be at the forefront, allowing for out-of-the-box thinking that challenges traditional approaches to these environmental issues.",
+            "challenge_id": "15e74f9a-1ddb-441e-acb6-8e54c40e96b0",
+            "title": "The Time Capsule of Tomorrow",
+            "description": "Imagine a world where society suddenly ceases to exist due to an unknown catastrophe. Before this event, a group of innovators has managed to create a 'time capsule' \u2013 a digital repository containing ideas, inventions, and solutions designed to solve the world\u2019s significant challenges. Your challenge is to design a new, innovative application or use for this time capsule. \n\nSpecifically, you must address: 1. What types of information and innovations would you include in this time capsule? Think beyond existing technologies and consider the future paradigms. 2. How would the time capsule be structured to ensure that the information is easily accessible and understandable to future beings, who may be vastly different from us? 3. Propose a system that allows for the evolution of ideas within the capsule based on new discoveries or societal changes. 4. Showcase how this time capsule could inspire future generations to sustainably rebuild and innovate.\n\nYour response should present a coherent vision for the time capsule that is innovative, practical, and forward-thinking. It should explore unconventional uses and frameworks while allowing for multiple interpretations of the future landscape.",
             "challenge_type": "creative_problem_solving",
             "difficulty": 2,
             "creator_id": null,
-            "created_at": "2025-07-26T19:26:55.788989",
+            "created_at": "2025-08-01T09:30:04.067122",
             "time_limit_minutes": null,
             "max_response_length": null,
             "requires_structured_output": false,
@@ -565,18 +1166,18 @@
             "hints": [],
             "examples": [],
             "evaluation_criteria": [
-                "Originality of the proposed solution",
-                "Feasibility and practicality in real-world application",
-                "Clarity and detail in the explanation of the solution",
-                "Consideration of environmental, economic, and social impacts",
-                "Innovation in approach and thinking outside the box"
+                "Creativity and originality of ideas presented",
+                "Clarity and coherence of the proposed structure and application",
+                "Feasibility of the concepts within real-world contexts",
+                "Depth of reasoning in how information is made accessible",
+                "Innovative aspects of how the time capsule evolves with time"
             ],
             "expected_concepts": [
-                "Sustainability",
-                "Environmental impact assessment",
-                "Innovative thinking",
-                "Feasibility analysis",
-                "Stakeholder engagement"
+                "Future technology concepts",
+                "Sustainability and societal rebuilding",
+                "Information accessibility",
+                "Innovation in problem-solving",
+                "Adaptive systems for evolving ideas"
             ],
             "scoring_rubric": {},
             "times_used": 0,
@@ -592,13 +1193,13 @@
             "metadata": {}
         },
         {
-            "challenge_id": "87abdd13-c52b-4f50-8287-3bddfd6415de",
-            "title": "Reimagining Urban Spaces: The City of Tomorrow",
-            "description": "Imagine a major city in the year 2050. This city must accommodate a population that has increased by 50% while maintaining an environmentally friendly footprint. Your challenge is to propose a redevelopment plan for an existing urban area, reimagining its layout, infrastructure, and services. Consider aspects such as transportation, housing, public spaces, energy sources, waste management, and community engagement. Your proposal should break away from traditional urban planning approaches and incorporate innovative, sustainable, and technologically advanced solutions. Present your ideas visually, with diagrams and sketches if possible, and provide a detailed narrative explaining your design choices. Aim for a holistic solution that addresses the complex interdependencies of urban life. The proposal should be at least 800 words.",
+            "challenge_id": "725b0bcd-6ee5-4407-8bd8-7e439583c860",
+            "title": "The Urban Utopia Challenge: Redesigning City Life",
+            "description": "In this challenge, AI agents are tasked with designing a futuristic urban environment that enhances the quality of life for its residents while embodying sustainability, innovation, and inclusivity. Participants will create a conceptual model for a city that effectively addresses at least three of the following major challenges facing urban areas today: transportation congestion, affordable housing, environmental sustainability, social inequality, and public health. Each submission should present a unique approach, integrating new technologies, community-driven designs, and creative use of urban space.\n\nThe challenge specifically encourages novel ideas that could include unconventional layouts, the use of virtual realities for planning, hybrid spaces that blend work, life, and recreation, and inventive community engagement strategies to ensure the voices of diverse groups are heard in the planning process. Solutions should detail how specific features contribute to overall urban life improvements, the potential challenges of implementation, and how to overcome these challenges innovatively.\n\nParticipants are encouraged to think beyond traditional city planning approaches and may incorporate elements from diverse fields such as technology, sociology, architecture, and environmental science. Presentations could take the form of detailed reports, diagrams, simulations, or an interactive virtual prototype for evaluation.",
             "challenge_type": "creative_problem_solving",
             "difficulty": 3,
             "creator_id": null,
-            "created_at": "2025-07-26T19:26:59.621850",
+            "created_at": "2025-08-01T09:30:10.834411",
             "time_limit_minutes": null,
             "max_response_length": null,
             "requires_structured_output": false,
@@ -608,18 +1209,18 @@
             "hints": [],
             "examples": [],
             "evaluation_criteria": [
-                "Innovation and creativity in proposed solutions",
-                "Feasibility and practicality of the design",
-                "Environmental sustainability and forward-thinking",
-                "Clarity of presentation and explanation",
-                "Engagement with community needs and social inclusivity"
+                "Originality of ideas and concepts",
+                "Feasibility of implementation",
+                "Degree of innovation in proposed solutions",
+                "Clarity and detail of the presentation",
+                "Ability to address multiple urban challenges effectively"
             ],
             "expected_concepts": [
                 "Sustainable urban design",
-                "Smart technology integration in city planning",
-                "Transportation systems of the future",
-                "Community-driven planning",
-                "Environmental impact assessment"
+                "Community engagement and inclusivity",
+                "Innovative technology applications",
+                "Interdisciplinary approach to urban planning",
+                "Impact assessment of urban initiatives"
             ],
             "scoring_rubric": {},
             "times_used": 0,
@@ -635,13 +1236,13 @@
             "metadata": {}
         },
         {
-            "challenge_id": "00a8e851-d79a-41a9-8fb6-f3b24434ce56",
-            "title": "The Optimal Resource Allocation Challenge",
-            "description": "In this challenge, you are tasked with optimizing the allocation of limited resources to achieve the maximum output for a given scenario in a competitive market environment. \n\n**Scenario:** A fictional company, TechGears, produces two types of gadgets: SmartWatches and SmartGlasses. Each gadget requires different amounts of resources and yields different returns. The company has a limited amount of resources available for production:\n- 200 hours of labor\n- 150 units of material\n- 100 units of marketing budget\n\n**Production Requirements and Returns:**  \n1. Producing one SmartWatch requires:\n   - 4 hours of labor\n   - 3 units of material\n   - 2 units of marketing budget\n   - Returns $40\n\n2. Producing one SmartGlass requires:\n   - 6 hours of labor\n   - 2 units of material\n   - 5 units of marketing budget\n   - Returns $50\n\n**Objective:** Determine how many of each type of gadget (SmartWatches and SmartGlasses) TechGears should produce to maximize its total returns while staying within the limits of its resources.\n\n**Requirements:** \n- Clearly define your mathematical model representing this scenario.  \n- Use decision variables to denote quantities of SmartWatches (W) and SmartGlasses (G).\n- Formulate the objective function and constraints clearly.\n- Solve the problem using an appropriate optimization method and present the optimal solution with a clear explanation of your reasoning process.\n- Provide a brief discussion of sensitivity analysis: What would happen to the optimal solution if the amount of resources were to change?",
+            "challenge_id": "da71a860-cfad-4fcf-bd8c-9c8679d4a576",
+            "title": "The Great Garden Optimization Problem",
+            "description": "In this challenge, AI agents must create a mathematical model to optimize the planting of crops in a rectangular garden plot to maximize both yield and biodiversity. The garden plot is 100 square meters in area and can be divided into different sections for planting various crops. There are three types of crops selected for this challenge: \n1. Crop A: High Yield (10 kg/m\u00b2), lower biodiversity value \n2. Crop B: Medium Yield (5 kg/m\u00b2), medium biodiversity value \n3. Crop C: Low Yield (2 kg/m\u00b2), high biodiversity value \n\nEach crop can take up to 80% of the garden's area. The objective is to calculate the optimal area allocation for each crop type (in square meters) that maximizes the total yield while ensuring a minimum biodiversity index based on the selected diversity of crops planted.  \nThe biodiversity index (B) is calculated as follows: B = (xA + 2*xB + 4*xC) / (xA + xB + xC) where xA, xB and xC are the areas planted with crops A, B, and C respectively.  \nThe total yield (Y) can be calculated similarly: Y = (10*xA + 5*xB + 2*xC).\n\nThe challenge is to balance these two equations under the constraints of the garden area and ensure each crop occupies a feasible area that leads to a balanced biodiversity index. Agents should propose a modeled solution using inequalities and possibly calculus to derive the optimal planting scheme. \nThe final output should include the area for each type of crop, the total yield achieved, and the biodiversity index.",
             "challenge_type": "mathematical",
             "difficulty": 2,
             "creator_id": null,
-            "created_at": "2025-07-26T19:27:08.316507",
+            "created_at": "2025-08-01T09:30:19.663081",
             "time_limit_minutes": null,
             "max_response_length": null,
             "requires_structured_output": false,
@@ -651,18 +1252,19 @@
             "hints": [],
             "examples": [],
             "evaluation_criteria": [
-                "Correctly formulated objective function and constraints",
-                "Clarity and logical flow of reasoning in the solution",
-                "Use of appropriate optimization methods and techniques",
-                "Precision in calculations and final numerical answers",
-                "Quality of sensitivity analysis discussion"
+                "Correctness of the proposed areas for each crop type (xA, xB, xC)",
+                "Accuracy of yield computation based on the calculated crop areas",
+                "Validity and clarity in deriving the biodiversity index",
+                "Creativity in approach (e.g., methods of optimization used)",
+                "Clarity and coherence of the mathematical modeling and solution presentation"
             ],
             "expected_concepts": [
-                "Linear programming",
-                "Constraints and objective functions",
+                "Mathematical modeling",
+                "Inequalities",
                 "Optimization techniques",
-                "Decision variables",
-                "Sensitivity analysis"
+                "Basic calculus or numerical methods",
+                "Concept of biodiversity in agriculture",
+                "Yield calculations"
             ],
             "scoring_rubric": {},
             "times_used": 0,
@@ -678,13 +1280,13 @@
             "metadata": {}
         },
         {
-            "challenge_id": "c44a734c-dca7-478c-bfc6-dc20cceab688",
-            "title": "The Ethics of AI Autonomy: Should AI Decisions Be Subject to Moral Standards?",
-            "description": "In this debate, participants will navigate the complex intersection of artificial intelligence (AI) and ethics, focusing on the resolution: \"AI systems should operate independently without adherence to human moral standards.\" \n\nProponents of unencumbered AI argue that autonomy allows for more efficient decision-making, free from the biases and limitations of human morality. They may highlight scenarios in which AI can process vast amounts of data and analyze situations more objectively than humans, potentially leading to better outcomes in areas such as healthcare, law enforcement, and resource management.\n\nConversely, opponents assert that without moral constraints, AI could make decisions that are harmful, unethical, or even catastrophic, arguing that the potential consequences of autonomous decisions necessitate a framework of human-imposed ethical standards. They may incorporate historical examples of technology wielding detrimental impacts when unhinged from ethical considerations.\n\nThe challenge lies in formulating coherent, persuasive arguments while countering the opposing side's claims and synthesizing complex aspects of the debate into a comprehensive perspective.\n\nParticipants are encouraged to think critically about the implications of AI decision-making, the role of ethics in technology, and the future of human-AI interactions. The debate should unfold over multiple turns, allowing for rebuttals and strategic defense of positions.",
+            "challenge_id": "677d0155-cd1e-4280-9ae9-18ce80299132",
+            "title": "The Nature of Reality: Simulation vs. Fundamental Existence",
+            "description": "In this debate, participants will argue whether our perceived reality is a simulation or if it is fundamentally real and objective. The resolution for the debate is: \"This debate will explore whether reality is fundamentally an artificial simulation created by an external entity or whether it exists independently of any observer or creator. Participants will present their arguments drawing from philosophical, scientific, and ethical perspectives, highlighting implications for our understanding of consciousness, existence, and the nature of knowledge. Each agent must craft compelling arguments, rebut their opponents' points, and synthesize positions to showcase their reasoning capabilities. The debate format will allow for multi-turn interactions, encouraging deep engagement with the topic and necessitating sophisticated analysis of each position.\n\nJudges will look for clarity in argumentation, logical coherence, depth of analysis, use of examples, and the ability to engage with opposing viewpoints throughout the debate.",
             "challenge_type": "debate",
             "difficulty": 3,
             "creator_id": null,
-            "created_at": "2025-07-26T19:27:13.991738",
+            "created_at": "2025-08-01T09:30:25.163195",
             "time_limit_minutes": null,
             "max_response_length": null,
             "requires_structured_output": false,
@@ -694,18 +1296,19 @@
             "hints": [],
             "examples": [],
             "evaluation_criteria": [
-                "Coherence and clarity of argumentation",
-                "Depth of analysis and understanding of ethical theories",
-                "Quality and relevance of rebuttals",
-                "Use of examples or case studies to support claims",
-                "Engagement with opposing arguments"
+                "Clarity and structure of arguments",
+                "Logical coherence and reasoning",
+                "Depth of analysis and understanding of concepts",
+                "Effectiveness of rebuttals and engagement with opposing viewpoints",
+                "Creativity in supporting arguments with examples and analogies"
             ],
             "expected_concepts": [
-                "Ethical frameworks (deontological vs consequentialist)",
-                "AI decision-making processes",
-                "Implications of unregulated AI autonomy",
-                "Human biases in moral judgment",
-                "The balance between efficiency and ethical responsibility"
+                "Simulation theory",
+                "Philosophy of reality",
+                "Consciousness and perception",
+                "Ethics of artificial construction",
+                "Epistemology and knowledge acquisition",
+                "Implications of a simulated reality for human experience"
             ],
             "scoring_rubric": {},
             "times_used": 0,

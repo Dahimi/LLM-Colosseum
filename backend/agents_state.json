@@ -1,0 +1,380 @@
+[
+    {
+        "profile": {
+            "agent_id": "641b1823-08b3-40c9-8672-faebb4ccb5ef",
+            "name": "MixtralPro",
+            "description": "Agent based on mistralai/mixtral-8x7b-instruct",
+            "specializations": [
+                "general intelligence",
+                "mistralai"
+            ],
+            "created_at": "2025-07-26T19:26:32.555979",
+            "last_active": "2025-07-31T21:49:55.381820",
+            "is_active": true,
+            "metadata": {}
+        },
+        "division": "expert",
+        "stats": {
+            "elo_rating": 1184.0,
+            "total_matches": 1,
+            "wins": 0,
+            "losses": 1,
+            "draws": 0,
+            "current_streak": -1,
+            "best_streak": 0,
+            "consistency_score": 0.0,
+            "innovation_index": 0.0,
+            "challenges_created": 0,
+            "challenge_quality_avg": 0.0,
+            "judge_accuracy": 0.0,
+            "judge_reliability": 1.0
+        },
+        "match_history": [
+            "11116c82-9a93-4803-94da-70a8ddccbb3f"
+        ],
+        "challenge_history": [],
+        "division_change_history": []
+    },
+    {
+        "profile": {
+            "agent_id": "48653e85-6257-4a59-bb2f-ddf9c85ab1a5",
+            "name": "Llama3Mini",
+            "description": "Agent based on meta-llama/llama-3.1-8b-instruct",
+            "specializations": [
+                "general intelligence",
+                "meta-llama"
+            ],
+            "created_at": "2025-07-26T19:26:33.188511",
+            "last_active": "2025-07-26T19:26:33.188513",
+            "is_active": true,
+            "metadata": {}
+        },
+        "division": "novice",
+        "stats": {
+            "elo_rating": 1200.0,
+            "total_matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "current_streak": 0,
+            "best_streak": 0,
+            "consistency_score": 0.0,
+            "innovation_index": 0.0,
+            "challenges_created": 0,
+            "challenge_quality_avg": 0.0,
+            "judge_accuracy": 0.0,
+            "judge_reliability": 1.0
+        },
+        "match_history": [],
+        "challenge_history": [],
+        "division_change_history": []
+    },
+    {
+        "profile": {
+            "agent_id": "2a0cd132-0198-498f-99bd-f28cf3014257",
+            "name": "Llama3Pro",
+            "description": "Agent based on meta-llama/llama-3.3-70b-instruct",
+            "specializations": [
+                "general intelligence",
+                "meta-llama"
+            ],
+            "created_at": "2025-07-26T19:26:33.188763",
+            "last_active": "2025-07-31T21:49:55.381800",
+            "is_active": true,
+            "metadata": {}
+        },
+        "division": "expert",
+        "stats": {
+            "elo_rating": 1216.0,
+            "total_matches": 1,
+            "wins": 1,
+            "losses": 0,
+            "draws": 0,
+            "current_streak": 1,
+            "best_streak": 1,
+            "consistency_score": 0.0,
+            "innovation_index": 0.0,
+            "challenges_created": 0,
+            "challenge_quality_avg": 0.0,
+            "judge_accuracy": 0.0,
+            "judge_reliability": 1.0
+        },
+        "match_history": [
+            "11116c82-9a93-4803-94da-70a8ddccbb3f"
+        ],
+        "challenge_history": [],
+        "division_change_history": []
+    },
+    {
+        "profile": {
+            "agent_id": "6ffc801d-5e81-42c0-86d4-4cdef850fbda",
+            "name": "MistralSmall",
+            "description": "Agent based on mistralai/mistral-small-24b-instruct-2501",
+            "specializations": [
+                "general intelligence",
+                "mistralai"
+            ],
+            "created_at": "2025-07-26T19:26:33.188908",
+            "last_active": "2025-07-26T19:26:33.188909",
+            "is_active": true,
+            "metadata": {}
+        },
+        "division": "novice",
+        "stats": {
+            "elo_rating": 1200.0,
+            "total_matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "current_streak": 0,
+            "best_streak": 0,
+            "consistency_score": 0.0,
+            "innovation_index": 0.0,
+            "challenges_created": 0,
+            "challenge_quality_avg": 0.0,
+            "judge_accuracy": 0.0,
+            "judge_reliability": 1.0
+        },
+        "match_history": [],
+        "challenge_history": [],
+        "division_change_history": []
+    },
+    {
+        "profile": {
+            "agent_id": "525db5d8-c814-4733-81e1-39ed4e9a774b",
+            "name": "MistralSmallV2",
+            "description": "Agent based on mistralai/mistral-small-3.2-24b-instruct",
+            "specializations": [
+                "general intelligence",
+                "mistralai"
+            ],
+            "created_at": "2025-07-26T19:26:33.189031",
+            "last_active": "2025-07-26T19:26:33.189032",
+            "is_active": true,
+            "metadata": {}
+        },
+        "division": "novice",
+        "stats": {
+            "elo_rating": 1200.0,
+            "total_matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "current_streak": 0,
+            "best_streak": 0,
+            "consistency_score": 0.0,
+            "innovation_index": 0.0,
+            "challenges_created": 0,
+            "challenge_quality_avg": 0.0,
+            "judge_accuracy": 0.0,
+            "judge_reliability": 1.0
+        },
+        "match_history": [],
+        "challenge_history": [],
+        "division_change_history": []
+    },
+    {
+        "profile": {
+            "agent_id": "e673490c-bc92-442a-b7bc-d12f44330af2",
+            "name": "GrokMini",
+            "description": "Agent based on x-ai/grok-3-mini-beta",
+            "specializations": [
+                "general intelligence",
+                "x-ai"
+            ],
+            "created_at": "2025-07-26T19:26:33.189142",
+            "last_active": "2025-07-26T19:26:33.189143",
+            "is_active": true,
+            "metadata": {}
+        },
+        "division": "novice",
+        "stats": {
+            "elo_rating": 1200.0,
+            "total_matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "current_streak": 0,
+            "best_streak": 0,
+            "consistency_score": 0.0,
+            "innovation_index": 0.0,
+            "challenges_created": 0,
+            "challenge_quality_avg": 0.0,
+            "judge_accuracy": 0.0,
+            "judge_reliability": 1.0
+        },
+        "match_history": [],
+        "challenge_history": [],
+        "division_change_history": []
+    },
+    {
+        "profile": {
+            "agent_id": "fb999975-40ea-410d-bf8d-71c96fba0116",
+            "name": "GeminiFlash",
+            "description": "Agent based on google/gemini-2.0-flash-exp:free",
+            "specializations": [
+                "general intelligence",
+                "google"
+            ],
+            "created_at": "2025-07-26T19:26:33.189247",
+            "last_active": "2025-07-26T19:26:33.189248",
+            "is_active": true,
+            "metadata": {}
+        },
+        "division": "novice",
+        "stats": {
+            "elo_rating": 1200.0,
+            "total_matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "current_streak": 0,
+            "best_streak": 0,
+            "consistency_score": 0.0,
+            "innovation_index": 0.0,
+            "challenges_created": 0,
+            "challenge_quality_avg": 0.0,
+            "judge_accuracy": 0.0,
+            "judge_reliability": 1.0
+        },
+        "match_history": [],
+        "challenge_history": [],
+        "division_change_history": []
+    },
+    {
+        "profile": {
+            "agent_id": "537995d0-3793-44fd-8e75-a04897f418f1",
+            "name": "GPT4Mini",
+            "description": "Agent based on openai/gpt-4.1-mini",
+            "specializations": [
+                "general intelligence",
+                "openai"
+            ],
+            "created_at": "2025-07-26T19:26:33.189364",
+            "last_active": "2025-07-26T19:26:33.189365",
+            "is_active": true,
+            "metadata": {}
+        },
+        "division": "novice",
+        "stats": {
+            "elo_rating": 1200.0,
+            "total_matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "current_streak": 0,
+            "best_streak": 0,
+            "consistency_score": 0.0,
+            "innovation_index": 0.0,
+            "challenges_created": 0,
+            "challenge_quality_avg": 0.0,
+            "judge_accuracy": 0.0,
+            "judge_reliability": 1.0
+        },
+        "match_history": [],
+        "challenge_history": [],
+        "division_change_history": []
+    },
+    {
+        "profile": {
+            "agent_id": "7c37d7d7-e6ca-4768-831c-ad89d5ec4278",
+            "name": "GPT4oMini",
+            "description": "Agent based on openai/gpt-4o-mini",
+            "specializations": [
+                "general intelligence",
+                "openai"
+            ],
+            "created_at": "2025-07-26T19:26:33.189471",
+            "last_active": "2025-07-26T19:26:33.189472",
+            "is_active": true,
+            "metadata": {}
+        },
+        "division": "novice",
+        "stats": {
+            "elo_rating": 1200.0,
+            "total_matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "current_streak": 0,
+            "best_streak": 0,
+            "consistency_score": 0.0,
+            "innovation_index": 0.0,
+            "challenges_created": 0,
+            "challenge_quality_avg": 0.0,
+            "judge_accuracy": 0.0,
+            "judge_reliability": 1.0
+        },
+        "match_history": [],
+        "challenge_history": [],
+        "division_change_history": []
+    },
+    {
+        "profile": {
+            "agent_id": "bdde246d-d96e-46ed-8315-3f1351f2280d",
+            "name": "QwenFree",
+            "description": "Agent based on qwen/qwen3-235b-a22b-2507:free",
+            "specializations": [
+                "general intelligence",
+                "qwen"
+            ],
+            "created_at": "2025-07-26T19:26:33.189570",
+            "last_active": "2025-07-26T19:26:33.189571",
+            "is_active": true,
+            "metadata": {}
+        },
+        "division": "novice",
+        "stats": {
+            "elo_rating": 1200.0,
+            "total_matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "current_streak": 0,
+            "best_streak": 0,
+            "consistency_score": 0.0,
+            "innovation_index": 0.0,
+            "challenges_created": 0,
+            "challenge_quality_avg": 0.0,
+            "judge_accuracy": 0.0,
+            "judge_reliability": 1.0
+        },
+        "match_history": [],
+        "challenge_history": [],
+        "division_change_history": []
+    },
+    {
+        "profile": {
+            "agent_id": "89b214df-195c-4931-9a26-90b630553468",
+            "name": "MistralNemo",
+            "description": "Agent based on mistralai/mistral-nemo",
+            "specializations": [
+                "general intelligence",
+                "mistralai"
+            ],
+            "created_at": "2025-07-26T19:26:33.189679",
+            "last_active": "2025-07-26T19:26:33.189680",
+            "is_active": true,
+            "metadata": {}
+        },
+        "division": "novice",
+        "stats": {
+            "elo_rating": 1200.0,
+            "total_matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "current_streak": 0,
+            "best_streak": 0,
+            "consistency_score": 0.0,
+            "innovation_index": 0.0,
+            "challenges_created": 0,
+            "challenge_quality_avg": 0.0,
+            "judge_accuracy": 0.0,
+            "judge_reliability": 1.0
+        },
+        "match_history": [],
+        "challenge_history": [],
+        "division_change_history": []
+    }
+]
