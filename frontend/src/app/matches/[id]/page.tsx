@@ -147,65 +147,101 @@ export default function MatchPage({ params }: PageProps) {
           {/* Match Responses */}
           {match.match_type === 'DEBATE' ? (
             <div className="mt-8">
-              <h3 className="font-semibold mb-4 text-indigo-900">Debate Transcript</h3>
+              <h3 className="font-semibold mb-6 text-indigo-900 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-3.774-.9L3 21l1.9-6.226A8.955 8.955 0 013 12a8 8 0 018-8c4.418 0 8 3.582 8 8z" />
+                </svg>
+                Debate Conversation
+              </h3>
+              
               {match.transcript && match.transcript.length > 0 ? (
-                <div className="space-y-4">
+                <div className="bg-gradient-to-b from-gray-50 to-white border border-gray-200 rounded-xl p-6 space-y-6 max-h-[600px] overflow-y-auto">
                   {match.transcript.map((response, index) => {
                     const isAgent1 = response.agent_id === match.agent1_id;
                     const agent = isAgent1 ? agent1 : agent2;
+                    const isFirstMessage = index === 0;
+                    const turnNumber = Math.floor(index / 2) + 1;
+                    
                     return (
                       <div 
                         key={index}
-                        className={`flex ${isAgent1 ? 'justify-start' : 'justify-end'}`}
+                        className={`flex ${isAgent1 ? 'justify-start' : 'justify-end'} animate-fade-in`}
                       >
-                        <div className={`max-w-[80%] ${isAgent1 ? 'bg-blue-50' : 'bg-purple-50'} p-4 rounded-lg`}>
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className={`font-medium ${isAgent1 ? 'text-blue-800' : 'text-purple-800'}`}>
-                              {agent.profile.name}
-                            </span>
-                            <span className={`text-sm ${isAgent1 ? 'text-blue-700' : 'text-purple-700'}`}>
-                              {index === 0 ? '(Opening Statement)' : `(Turn ${Math.floor(index/2 + 1)})`}
-                            </span>
+                        <div className={`max-w-[85%] ${isAgent1 ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} border rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200`}>
+                          {/* Message Header */}
+                          <div className={`flex items-center justify-between px-4 py-2 border-b ${isAgent1 ? 'border-blue-200 bg-blue-50/50' : 'border-purple-200 bg-purple-50/50'} rounded-t-2xl`}>
+                            <div className="flex items-center gap-2">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium ${isAgent1 ? 'bg-blue-500' : 'bg-purple-500'}`}>
+                                {agent.profile.name.charAt(0)}
+                              </div>
+                              <span className={`font-semibold ${isAgent1 ? 'text-blue-800' : 'text-purple-800'}`}>
+                                {agent.profile.name}
+                              </span>
+                              <span className={`text-xs px-2 py-1 rounded-full ${isAgent1 ? 'bg-blue-200 text-blue-700' : 'bg-purple-200 text-purple-700'}`}>
+                                {isFirstMessage ? 'Opening' : `Turn ${turnNumber}`}
+                              </span>
+                            </div>
+                            <div className={`text-xs ${isAgent1 ? 'text-blue-600' : 'text-purple-600'}`}>
+                              {new Date(response.timestamp).toLocaleTimeString()}
+                            </div>
                           </div>
-                          <p className={`whitespace-pre-wrap ${isAgent1 ? 'text-blue-900' : 'text-purple-900'}`}>
-                            {response.response_text}
-                          </p>
-                          {response.response_time > 0 && (
-                            <p className={`text-sm mt-2 ${isAgent1 ? 'text-blue-700' : 'text-purple-700'}`}>
-                              Response time: {response.response_time.toFixed(2)}s
+                          
+                          {/* Message Content */}
+                          <div className="p-4">
+                            <p className={`whitespace-pre-wrap leading-relaxed ${isAgent1 ? 'text-blue-900' : 'text-purple-900'}`}>
+                              {response.response_text}
                             </p>
-                          )}
+                            {response.response_time > 0 && (
+                              <div className={`flex items-center gap-1 mt-3 text-xs ${isAgent1 ? 'text-blue-600' : 'text-purple-600'}`}>
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>{response.response_time.toFixed(2)}s</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <div className="bg-indigo-50 p-4 rounded-lg">
-                  <p className="text-indigo-900">
+                <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 p-8 rounded-xl text-center">
+                  <svg className="w-12 h-12 text-indigo-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-3.774-.9L3 21l1.9-6.226A8.955 8.955 0 013 12a8 8 0 018-8c4.418 0 8 3.582 8 8z" />
+                  </svg>
+                  <p className="text-indigo-700 font-medium">
                     {match.status === MatchStatus.COMPLETED 
                       ? 'This debate has concluded.'
-                      : 'Waiting for agents to begin the debate...'}
+                      : 'Waiting for the debate to begin...'}
                   </p>
+                  {match.status !== MatchStatus.COMPLETED && (
+                    <p className="text-indigo-600 text-sm mt-1">The agents will start their opening statements shortly.</p>
+                  )}
                 </div>
               )}
 
               {/* Show final scores for completed debates */}
               {match.status === MatchStatus.COMPLETED && match.final_scores && (
-                <div className="mt-6 bg-indigo-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-indigo-900 mb-2">Final Scores</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-blue-800">{agent1.profile.name}</p>
-                      <p className="text-blue-900 font-medium">
+                <div className="mt-6 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-6 rounded-xl">
+                  <h4 className="font-semibold text-emerald-800 mb-4 flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Final Scores
+                  </h4>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="text-center">
+                      <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-lg font-bold mx-auto mb-2">
                         {match.final_scores[match.agent1_id]?.toFixed(1) || 'N/A'}
-                      </p>
+                      </div>
+                      <p className="text-blue-800 font-medium">{agent1.profile.name}</p>
                     </div>
-                    <div>
-                      <p className="text-purple-800">{agent2.profile.name}</p>
-                      <p className="text-purple-900 font-medium">
+                    <div className="text-center">
+                      <div className="w-16 h-16 rounded-full bg-purple-500 flex items-center justify-center text-white text-lg font-bold mx-auto mb-2">
                         {match.final_scores[match.agent2_id]?.toFixed(1) || 'N/A'}
-                      </p>
+                      </div>
+                      <p className="text-purple-800 font-medium">{agent2.profile.name}</p>
                     </div>
                   </div>
                 </div>
@@ -213,62 +249,144 @@ export default function MatchPage({ params }: PageProps) {
             </div>
           ) : (
             <div className="mt-8">
-              <h3 className="font-semibold mb-4 text-indigo-900">Agent Responses</h3>
-              {/* Agent 1 Response */}
-              {match.agent1_response && (
-                <div className="mb-6">
-                  <h4 className="font-medium text-blue-800 mb-2">{agent1.profile.name}'s Response</h4>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <p className="whitespace-pre-wrap text-blue-900">{match.agent1_response.response_text}</p>
-                    <p className="text-sm text-blue-700 mt-2">
-                      Response time: {match.agent1_response.response_time.toFixed(2)}s
-                      {match.agent1_response.score !== undefined && (
-                        <span className="ml-4">Score: {match.agent1_response.score.toFixed(1)}</span>
-                      )}
-                    </p>
+              <h3 className="font-semibold mb-6 text-indigo-900 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-3.774-.9L3 21l1.9-6.226A8.955 8.955 0 013 12a8 8 0 018-8c4.418 0 8 3.582 8 8z" />
+                </svg>
+                Agent Responses
+              </h3>
+              
+              {(match.agent1_response || match.agent2_response) ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Agent 1 Response */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+                        {agent1.profile.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-blue-800">{agent1.profile.name}</h4>
+                        <p className="text-blue-600 text-sm">Rating: {Math.round(agent1.stats.elo_rating)}</p>
+                      </div>
+                    </div>
+                    
+                    {match.agent1_response ? (
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+                        <div className="bg-blue-500 text-white px-4 py-2 flex items-center justify-between">
+                          <span className="font-medium">Response</span>
+                          <div className="flex items-center gap-2 text-blue-100">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-sm">{match.agent1_response.response_time.toFixed(2)}s</span>
+                          </div>
+                        </div>
+                        <div className="p-6">
+                          <p className="whitespace-pre-wrap text-blue-900 leading-relaxed">
+                            {match.agent1_response.response_text}
+                          </p>
+                        </div>
+                        {match.agent1_response.score !== undefined && (
+                          <div className="bg-blue-500/10 px-4 py-2 border-t border-blue-200">
+                            <div className="flex items-center justify-center">
+                              <span className="text-blue-700 text-sm font-medium">Score: </span>
+                              <span className="text-blue-800 text-lg font-bold ml-1">
+                                {match.agent1_response.score.toFixed(1)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="bg-blue-50 border-2 border-dashed border-blue-200 rounded-xl p-8 text-center">
+                        <svg className="w-8 h-8 text-blue-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        <p className="text-blue-600">Waiting for response...</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Agent 2 Response */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold">
+                        {agent2.profile.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-purple-800">{agent2.profile.name}</h4>
+                        <p className="text-purple-600 text-sm">Rating: {Math.round(agent2.stats.elo_rating)}</p>
+                      </div>
+                    </div>
+                    
+                    {match.agent2_response ? (
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+                        <div className="bg-purple-500 text-white px-4 py-2 flex items-center justify-between">
+                          <span className="font-medium">Response</span>
+                          <div className="flex items-center gap-2 text-purple-100">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-sm">{match.agent2_response.response_time.toFixed(2)}s</span>
+                          </div>
+                        </div>
+                        <div className="p-6">
+                          <p className="whitespace-pre-wrap text-purple-900 leading-relaxed">
+                            {match.agent2_response.response_text}
+                          </p>
+                        </div>
+                        {match.agent2_response.score !== undefined && (
+                          <div className="bg-purple-500/10 px-4 py-2 border-t border-purple-200">
+                            <div className="flex items-center justify-center">
+                              <span className="text-purple-700 text-sm font-medium">Score: </span>
+                              <span className="text-purple-800 text-lg font-bold ml-1">
+                                {match.agent2_response.score.toFixed(1)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="bg-purple-50 border-2 border-dashed border-purple-200 rounded-xl p-8 text-center">
+                        <svg className="w-8 h-8 text-purple-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        <p className="text-purple-600">Waiting for response...</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
-
-              {/* Agent 2 Response */}
-              {match.agent2_response && (
-                <div>
-                  <h4 className="font-medium text-purple-800 mb-2">{agent2.profile.name}'s Response</h4>
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <p className="whitespace-pre-wrap text-purple-900">{match.agent2_response.response_text}</p>
-                    <p className="text-sm text-purple-700 mt-2">
-                      Response time: {match.agent2_response.response_time.toFixed(2)}s
-                      {match.agent2_response.score !== undefined && (
-                        <span className="ml-4">Score: {match.agent2_response.score.toFixed(1)}</span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* No responses yet */}
-              {!match.agent1_response && !match.agent2_response && (
-                <div className="bg-indigo-50 p-4 rounded-lg">
-                  <p className="text-indigo-900">Waiting for agent responses...</p>
+              ) : (
+                <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 p-8 rounded-xl text-center">
+                  <svg className="w-12 h-12 text-indigo-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-3.774-.9L3 21l1.9-6.226A8.955 8.955 0 013 12a8 8 0 018-8c4.418 0 8 3.582 8 8z" />
+                  </svg>
+                  <p className="text-indigo-700 font-medium">Waiting for agent responses...</p>
+                  <p className="text-indigo-600 text-sm mt-1">Both agents are working on their solutions.</p>
                 </div>
               )}
 
               {/* Show final scores for completed regular matches */}
               {match.status === MatchStatus.COMPLETED && match.final_scores && (
-                <div className="mt-6 bg-indigo-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-indigo-900 mb-2">Final Scores</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-blue-800">{agent1.profile.name}</p>
-                      <p className="text-blue-900 font-medium">
+                <div className="mt-8 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-6 rounded-xl">
+                  <h4 className="font-semibold text-emerald-800 mb-4 flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Final Scores
+                  </h4>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="text-center">
+                      <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-lg font-bold mx-auto mb-2">
                         {match.final_scores[match.agent1_id]?.toFixed(1) || 'N/A'}
-                      </p>
+                      </div>
+                      <p className="text-blue-800 font-medium">{agent1.profile.name}</p>
                     </div>
-                    <div>
-                      <p className="text-purple-800">{agent2.profile.name}</p>
-                      <p className="text-purple-900 font-medium">
+                    <div className="text-center">
+                      <div className="w-16 h-16 rounded-full bg-purple-500 flex items-center justify-center text-white text-lg font-bold mx-auto mb-2">
                         {match.final_scores[match.agent2_id]?.toFixed(1) || 'N/A'}
-                      </p>
+                      </div>
+                      <p className="text-purple-800 font-medium">{agent2.profile.name}</p>
                     </div>
                   </div>
                 </div>

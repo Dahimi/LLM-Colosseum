@@ -27,7 +27,11 @@ export interface AgentResponse {
   agent_id: string;
   response_text: string;
   response_time: number;
+  timestamp?: string;
   score?: number;
+  is_structured?: boolean;
+  structured_data?: any;
+  metadata?: any;
 }
 
 export interface JudgeEvaluation {
