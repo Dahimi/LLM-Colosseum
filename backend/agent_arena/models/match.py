@@ -44,6 +44,7 @@ class AgentResponse(BaseModel):
     is_structured: bool = Field(default=False, description="Whether response follows structured format")
     structured_data: Optional[Dict[str, Any]] = Field(default=None, description="Parsed structured response")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional response metadata")
+    is_streaming: bool = Field(default=False, description="Whether this is a partial streaming response")
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize the object to a JSON-compatible dictionary."""
@@ -130,6 +131,20 @@ class Match(BaseModel):
         # Check if both responses are in for non-debate matches
         if self.match_type != MatchType.DEBATE and self.agent1_response and self.agent2_response:
             self.status = MatchStatus.AWAITING_JUDGMENT
+        
+        return True
+    
+    def submit_partial_response(self, agent_id: str, partial_response: AgentResponse) -> bool:
+        """Submit a partial streaming response from an agent."""
+        if self.status != MatchStatus.IN_PROGRESS:
+            return False
+        
+        if agent_id == self.agent1_id:
+            self.agent1_response = partial_response
+        elif agent_id == self.agent2_id:
+            self.agent2_response = partial_response
+        else:
+            return False
         
         return True
     

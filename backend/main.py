@@ -73,7 +73,7 @@ async def get_agents():
                 "specializations": agent.profile.specializations
             },
             "division": agent.division.value,
-            "stats": agent.stats.__dict__
+            "stats": agent.stats.to_dict()
         }
         for agent in arena.agents
     ]
@@ -97,7 +97,7 @@ async def get_agent(agent_id: str):
                     "specializations": agent.profile.specializations
                 },
                 "division": agent.division.value,
-                "stats": agent.stats.__dict__,
+                "stats": agent.stats.to_dict(),
                 "match_history": recent_matches,
                 "division_changes": agent.division_change_history
             }
@@ -186,7 +186,7 @@ async def specific_match_updates(match_id: str) -> AsyncGenerator[dict, None]:
                 "event": "error",
                 "data": str(e)
             }
-        await asyncio.sleep(1)  # More frequent updates for specific match
+        await asyncio.sleep(0.5)  # Very frequent updates for streaming responses
 
 @app.get("/matches")
 async def get_matches():

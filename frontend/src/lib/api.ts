@@ -18,6 +18,11 @@ export function transformMatch(rawMatch: any): Match {
 }
 
 function transformAgent(rawAgent: any): Agent {
+  // Calculate win_rate from basic stats
+  const totalMatches = rawAgent.stats?.total_matches || 0;
+  const wins = rawAgent.stats?.wins || 0;
+  const winRate = totalMatches > 0 ? (wins / totalMatches) * 100 : 0;
+  
   return {
     profile: {
       agent_id: rawAgent.profile.name,  // Use name as ID
@@ -34,7 +39,7 @@ function transformAgent(rawAgent: any): Agent {
       elo_rating: rawAgent.stats?.elo_rating || 1000,
       current_streak: rawAgent.stats?.current_streak || 0,
       best_streak: rawAgent.stats?.best_streak || 0,
-      win_rate: rawAgent.stats?.win_rate || 0,
+      win_rate: winRate,
       elo_history: rawAgent.stats?.elo_history || [],
       consistency_score: rawAgent.stats?.consistency_score || 0,
       innovation_index: rawAgent.stats?.innovation_index || 0,

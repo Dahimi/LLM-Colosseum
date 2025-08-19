@@ -10,18 +10,18 @@
                     "mistralai"
                 ],
                 "created_at": "2025-08-01T09:29:35.398980",
-                "last_active": "2025-08-19T14:03:58.398837",
+                "last_active": "2025-08-19T14:31:33.460350",
                 "is_active": true,
                 "metadata": {}
             },
-            "division": "expert",
+            "division": "novice",
             "stats": {
-                "elo_rating": 1145.7866148732621,
-                "total_matches": 25,
+                "elo_rating": 1136.8176537639843,
+                "total_matches": 27,
                 "wins": 5,
-                "losses": 13,
-                "draws": 7,
-                "current_streak": 0,
+                "losses": 14,
+                "draws": 8,
+                "current_streak": -1,
                 "best_streak": 2,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
@@ -254,6 +254,24 @@
                         "opponent_rating": 1259.4878423921102,
                         "result": "draw",
                         "rating_change": 5.2744572653723445
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:09:12.389900",
+                        "rating": 1150.6238267421613,
+                        "match_id": "round_1_match_1",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1254.2133851267379,
+                        "result": "draw",
+                        "rating_change": 4.83721186889926
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:31:33.460347",
+                        "rating": 1136.8176537639843,
+                        "match_id": "d066cdb8-2f83-4977-8539-ef8814d6cb65",
+                        "opponent_id": "Llama3Mini",
+                        "opponent_rating": 1198.5641271217237,
+                        "result": "loss",
+                        "rating_change": -13.806172978177022
                     }
                 ]
             },
@@ -282,10 +300,20 @@
                 "46be3b9c-5c19-4928-a0c5-fb10f57477c2",
                 "d8c11465-d18f-403b-8873-d33cf28da9b5",
                 "5a76c412-e81d-4190-a8f0-7912ecebcebe",
-                "a48e6488-9cef-47e2-91b8-a61322118300"
+                "a48e6488-9cef-47e2-91b8-a61322118300",
+                "round_1_match_1",
+                "d066cdb8-2f83-4977-8539-ef8814d6cb65"
             ],
             "challenge_history": [],
-            "division_change_history": []
+            "division_change_history": [
+                {
+                    "from_division": "expert",
+                    "to_division": "novice",
+                    "timestamp": "2025-08-19T14:09:12.411047",
+                    "reason": "Demoted with 19.2% win rate and 1151 ELO",
+                    "type": "demotion"
+                }
+            ]
         },
         {
             "profile": {
@@ -297,28 +325,60 @@
                     "meta-llama"
                 ],
                 "created_at": "2025-08-01T09:29:35.475107",
-                "last_active": "2025-08-01T09:29:35.475110",
+                "last_active": "2025-08-19T14:39:43.870862",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1200.0,
-                "total_matches": 0,
-                "wins": 0,
-                "losses": 0,
-                "draws": 0,
-                "current_streak": 0,
-                "best_streak": 0,
+                "elo_rating": 1195.1936823133897,
+                "total_matches": 3,
+                "wins": 1,
+                "losses": 1,
+                "draws": 1,
+                "current_streak": -1,
+                "best_streak": 1,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
                 "judge_reliability": 1.0,
-                "elo_history": []
+                "elo_history": [
+                    {
+                        "timestamp": "2025-08-19T14:09:12.407906",
+                        "rating": 1198.5641271217237,
+                        "match_id": "round_1_match_4",
+                        "opponent_id": "MistralNemo",
+                        "opponent_rating": 1168.736306793522,
+                        "result": "draw",
+                        "rating_change": -1.4358728782762888
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:31:33.460351",
+                        "rating": 1212.3703000999008,
+                        "match_id": "d066cdb8-2f83-4977-8539-ef8814d6cb65",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1150.6238267421613,
+                        "result": "win",
+                        "rating_change": 13.806172978177024
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:39:43.870857",
+                        "rating": 1195.1936823133897,
+                        "match_id": "c4d394d7-e29b-4948-9c5a-44b1242b22bc",
+                        "opponent_id": "GPT4Mini",
+                        "opponent_rating": 1186.7741620856675,
+                        "result": "loss",
+                        "rating_change": -17.17661778651102
+                    }
+                ]
             },
-            "match_history": [],
+            "match_history": [
+                "round_1_match_4",
+                "d066cdb8-2f83-4977-8539-ef8814d6cb65",
+                "c4d394d7-e29b-4948-9c5a-44b1242b22bc"
+            ],
             "challenge_history": [],
             "division_change_history": []
         },
@@ -332,18 +392,18 @@
                     "meta-llama"
                 ],
                 "created_at": "2025-08-01T09:29:35.475264",
-                "last_active": "2025-08-19T14:03:58.398840",
+                "last_active": "2025-08-19T16:10:45.640435",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "expert",
             "stats": {
-                "elo_rating": 1254.2133851267379,
-                "total_matches": 25,
-                "wins": 13,
+                "elo_rating": 1304.3022100509518,
+                "total_matches": 30,
+                "wins": 17,
                 "losses": 5,
-                "draws": 7,
-                "current_streak": 0,
+                "draws": 8,
+                "current_streak": 4,
                 "best_streak": 4,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
@@ -576,6 +636,51 @@
                         "opponent_rating": 1140.5121576078898,
                         "result": "draw",
                         "rating_change": -5.2744572653723445
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:09:12.389929",
+                        "rating": 1249.3761732578387,
+                        "match_id": "round_1_match_1",
+                        "opponent_id": "MixtralPro",
+                        "opponent_rating": 1145.7866148732621,
+                        "result": "draw",
+                        "rating_change": -4.83721186889926
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:31:50.493205",
+                        "rating": 1265.1189361492598,
+                        "match_id": "47019b43-6021-466e-b674-39d9c19139a0",
+                        "opponent_id": "QwenFree",
+                        "opponent_rating": 1243.7898590676346,
+                        "result": "win",
+                        "rating_change": 15.74276289142107
+                    },
+                    {
+                        "timestamp": "2025-08-19T15:04:20.903972",
+                        "rating": 1279.4181644610862,
+                        "match_id": "d6f9b58a-03a6-4803-9cff-220e250b2cc6",
+                        "opponent_id": "QwenFree",
+                        "opponent_rating": 1228.0470961762135,
+                        "result": "win",
+                        "rating_change": 14.299228311826539
+                    },
+                    {
+                        "timestamp": "2025-08-19T15:44:03.480661",
+                        "rating": 1292.4294431494945,
+                        "match_id": "99809ba7-4b5b-48ed-b521-3adddd6c687e",
+                        "opponent_id": "QwenFree",
+                        "opponent_rating": 1213.747867864387,
+                        "result": "win",
+                        "rating_change": 13.011278688408275
+                    },
+                    {
+                        "timestamp": "2025-08-19T16:10:45.640434",
+                        "rating": 1304.3022100509518,
+                        "match_id": "bbba86f2-cad4-496b-a13e-99c214346a9d",
+                        "opponent_id": "QwenFree",
+                        "opponent_rating": 1200.7365891759787,
+                        "result": "win",
+                        "rating_change": 11.872766901457126
                     }
                 ]
             },
@@ -604,7 +709,12 @@
                 "46be3b9c-5c19-4928-a0c5-fb10f57477c2",
                 "d8c11465-d18f-403b-8873-d33cf28da9b5",
                 "5a76c412-e81d-4190-a8f0-7912ecebcebe",
-                "a48e6488-9cef-47e2-91b8-a61322118300"
+                "a48e6488-9cef-47e2-91b8-a61322118300",
+                "round_1_match_1",
+                "47019b43-6021-466e-b674-39d9c19139a0",
+                "d6f9b58a-03a6-4803-9cff-220e250b2cc6",
+                "99809ba7-4b5b-48ed-b521-3adddd6c687e",
+                "bbba86f2-cad4-496b-a13e-99c214346a9d"
             ],
             "challenge_history": [],
             "division_change_history": []
@@ -619,18 +729,18 @@
                     "mistralai"
                 ],
                 "created_at": "2025-08-01T09:29:35.475358",
-                "last_active": "2025-08-01T09:29:35.475359",
+                "last_active": "2025-08-19T14:41:43.637531",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1200.0,
-                "total_matches": 0,
+                "elo_rating": 1184.1819322952385,
+                "total_matches": 2,
                 "wins": 0,
-                "losses": 0,
-                "draws": 0,
-                "current_streak": 0,
+                "losses": 1,
+                "draws": 1,
+                "current_streak": -1,
                 "best_streak": 0,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
@@ -638,9 +748,31 @@
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
                 "judge_reliability": 1.0,
-                "elo_history": []
+                "elo_history": [
+                    {
+                        "timestamp": "2025-08-19T14:09:12.406010",
+                        "rating": 1200.0,
+                        "match_id": "round_1_match_3",
+                        "opponent_id": "GrokMini",
+                        "opponent_rating": 1200.0,
+                        "result": "draw",
+                        "rating_change": 0.0
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:41:43.637529",
+                        "rating": 1184.1819322952385,
+                        "match_id": "16f043ea-f64c-4c36-ba33-1a71574bfc1e",
+                        "opponent_id": "GPT4Mini",
+                        "opponent_rating": 1203.9507798721786,
+                        "result": "loss",
+                        "rating_change": -15.818067704761555
+                    }
+                ]
             },
-            "match_history": [],
+            "match_history": [
+                "round_1_match_3",
+                "16f043ea-f64c-4c36-ba33-1a71574bfc1e"
+            ],
             "challenge_history": [],
             "division_change_history": []
         },
@@ -654,19 +786,19 @@
                     "mistralai"
                 ],
                 "created_at": "2025-08-01T09:29:35.475444",
-                "last_active": "2025-08-01T10:15:27.699027",
+                "last_active": "2025-08-19T15:01:37.769731",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1169.4695015289756,
-                "total_matches": 3,
-                "wins": 0,
-                "losses": 2,
+                "elo_rating": 1169.4694375921058,
+                "total_matches": 5,
+                "wins": 1,
+                "losses": 3,
                 "draws": 1,
-                "current_streak": -2,
-                "best_streak": 0,
+                "current_streak": -1,
+                "best_streak": 1,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
                 "challenges_created": 0,
@@ -700,13 +832,33 @@
                         "opponent_rating": 1216.0,
                         "result": "loss",
                         "rating_change": -14.530498471024522
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:40:56.797545",
+                        "rating": 1185.5018610091913,
+                        "match_id": "1674ad3b-3e40-4dab-adde-f54c227d1ff3",
+                        "opponent_id": "MistralNemo",
+                        "opponent_rating": 1170.1721796717984,
+                        "result": "win",
+                        "rating_change": 16.03235948021582
+                    },
+                    {
+                        "timestamp": "2025-08-19T15:01:37.769730",
+                        "rating": 1169.4694375921058,
+                        "match_id": "bbc92512-ad96-4605-a1b2-f55cff51dd39",
+                        "opponent_id": "GrokMini",
+                        "opponent_rating": 1184.7977944891932,
+                        "result": "loss",
+                        "rating_change": -16.032423417085525
                     }
                 ]
             },
             "match_history": [
                 "c62ee426-cbe2-4ced-b3c9-e9341872166e",
                 "89d6947e-2046-40a0-ad26-ec275972e5b4",
-                "5c333e36-1363-4347-bd13-0a4c61d69e89"
+                "5c333e36-1363-4347-bd13-0a4c61d69e89",
+                "1674ad3b-3e40-4dab-adde-f54c227d1ff3",
+                "bbc92512-ad96-4605-a1b2-f55cff51dd39"
             ],
             "challenge_history": [],
             "division_change_history": []
@@ -721,28 +873,60 @@
                     "x-ai"
                 ],
                 "created_at": "2025-08-01T09:29:35.475525",
-                "last_active": "2025-08-01T09:29:35.475525",
+                "last_active": "2025-08-19T15:01:37.769728",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1200.0,
-                "total_matches": 0,
-                "wins": 0,
-                "losses": 0,
-                "draws": 0,
-                "current_streak": 0,
-                "best_streak": 0,
+                "elo_rating": 1200.8302179062787,
+                "total_matches": 3,
+                "wins": 1,
+                "losses": 1,
+                "draws": 1,
+                "current_streak": 1,
+                "best_streak": 1,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
                 "challenges_created": 0,
                 "challenge_quality_avg": 0.0,
                 "judge_accuracy": 0.0,
                 "judge_reliability": 1.0,
-                "elo_history": []
+                "elo_history": [
+                    {
+                        "timestamp": "2025-08-19T14:09:12.406002",
+                        "rating": 1200.0,
+                        "match_id": "round_1_match_3",
+                        "opponent_id": "MistralSmall",
+                        "opponent_rating": 1200.0,
+                        "result": "draw",
+                        "rating_change": 0.0
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:34:09.680353",
+                        "rating": 1184.7977944891932,
+                        "match_id": "cef98088-44da-4424-9a8c-a84920b2ecc9",
+                        "opponent_id": "GeminiFlash",
+                        "opponent_rating": 1217.338265754984,
+                        "result": "loss",
+                        "rating_change": -15.202205510806929
+                    },
+                    {
+                        "timestamp": "2025-08-19T15:01:37.769721",
+                        "rating": 1200.8302179062787,
+                        "match_id": "bbc92512-ad96-4605-a1b2-f55cff51dd39",
+                        "opponent_id": "MistralSmallV2",
+                        "opponent_rating": 1185.5018610091913,
+                        "result": "win",
+                        "rating_change": 16.032423417085525
+                    }
+                ]
             },
-            "match_history": [],
+            "match_history": [
+                "round_1_match_3",
+                "cef98088-44da-4424-9a8c-a84920b2ecc9",
+                "bbc92512-ad96-4605-a1b2-f55cff51dd39"
+            ],
             "challenge_history": [],
             "division_change_history": []
         },
@@ -756,17 +940,17 @@
                     "google"
                 ],
                 "created_at": "2025-08-01T09:29:35.475605",
-                "last_active": "2025-08-01T10:07:53.857786",
+                "last_active": "2025-08-19T14:34:09.680352",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1216.0,
-                "total_matches": 1,
-                "wins": 1,
+                "elo_rating": 1232.5404712657908,
+                "total_matches": 3,
+                "wins": 2,
                 "losses": 0,
-                "draws": 0,
+                "draws": 1,
                 "current_streak": 1,
                 "best_streak": 1,
                 "consistency_score": 0.0,
@@ -784,11 +968,31 @@
                         "opponent_rating": 1200.0,
                         "result": "win",
                         "rating_change": 16.0
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:09:12.409487",
+                        "rating": 1217.338265754984,
+                        "match_id": "round_1_match_5",
+                        "opponent_id": "QwenFree",
+                        "opponent_rating": 1245.1281248226185,
+                        "result": "draw",
+                        "rating_change": 1.3382657549838335
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:34:09.680347",
+                        "rating": 1232.5404712657908,
+                        "match_id": "cef98088-44da-4424-9a8c-a84920b2ecc9",
+                        "opponent_id": "GrokMini",
+                        "opponent_rating": 1200.0,
+                        "result": "win",
+                        "rating_change": 15.20220551080693
                     }
                 ]
             },
             "match_history": [
-                "ec504f48-7214-4220-bd06-b9df6b2cc803"
+                "ec504f48-7214-4220-bd06-b9df6b2cc803",
+                "round_1_match_5",
+                "cef98088-44da-4424-9a8c-a84920b2ecc9"
             ],
             "challenge_history": [],
             "division_change_history": []
@@ -803,19 +1007,19 @@
                     "openai"
                 ],
                 "created_at": "2025-08-01T09:29:35.475735",
-                "last_active": "2025-08-01T21:45:47.437380",
+                "last_active": "2025-08-19T14:41:43.637526",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1185.402373648406,
-                "total_matches": 2,
-                "wins": 0,
+                "elo_rating": 1219.76884757694,
+                "total_matches": 5,
+                "wins": 2,
                 "losses": 1,
-                "draws": 1,
-                "current_streak": -1,
-                "best_streak": 0,
+                "draws": 2,
+                "current_streak": 2,
+                "best_streak": 2,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
                 "challenges_created": 0,
@@ -840,12 +1044,42 @@
                         "opponent_rating": 1230.5304984710244,
                         "result": "loss",
                         "rating_change": -14.597626351593979
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:09:12.399903",
+                        "rating": 1186.7741620856675,
+                        "match_id": "round_1_match_2",
+                        "opponent_id": "GPT4oMini",
+                        "opponent_rating": 1215.263693206478,
+                        "result": "draw",
+                        "rating_change": 1.371788437261447
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:39:43.870864",
+                        "rating": 1203.9507798721786,
+                        "match_id": "c4d394d7-e29b-4948-9c5a-44b1242b22bc",
+                        "opponent_id": "Llama3Mini",
+                        "opponent_rating": 1212.3703000999008,
+                        "result": "win",
+                        "rating_change": 17.176617786511017
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:41:43.637520",
+                        "rating": 1219.76884757694,
+                        "match_id": "16f043ea-f64c-4c36-ba33-1a71574bfc1e",
+                        "opponent_id": "MistralSmall",
+                        "opponent_rating": 1200.0,
+                        "result": "win",
+                        "rating_change": 15.818067704761557
                     }
                 ]
             },
             "match_history": [
                 "c62ee426-cbe2-4ced-b3c9-e9341872166e",
-                "70195db6-aa39-4e82-a419-e3bed9eca736"
+                "70195db6-aa39-4e82-a419-e3bed9eca736",
+                "round_1_match_2",
+                "c4d394d7-e29b-4948-9c5a-44b1242b22bc",
+                "16f043ea-f64c-4c36-ba33-1a71574bfc1e"
             ],
             "challenge_history": [],
             "division_change_history": []
@@ -860,18 +1094,18 @@
                     "openai"
                 ],
                 "created_at": "2025-08-01T09:29:35.475833",
-                "last_active": "2025-08-19T09:07:38.646406",
+                "last_active": "2025-08-19T14:09:12.399940",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1215.263693206478,
-                "total_matches": 1,
+                "elo_rating": 1213.8919047692164,
+                "total_matches": 2,
                 "wins": 1,
                 "losses": 0,
-                "draws": 0,
-                "current_streak": 1,
+                "draws": 1,
+                "current_streak": 0,
                 "best_streak": 1,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
@@ -888,11 +1122,21 @@
                         "opponent_rating": 1184.0,
                         "result": "win",
                         "rating_change": 15.263693206478006
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:09:12.399923",
+                        "rating": 1213.8919047692164,
+                        "match_id": "round_1_match_2",
+                        "opponent_id": "GPT4Mini",
+                        "opponent_rating": 1185.402373648406,
+                        "result": "draw",
+                        "rating_change": -1.3717884372614506
                     }
                 ]
             },
             "match_history": [
-                "fbd57a4a-4e2e-4a9b-9334-bd83e58efc7b"
+                "fbd57a4a-4e2e-4a9b-9334-bd83e58efc7b",
+                "round_1_match_2"
             ],
             "challenge_history": [],
             "division_change_history": []
@@ -907,18 +1151,18 @@
                     "qwen"
                 ],
                 "created_at": "2025-08-01T09:29:35.475910",
-                "last_active": "2025-08-01T21:45:47.437389",
+                "last_active": "2025-08-19T16:10:45.640431",
                 "is_active": true,
                 "metadata": {}
             },
-            "division": "novice",
+            "division": "expert",
             "stats": {
-                "elo_rating": 1245.1281248226185,
-                "total_matches": 3,
+                "elo_rating": 1188.8638222745215,
+                "total_matches": 8,
                 "wins": 3,
-                "losses": 0,
-                "draws": 0,
-                "current_streak": 3,
+                "losses": 4,
+                "draws": 1,
+                "current_streak": -4,
                 "best_streak": 3,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
@@ -953,16 +1197,74 @@
                         "opponent_rating": 1200.0,
                         "result": "win",
                         "rating_change": 14.597626351593977
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:09:12.409490",
+                        "rating": 1243.7898590676346,
+                        "match_id": "round_1_match_5",
+                        "opponent_id": "GeminiFlash",
+                        "opponent_rating": 1216.0,
+                        "result": "draw",
+                        "rating_change": -1.3382657549838335
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:31:50.493191",
+                        "rating": 1228.0470961762135,
+                        "match_id": "47019b43-6021-466e-b674-39d9c19139a0",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1249.3761732578387,
+                        "result": "loss",
+                        "rating_change": -15.742762891421068
+                    },
+                    {
+                        "timestamp": "2025-08-19T15:04:20.903983",
+                        "rating": 1213.747867864387,
+                        "match_id": "d6f9b58a-03a6-4803-9cff-220e250b2cc6",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1265.1189361492598,
+                        "result": "loss",
+                        "rating_change": -14.29922831182654
+                    },
+                    {
+                        "timestamp": "2025-08-19T15:44:03.480668",
+                        "rating": 1200.7365891759787,
+                        "match_id": "99809ba7-4b5b-48ed-b521-3adddd6c687e",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1279.4181644610862,
+                        "result": "loss",
+                        "rating_change": -13.011278688408277
+                    },
+                    {
+                        "timestamp": "2025-08-19T16:10:45.640427",
+                        "rating": 1188.8638222745215,
+                        "match_id": "bbba86f2-cad4-496b-a13e-99c214346a9d",
+                        "opponent_id": "Llama3Pro",
+                        "opponent_rating": 1292.4294431494945,
+                        "result": "loss",
+                        "rating_change": -11.872766901457124
                     }
                 ]
             },
             "match_history": [
                 "89d6947e-2046-40a0-ad26-ec275972e5b4",
                 "5c333e36-1363-4347-bd13-0a4c61d69e89",
-                "70195db6-aa39-4e82-a419-e3bed9eca736"
+                "70195db6-aa39-4e82-a419-e3bed9eca736",
+                "round_1_match_5",
+                "47019b43-6021-466e-b674-39d9c19139a0",
+                "d6f9b58a-03a6-4803-9cff-220e250b2cc6",
+                "99809ba7-4b5b-48ed-b521-3adddd6c687e",
+                "bbba86f2-cad4-496b-a13e-99c214346a9d"
             ],
             "challenge_history": [],
-            "division_change_history": []
+            "division_change_history": [
+                {
+                    "from_division": "novice",
+                    "to_division": "expert",
+                    "timestamp": "2025-08-19T14:09:12.411066",
+                    "reason": "Promoted with 75.0% win rate and 1244 ELO",
+                    "type": "promotion"
+                }
+            ]
         },
         {
             "profile": {
@@ -974,18 +1276,18 @@
                     "mistralai"
                 ],
                 "created_at": "2025-08-01T09:29:35.475985",
-                "last_active": "2025-08-19T09:07:38.646409",
+                "last_active": "2025-08-19T14:40:56.797543",
                 "is_active": true,
                 "metadata": {}
             },
             "division": "novice",
             "stats": {
-                "elo_rating": 1168.736306793522,
-                "total_matches": 2,
+                "elo_rating": 1154.1398201915827,
+                "total_matches": 4,
                 "wins": 0,
-                "losses": 2,
-                "draws": 0,
-                "current_streak": -2,
+                "losses": 3,
+                "draws": 1,
+                "current_streak": -1,
                 "best_streak": 0,
                 "consistency_score": 0.0,
                 "innovation_index": 0.0,
@@ -1011,12 +1313,32 @@
                         "opponent_rating": 1200.0,
                         "result": "loss",
                         "rating_change": -15.263693206478006
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:09:12.407910",
+                        "rating": 1170.1721796717984,
+                        "match_id": "round_1_match_4",
+                        "opponent_id": "Llama3Mini",
+                        "opponent_rating": 1200.0,
+                        "result": "draw",
+                        "rating_change": 1.4358728782762888
+                    },
+                    {
+                        "timestamp": "2025-08-19T14:40:56.797536",
+                        "rating": 1154.1398201915827,
+                        "match_id": "1674ad3b-3e40-4dab-adde-f54c227d1ff3",
+                        "opponent_id": "MistralSmallV2",
+                        "opponent_rating": 1169.4695015289756,
+                        "result": "loss",
+                        "rating_change": -16.032359480215824
                     }
                 ]
             },
             "match_history": [
                 "ec504f48-7214-4220-bd06-b9df6b2cc803",
-                "fbd57a4a-4e2e-4a9b-9334-bd83e58efc7b"
+                "fbd57a4a-4e2e-4a9b-9334-bd83e58efc7b",
+                "round_1_match_4",
+                "1674ad3b-3e40-4dab-adde-f54c227d1ff3"
             ],
             "challenge_history": [],
             "division_change_history": []

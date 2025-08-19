@@ -217,25 +217,81 @@ class Arena:
 
             prompt = challenge.get_prompt()
 
-            print(f"      🤖 Getting real LLM responses...")
-            agent1_llm = self.agent_llms[agent1.profile.agent_id]
-            start_time = time.time()
-            response1_obj = agent1_llm.invoke(prompt)
-            response1_text = get_content(response1_obj)
-            response1_time = time.time() - start_time
-
-            agent2_llm = self.agent_llms[agent2.profile.agent_id]
-            start_time = time.time()
-            response2_obj = agent2_llm.invoke(prompt)
-            response2_text = get_content(response2_obj)
-            response2_time = time.time() - start_time
-
-            response1 = AgentResponse(agent_id=agent1.profile.name, response_text=response1_text, response_time=response1_time)
-            response2 = AgentResponse(agent_id=agent2.profile.name, response_text=response2_text, response_time=response2_time)
-
-            match.submit_response(agent1.profile.name, response1)
-            match.submit_response(agent2.profile.name, response2)
-            self.match_store.update_match(match)  # Update match in store
+            print(f"      🤖 Streaming real LLM responses in parallel...")
+            
+            # Run both agents in parallel using asyncio
+            import asyncio
+            
+            async def stream_agent_response(agent: Agent, agent_num: int):
+                """Stream a single agent's response."""
+                agent_llm = self.agent_llms[agent.profile.agent_id]
+                start_time = time.time()
+                response_chunks = []
+                
+                try:
+                    async for chunk in agent_llm.astream(prompt):
+                        chunk_content = get_content(chunk)
+                        response_chunks.append(chunk_content)
+                        
+                        # Create partial response and update match in real-time
+                        partial_response_text = "".join(response_chunks)
+                        partial_response = AgentResponse(
+                            agent_id=agent.profile.name, 
+                            response_text=partial_response_text, 
+                            response_time=time.time() - start_time,
+                            is_streaming=True
+                        )
+                        
+                        # Update match with partial response
+                        match.submit_partial_response(agent.profile.name, partial_response)
+                        self.match_store.update_match(match)
+                    
+                    response_time = time.time() - start_time
+                    final_response_text = "".join(response_chunks)
+                    
+                    # Mark agent response as complete
+                    final_response = AgentResponse(
+                        agent_id=agent.profile.name, 
+                        response_text=final_response_text, 
+                        response_time=response_time,
+                        is_streaming=False
+                    )
+                    match.submit_response(agent.profile.name, final_response)
+                    self.match_store.update_match(match)
+                    
+                    print(f"      ✅ {agent.profile.name} finished streaming ({response_time:.1f}s)")
+                    return final_response_text, response_time
+                    
+                except Exception as e:
+                    print(f"      ❌ Error streaming {agent.profile.name}: {e}")
+                    # Fallback response
+                    fallback_text = f"Error occurred while generating response: {str(e)}"
+                    fallback_response = AgentResponse(
+                        agent_id=agent.profile.name,
+                        response_text=fallback_text,
+                        response_time=time.time() - start_time,
+                        is_streaming=False
+                    )
+                    match.submit_response(agent.profile.name, fallback_response)
+                    self.match_store.update_match(match)
+                    return fallback_text, time.time() - start_time
+            
+            # Create event loop if it doesn't exist
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            
+            # Run both agents in parallel
+            agent1_task = stream_agent_response(agent1, 1)
+            agent2_task = stream_agent_response(agent2, 2)
+            
+            # Wait for both to complete
+            results = loop.run_until_complete(asyncio.gather(agent1_task, agent2_task))
+            (response1_text, response1_time), (response2_text, response2_time) = results
+            
+            print(f"      🏁 Both agents completed! Agent1: {response1_time:.1f}s, Agent2: {response2_time:.1f}s")
 
             print(f"      ⚖️  Evaluating with real LLM judges...")
             evaluation_result = evaluate_match_with_llm_judges(match, challenge, judge_count=2)
@@ -264,6 +320,9 @@ class Arena:
             print("update_agent_stats_and_elo realistic match")
             self.update_agent_stats_and_elo(agent1, agent2, winner_id, scores, match_id=match.match_id)
 
+            # Apply division changes after each match
+            self.apply_realistic_division_changes()
+
             return winner_id, scores
         except Exception as e:
             print(f"      ❌ Match simulation failed: {e}")
@@ -273,6 +332,10 @@ class Arena:
             self.match_store.update_match(match)
             # Update agent stats even on failure
             self.update_agent_stats_and_elo(agent1, agent2, winner_id, scores, match_id=match.match_id)
+            
+            # Apply division changes even on failure
+            self.apply_realistic_division_changes()
+            
             return winner_id, scores
 
     def simulate_debate_match(self, agent1: Agent, agent2: Agent, challenge: Challenge, num_turns: int = 1) -> Tuple[Optional[str], Dict[str, float]]:
@@ -320,8 +383,35 @@ class Arena:
 
             agent_llm = self.agent_llms[agent_to_respond.profile.agent_id]
             try:
-                response_obj = agent_llm.invoke(prompt)
-                response_text = get_content(response_obj)
+                start_time = time.time()
+                response_chunks = []
+                
+                # Stream the response chunk by chunk
+                for chunk in agent_llm.stream(prompt):
+                    chunk_content = get_content(chunk)
+                    response_chunks.append(chunk_content)
+                    
+                    # Create partial response and update match in real-time
+                    partial_response_text = "".join(response_chunks)
+                    partial_response = AgentResponse(
+                        agent_id=agent_to_respond.profile.name,
+                        response_text=partial_response_text,
+                        response_time=time.time() - start_time,
+                        is_streaming=True
+                    )
+                    
+                    # Update transcript with partial response (replace last entry if it's partial)
+                    if match.transcript and match.transcript[-1].agent_id == agent_to_respond.profile.name and hasattr(match.transcript[-1], 'is_streaming') and match.transcript[-1].is_streaming:
+                        match.transcript[-1] = partial_response
+                    else:
+                        match.transcript.append(partial_response)
+                    
+                    self.match_store.update_match(match)
+                
+                # Final complete response
+                response_text = "".join(response_chunks)
+                response_time = time.time() - start_time
+                
             except Exception as e:
                 print(f"      ❌ Error getting response from {agent_to_respond.profile.name}: {e}")
                 print(f"      {opponent_agent.profile.name} wins by default as their opponent failed to respond.")
@@ -336,12 +426,20 @@ class Arena:
 
             current_transcript.append({"agent_name": agent_to_respond.profile.name, "response_text": response_text})
             
+            # Create final response (not streaming)
             response = AgentResponse(
                 agent_id=agent_to_respond.profile.name,
                 response_text=response_text,
-                response_time=0  # Not timing turns for now
+                response_time=response_time,
+                is_streaming=False
             )
-            match.transcript.append(response)
+            
+            # Replace the last partial response with the complete one
+            if match.transcript and match.transcript[-1].agent_id == agent_to_respond.profile.name:
+                match.transcript[-1] = response
+            else:
+                match.transcript.append(response)
+            
             self.match_store.update_match(match)  # Update match in store
 
         # After all turns, set status to awaiting judgment
@@ -367,6 +465,10 @@ class Arena:
         self.match_store.update_match(match)
         print("update_agent_stats_and_elo debate match")
         self.update_agent_stats_and_elo(agent1, agent2, winner_id, scores, match_id=match.match_id)
+        
+        # Apply division changes after each match
+        self.apply_realistic_division_changes()
+        
         return winner_id, scores
 
     def update_agent_stats_and_elo(self, agent1: Agent, agent2: Agent, winner_id: Optional[str], scores: Dict[str, float], match_id: str):
@@ -445,7 +547,7 @@ class Arena:
         
         self.save_state()
 
-    def apply_realistic_division_changes(self):
+    def apply_realistic_division_changes(self, context: str = "match"):
         """Apply promotion and demotion rules based on performance metrics."""
         changes = []
         for agent in self.agents:
@@ -479,11 +581,11 @@ class Arena:
                     changes.append(f"🔻 {agent.profile.name}: EXPERT → NOVICE (Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
         
         if changes:
-            print("\n🔄 DIVISION CHANGES:")
+            print(f"\n🔄 DIVISION CHANGES (after {context}):")
             for change in changes:
                 print(f"   {change}")
-        else:
-            print("\n📋 No division changes this round")
+        elif context == "round":  # Only show this message for tournament rounds to avoid spam
+            print(f"\n📋 No division changes after {context}")
 
     def create_dynamic_challenge_pool(self, challenge_count: int = 8):
         """Create challenges using real LLM generation."""
@@ -569,7 +671,7 @@ class Arena:
                     winner_id, scores = self.simulate_realistic_match(agent1, agent2, challenge)
                 match_duration = time.time() - start_time
                 
-                self.update_agent_stats_and_elo(agent1, agent2, winner_id, scores, match_id=f"round_{round_num}_match_{match_count+1}")
+                # Note: stats and division changes are already handled inside simulate_*_match methods
                 
                 if winner_id:
                     winner_name = agent1.profile.name if winner_id == agent1.profile.name else agent2.profile.name
@@ -584,7 +686,7 @@ class Arena:
                 match_count += 1
         
         print(f"\n✅ Round {round_num} completed: {match_count} realistic matches")
-        self.apply_realistic_division_changes()
+        self.apply_realistic_division_changes(context="round")
 
 
 def print_comprehensive_status(agents: List[Agent], round_num: int):

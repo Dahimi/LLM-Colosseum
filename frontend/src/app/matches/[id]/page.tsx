@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Match, MatchStatus } from '@/types/matches';
 import { Agent } from '@/types/arena';
@@ -22,6 +22,9 @@ export default function MatchPage({ params }: PageProps) {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const debateContainerRef = useRef<HTMLDivElement>(null);
+  const [lastTranscriptLength, setLastTranscriptLength] = useState(0);
+  const [userHasScrolled, setUserHasScrolled] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -45,8 +48,36 @@ export default function MatchPage({ params }: PageProps) {
   // Use SSE for real-time updates
   useEventSource<Match>(`${API_BASE_URL}/matches/${id}/stream`, {
     onMessage: (data) => {
+      const prevMatch = match;
       setMatch(data);
       setError(null);
+      
+      // Auto-scroll logic for debate matches
+      if (data.match_type === 'DEBATE' && debateContainerRef.current) {
+        const hasNewContent = !prevMatch || 
+          (data.transcript?.length || 0) !== (prevMatch.transcript?.length || 0);
+        
+        const hasStreamingResponse = data.transcript?.some(response => response.is_streaming);
+        
+        // Only auto-scroll if:
+        // 1. There's new content (new message) OR
+        // 2. There's currently streaming content AND user hasn't manually scrolled
+        const shouldAutoScroll = hasNewContent || (hasStreamingResponse && !userHasScrolled);
+        
+        if (shouldAutoScroll) {
+          setTimeout(() => {
+            debateContainerRef.current?.scrollTo({
+              top: debateContainerRef.current.scrollHeight,
+              behavior: hasNewContent ? 'smooth' : 'auto' // Smooth for new messages, instant for streaming updates
+            });
+          }, 50);
+        }
+        
+        // Reset user scroll flag when there's new content (new message started)
+        if (hasNewContent) {
+          setUserHasScrolled(false);
+        }
+      }
     },
     onError: () => {
       setError('Failed to connect to match updates stream');
@@ -55,6 +86,19 @@ export default function MatchPage({ params }: PageProps) {
     enabled: !isLoading && !!match,
     transformer: transformMatch,
   });
+
+  // Handle scroll events to detect user interaction
+  const handleScroll = () => {
+    if (debateContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = debateContainerRef.current;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px tolerance
+      
+      // If user scrolled up from bottom, mark that they've manually scrolled
+      if (!isAtBottom) {
+        setUserHasScrolled(true);
+      }
+    }
+  };
 
   if (isLoading) {
     return <div>Loading match details...</div>;
@@ -155,55 +199,84 @@ export default function MatchPage({ params }: PageProps) {
               </h3>
               
               {match.transcript && match.transcript.length > 0 ? (
-                <div className="bg-gradient-to-b from-gray-50 to-white border border-gray-200 rounded-xl p-6 space-y-6 max-h-[600px] overflow-y-auto">
-                  {match.transcript.map((response, index) => {
-                    const isAgent1 = response.agent_id === match.agent1_id;
-                    const agent = isAgent1 ? agent1 : agent2;
-                    const isFirstMessage = index === 0;
-                    const turnNumber = Math.floor(index / 2) + 1;
-                    
-                    return (
-                      <div 
-                        key={index}
-                        className={`flex ${isAgent1 ? 'justify-start' : 'justify-end'} animate-fade-in`}
-                      >
-                        <div className={`max-w-[85%] ${isAgent1 ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} border rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200`}>
-                          {/* Message Header */}
-                          <div className={`flex items-center justify-between px-4 py-2 border-b ${isAgent1 ? 'border-blue-200 bg-blue-50/50' : 'border-purple-200 bg-purple-50/50'} rounded-t-2xl`}>
-                            <div className="flex items-center gap-2">
-                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium ${isAgent1 ? 'bg-blue-500' : 'bg-purple-500'}`}>
-                                {agent.profile.name.charAt(0)}
+                <div className="relative">
+                  <div className="bg-gradient-to-b from-gray-50 to-white border border-gray-200 rounded-xl p-6 space-y-6 max-h-[600px] overflow-y-auto" ref={debateContainerRef} onScroll={handleScroll}>
+                    {match.transcript.map((response, index) => {
+                      const isAgent1 = response.agent_id === match.agent1_id;
+                      const agent = isAgent1 ? agent1 : agent2;
+                      const isFirstMessage = index === 0;
+                      const turnNumber = Math.floor(index / 2) + 1;
+                      
+                      return (
+                        <div 
+                          key={index}
+                          className={`flex ${isAgent1 ? 'justify-start' : 'justify-end'} animate-fade-in`}
+                        >
+                          <div className={`max-w-[85%] ${isAgent1 ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} border rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200`}>
+                            {/* Message Header */}
+                            <div className={`flex items-center justify-between px-4 py-2 border-b ${isAgent1 ? 'border-blue-200 bg-blue-50/50' : 'border-purple-200 bg-purple-50/50'} rounded-t-2xl`}>
+                              <div className="flex items-center gap-2">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium ${isAgent1 ? 'bg-blue-500' : 'bg-purple-500'}`}>
+                                  {agent.profile.name.charAt(0)}
+                                </div>
+                                <span className={`font-semibold ${isAgent1 ? 'text-blue-800' : 'text-purple-800'}`}>
+                                  {agent.profile.name}
+                                </span>
+                                <span className={`text-xs px-2 py-1 rounded-full ${isAgent1 ? 'bg-blue-200 text-blue-700' : 'bg-purple-200 text-purple-700'}`}>
+                                  {isFirstMessage ? 'Opening' : `Turn ${turnNumber}`}
+                                </span>
                               </div>
-                              <span className={`font-semibold ${isAgent1 ? 'text-blue-800' : 'text-purple-800'}`}>
-                                {agent.profile.name}
-                              </span>
-                              <span className={`text-xs px-2 py-1 rounded-full ${isAgent1 ? 'bg-blue-200 text-blue-700' : 'bg-purple-200 text-purple-700'}`}>
-                                {isFirstMessage ? 'Opening' : `Turn ${turnNumber}`}
-                              </span>
-                            </div>
-                            <div className={`text-xs ${isAgent1 ? 'text-blue-600' : 'text-purple-600'}`}>
-                              {new Date(response.timestamp).toLocaleTimeString()}
-                            </div>
-                          </div>
-                          
-                          {/* Message Content */}
-                          <div className="p-4">
-                            <p className={`whitespace-pre-wrap leading-relaxed ${isAgent1 ? 'text-blue-900' : 'text-purple-900'}`}>
-                              {response.response_text}
-                            </p>
-                            {response.response_time > 0 && (
-                              <div className={`flex items-center gap-1 mt-3 text-xs ${isAgent1 ? 'text-blue-600' : 'text-purple-600'}`}>
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>{response.response_time.toFixed(2)}s</span>
+                              <div className={`text-xs ${isAgent1 ? 'text-blue-600' : 'text-purple-600'}`}>
+                                {response.timestamp ? new Date(response.timestamp).toLocaleTimeString() : 'Now'}
                               </div>
-                            )}
+                            </div>
+                            
+                            {/* Message Content */}
+                            <div className="p-4">
+                              <p className={`whitespace-pre-wrap leading-relaxed ${isAgent1 ? 'text-blue-900' : 'text-purple-900'}`}>
+                                {response.response_text}
+                                {response.is_streaming && (
+                                  <span className={`inline-block w-2 h-5 ml-1 animate-pulse ${isAgent1 ? 'bg-blue-500' : 'bg-purple-500'}`}></span>
+                                )}
+                              </p>
+                              {response.response_time > 0 && (
+                                <div className={`flex items-center gap-1 mt-3 text-xs ${isAgent1 ? 'text-blue-600' : 'text-purple-600'}`}>
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  <span>{response.response_time.toFixed(2)}s</span>
+                                  {response.is_streaming && (
+                                    <span className={`ml-2 px-2 py-1 rounded-full text-xs ${isAgent1 ? 'bg-blue-200 text-blue-700' : 'bg-purple-200 text-purple-700'}`}>
+                                      Typing...
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Scroll to bottom button */}
+                  {userHasScrolled && match.transcript?.some(response => response.is_streaming) && (
+                    <button
+                      onClick={() => {
+                        setUserHasScrolled(false);
+                        debateContainerRef.current?.scrollTo({
+                          top: debateContainerRef.current.scrollHeight,
+                          behavior: 'smooth'
+                        });
+                      }}
+                      className="absolute bottom-4 right-4 bg-indigo-500 hover:bg-indigo-600 text-white p-2 rounded-full shadow-lg transition-colors duration-200 flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                      </svg>
+                      <span className="text-xs">Live</span>
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 p-8 rounded-xl text-center">
@@ -258,6 +331,62 @@ export default function MatchPage({ params }: PageProps) {
               
               {(match.agent1_response || match.agent2_response) ? (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Competition Header - shows when both are streaming */}
+                  {match.agent1_response?.is_streaming && match.agent2_response?.is_streaming && (
+                    <div className="lg:col-span-2 mb-4">
+                      <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-red-50 border border-amber-200 rounded-xl p-4 text-center">
+                        <div className="flex items-center justify-center gap-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                            <span className="text-blue-700 font-medium">{agent1.profile.name}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-amber-600">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            <span className="font-bold">LIVE RACE</span>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-purple-700 font-medium">{agent2.profile.name}</span>
+                            <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+                          </div>
+                        </div>
+                        <p className="text-amber-700 text-sm mt-1">Both agents are generating responses simultaneously!</p>
+                        
+                        {/* Progress Race */}
+                        <div className="mt-3 space-y-2">
+                          <div className="flex items-center gap-3">
+                            <span className="text-blue-700 text-sm font-medium w-20 text-right">{agent1.profile.name}</span>
+                            <div className="flex-1 bg-blue-100 rounded-full h-2 relative overflow-hidden">
+                              <div 
+                                className="bg-blue-500 h-full rounded-full transition-all duration-300 ease-out"
+                                style={{ 
+                                  width: `${Math.min(100, (match.agent1_response?.response_text.length || 0) / 10)}%` 
+                                }}
+                              ></div>
+                            </div>
+                            <span className="text-blue-600 text-xs w-12">{match.agent1_response?.response_text.length || 0} chars</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-purple-700 text-sm font-medium w-20 text-right">{agent2.profile.name}</span>
+                            <div className="flex-1 bg-purple-100 rounded-full h-2 relative overflow-hidden">
+                              <div 
+                                className="bg-purple-500 h-full rounded-full transition-all duration-300 ease-out"
+                                style={{ 
+                                  width: `${Math.min(100, (match.agent2_response?.response_text.length || 0) / 10)}%` 
+                                }}
+                              ></div>
+                            </div>
+                            <span className="text-purple-600 text-xs w-12">{match.agent2_response?.response_text.length || 0} chars</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Agent 1 Response */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-3 mb-4">
@@ -273,7 +402,15 @@ export default function MatchPage({ params }: PageProps) {
                     {match.agent1_response ? (
                       <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
                         <div className="bg-blue-500 text-white px-4 py-2 flex items-center justify-between">
-                          <span className="font-medium">Response</span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">Response</span>
+                            {match.agent1_response.is_streaming && (
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                <span className="text-xs">Streaming...</span>
+                              </div>
+                            )}
+                          </div>
                           <div className="flex items-center gap-2 text-blue-100">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -284,9 +421,12 @@ export default function MatchPage({ params }: PageProps) {
                         <div className="p-6">
                           <p className="whitespace-pre-wrap text-blue-900 leading-relaxed">
                             {match.agent1_response.response_text}
+                            {match.agent1_response.is_streaming && (
+                              <span className="inline-block w-2 h-5 bg-blue-500 ml-1 animate-pulse"></span>
+                            )}
                           </p>
                         </div>
-                        {match.agent1_response.score !== undefined && (
+                        {match.agent1_response.score !== undefined && !match.agent1_response.is_streaming && (
                           <div className="bg-blue-500/10 px-4 py-2 border-t border-blue-200">
                             <div className="flex items-center justify-center">
                               <span className="text-blue-700 text-sm font-medium">Score: </span>
@@ -322,7 +462,15 @@ export default function MatchPage({ params }: PageProps) {
                     {match.agent2_response ? (
                       <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
                         <div className="bg-purple-500 text-white px-4 py-2 flex items-center justify-between">
-                          <span className="font-medium">Response</span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">Response</span>
+                            {match.agent2_response.is_streaming && (
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                <span className="text-xs">Streaming...</span>
+                              </div>
+                            )}
+                          </div>
                           <div className="flex items-center gap-2 text-purple-100">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -333,9 +481,12 @@ export default function MatchPage({ params }: PageProps) {
                         <div className="p-6">
                           <p className="whitespace-pre-wrap text-purple-900 leading-relaxed">
                             {match.agent2_response.response_text}
+                            {match.agent2_response.is_streaming && (
+                              <span className="inline-block w-2 h-5 bg-purple-500 ml-1 animate-pulse"></span>
+                            )}
                           </p>
                         </div>
-                        {match.agent2_response.score !== undefined && (
+                        {match.agent2_response.score !== undefined && !match.agent2_response.is_streaming && (
                           <div className="bg-purple-500/10 px-4 py-2 border-t border-purple-200">
                             <div className="flex items-center justify-center">
                               <span className="text-purple-700 text-sm font-medium">Score: </span>

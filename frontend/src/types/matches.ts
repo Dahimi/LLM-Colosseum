@@ -32,6 +32,7 @@ export interface AgentResponse {
   is_structured?: boolean;
   structured_data?: any;
   metadata?: any;
+  is_streaming?: boolean;
 }
 
 export interface JudgeEvaluation {
