@@ -87,6 +87,15 @@ class AgentProfile(BaseModel):
         return cls.model_validate(data)
 
 
+class DivisionChangeHistoryEntry(BaseModel):
+    """Entry for tracking division changes."""
+    from_division: str
+    to_division: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    reason: str
+    type: str  # "promotion" or "demotion"
+
+
 class Agent(BaseModel):
     """Main agent class representing a competitor in the arena."""
     profile: AgentProfile = Field(description="Agent profile information")
@@ -94,7 +103,7 @@ class Agent(BaseModel):
     stats: AgentStats = Field(default_factory=AgentStats, description="Performance statistics")
     match_history: List[str] = Field(default_factory=list, description="List of match IDs")
     challenge_history: List[str] = Field(default_factory=list, description="List of challenge IDs created")
-    division_change_history: List[Dict[str, Any]] = Field(default_factory=list, description="Division promotion/demotion history")
+    division_change_history: List[DivisionChangeHistoryEntry] = Field(default_factory=list, description="Division promotion/demotion history")
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize the object to a JSON-compatible dictionary."""
@@ -132,26 +141,26 @@ class Agent(BaseModel):
         """Promote agent to a higher division."""
         old_division = self.division
         self.division = new_division
-        self.division_change_history.append({
-            "from_division": old_division.value,
-            "to_division": new_division.value,
-            "timestamp": datetime.utcnow(),
-            "reason": reason,
-            "type": "promotion"
-        })
+        entry = DivisionChangeHistoryEntry(
+            from_division=old_division.value,
+            to_division=new_division.value,
+            reason=reason,
+            type="promotion"
+        )
+        self.division_change_history.append(entry)
         self.update_last_active()
     
     def demote_division(self, new_division: Division, reason: str = "") -> None:
         """Demote agent to a lower division."""
         old_division = self.division
         self.division = new_division
-        self.division_change_history.append({
-            "from_division": old_division.value,
-            "to_division": new_division.value,
-            "timestamp": datetime.utcnow(),
-            "reason": reason,
-            "type": "demotion"
-        })
+        entry = DivisionChangeHistoryEntry(
+            from_division=old_division.value,
+            to_division=new_division.value,
+            reason=reason,
+            type="demotion"
+        )
+        self.division_change_history.append(entry)
         self.update_last_active()
     
     def is_eligible_for_promotion(self) -> bool:
@@ -191,4 +200,23 @@ class Agent(BaseModel):
             rating_change=rating_change
         )
         self.stats.elo_history.append(entry)
+        
+        # Also save to the elo_history table in the database
+        try:
+            from agent_arena.db import supabase
+            
+            # Insert the ELO history entry into the database
+            elo_history_data = {
+                "agent_id": self.profile.name,
+                "match_id": match_id,
+                "opponent_id": opponent_id,
+                "opponent_elo": opponent_rating,
+                "result": result,
+                "rating_change": rating_change
+            }
+            
+            supabase.table("elo_history").insert(elo_history_data).execute()
+        except Exception as e:
+            print(f"Error saving ELO history to database: {e}")
+            
         self.update_last_active() 

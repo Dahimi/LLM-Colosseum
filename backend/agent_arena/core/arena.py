@@ -1,4 +1,3 @@
-
 import json
 import os
 import random
@@ -7,7 +6,7 @@ import asyncio
 from typing import List, Dict, Optional, Tuple
 import threading
 
-from agent_arena.models.agent import Agent, AgentProfile, Division
+from agent_arena.models.agent import Agent, AgentProfile, Division, AgentStats
 from agent_arena.models.challenge import Challenge, ChallengeType, ChallengeDifficulty
 from agent_arena.models.match import Match, MatchType, AgentResponse, MatchStatus
 from agent_arena.core.llm_interface import create_agent_llm, get_content, create_system_llm
@@ -15,21 +14,28 @@ from agent_arena.core.challenge_generator import ChallengeGenerator
 from agent_arena.core.judge_system import evaluate_match_with_llm_judges
 from agent_arena.core.match_store import MatchStore
 from agent_arena.utils.logging import arena_logger, get_logger
+from agent_arena.db import supabase
+from agent_arena.models.agent import EloHistoryEntry
 
 logger = get_logger(__name__)
 
 
 class Arena:
-    def __init__(self, agents_file: str, state_file: str):
-        self.agents_file = agents_file
-        self.state_file = state_file
+    def __init__(self, agents_file: str):
+        self.agents_file = agents_file  # Keep for seeding
         self.agents: List[Agent] = []
         self.challenges: List[Challenge] = []
         self.agent_llms: Dict[str, any] = {}
         # Initialize match store with a file in the same directory as state_file
-        match_store_file = os.path.join(os.path.dirname(state_file), "matches.json")
-        self.match_store = MatchStore(match_store_file)
-        self.load_state()
+        self.match_store = MatchStore() # Will be updated later
+        self._initialize_from_db()
+
+    def _initialize_from_db(self):
+        """Initializes the arena state from the database."""
+        self.load_agents_from_db()
+        self.load_challenges_from_db()
+        if not self.challenges:
+            self.create_dynamic_challenge_pool()
 
     def start_match_async(self, agent1: Agent, agent2: Agent, challenge: Challenge) -> Match:
         """Start a match asynchronously and return immediately."""
@@ -92,96 +98,74 @@ class Arena:
         # Start match asynchronously
         return self.start_match_async(agent1, agent2, challenge)
 
-    def load_agents_from_config(self):
-        """Loads agents from the configuration file."""
+    def load_agents_from_db(self):
+        """Loads agents from the Supabase database."""
         try:
+            response = supabase.table("agents").select("*").execute()
+            if not response.data:
+                logger.info("No agents found in the database. Seeding from agents.json...")
+                self.seed_agents_from_config()
+                # Retry loading after seeding
+                response = supabase.table("agents").select("*").execute()
+
+            agents_data = response.data
+            
             with open(self.agents_file, 'r') as f:
                 agents_config = json.load(f)
-
-            for config in agents_config:
-                profile = AgentProfile(
-                    name=config["name"],
-                    description=f"Agent based on {config['model']}",
-                    specializations=config.get("specializations", [])
-                )
-                agent = Agent(
-                    profile=profile,
-                    division=Division[config["division"]]
-                )
-                self.agents.append(agent)
-
-                # Create LLM for the agent
-                agent_llm = create_agent_llm(
-                    model_name=config["model"],
-                    temperature=config["temperature"],
-                    max_tokens=1500
-                )
-                self.agent_llms[agent.profile.agent_id] = agent_llm
-            logger.info(f"Loaded {len(self.agents)} agents from {self.agents_file}")
-        except FileNotFoundError:
-            logger.error(f"Agents file not found: {self.agents_file}")
-            raise
-        except Exception as e:
-            logger.error(f"Error loading agents from config: {e}")
-            raise
-
-    def save_state(self):
-        """Saves the current state of the arena to a file."""
-        print("Saving arena state to", self.state_file)
-        state = {
-            "agents": [agent.to_dict() for agent in self.agents],
-            "challenges": [challenge.to_dict() for challenge in self.challenges]
-        }
-        try:
-            # First write to a temporary file
-            temp_file = self.state_file + '.tmp'
-            with open(temp_file, 'w') as f:
-                json.dump(state, f, indent=4)
-            # Then atomically rename it
-            os.replace(temp_file, self.state_file)
-            print("Arena state saved successfully")
-            
-            # Debug log agent stats
-            for agent in self.agents:
-                logger.info(f"Agent {agent.profile.name}: ELO={agent.stats.elo_rating:.0f}, W/L/D={agent.stats.wins}/{agent.stats.losses}/{agent.stats.draws}")
-        except Exception as e:
-            logger.error(f"Error saving arena state: {e}")
-            logger.error(f"Current agents: {[str(a) for a in self.agents]}")
-            raise  # Re-raise to see the full error
-
-    def load_state(self):
-        """Loads the arena state from a file, or initializes a new state."""
-        if os.path.exists(self.state_file):
-            try:
-                with open(self.state_file, 'r') as f:
-                    state = json.load(f)
-                self.agents = [Agent.from_dict(agent_data) for agent_data in state["agents"]]
-                self.challenges = [Challenge.from_dict(challenge_data) for challenge_data in state.get("challenges", [])]
-                
-                # Re-create LLM clients for loaded agents
-                self.recreate_llm_clients()
-
-                logger.info(f"Arena state loaded from {self.state_file}")
-                # Debug log loaded agent stats
-                for agent in self.agents:
-                    logger.info(f"Loaded agent {agent.profile.name}: ELO={agent.stats.elo_rating:.0f}, W/L/D={agent.stats.wins}/{agent.stats.losses}/{agent.stats.draws}")
-            except Exception as e:
-                logger.error(f"Error loading state from {self.state_file}, creating new state. Error: {e}")
-                self.initialize_new_state()
-        else:
-            logger.info("No state file found, initializing a new arena state.")
-            self.initialize_new_state()
-
-    def recreate_llm_clients(self):
-        """Recreates LLM clients for all agents, needed after loading state."""
-        # This requires matching loaded agents back to their original config to get model names
-        try:
-            with open(self.agents_file, 'r') as f:
-                agents_config = json.load(f)
-            
             config_map = {cfg['name']: cfg for cfg in agents_config}
 
-            for agent in self.agents:
+            for agent_data in agents_data:
+                # Reconstruct Agent Pydantic model from DB data
+                profile_data = {
+                    "agent_id": agent_data["id"],
+                    "name": agent_data["name"],
+                    "description": agent_data["description"],
+                    "specializations": agent_data["specializations"],
+                    "created_at": agent_data["created_at"],
+                    "last_active": agent_data["last_active"],
+                    "is_active": agent_data["is_active"],
+                    "metadata": agent_data.get("metadata") or {}
+                }
+                
+                stats_data = {key: agent_data[key] for key in [
+                    "elo_rating", "total_matches", "wins", "losses", "draws",
+                    "current_streak", "best_streak", "consistency_score",
+                    "innovation_index", "challenges_created", "challenge_quality_avg",
+                    "judge_accuracy", "judge_reliability"
+                ] if key in agent_data}
+
+                agent = Agent(
+                    profile=AgentProfile(**profile_data),
+                    division=Division(agent_data["current_division"]),
+                    stats=AgentStats(**stats_data),
+                    # match_history, challenge_history, and division_change_history would need to be loaded if stored
+                    division_change_history=agent_data.get("division_change_history") or []
+                )
+                
+                # Load ELO history from the elo_history table
+                try:
+                    elo_history_response = supabase.table("elo_history").select("*") \
+                        .eq("agent_id", agent.profile.name) \
+                        .order("timestamp", desc=False).execute()
+                    
+                    if elo_history_response.data:
+                        for entry in elo_history_response.data:
+                            elo_entry = EloHistoryEntry(
+                                timestamp=entry.get("timestamp"),
+                                rating=agent.stats.elo_rating,  # Use current rating as we don't store historical ratings
+                                match_id=entry.get("match_id"),
+                                opponent_id=entry.get("opponent_id"),
+                                opponent_rating=entry.get("opponent_elo", 1200.0),
+                                result=entry.get("result"),
+                                rating_change=entry.get("rating_change", 0.0)
+                            )
+                            agent.stats.elo_history.append(elo_entry)
+                except Exception as e:
+                    logger.error(f"Error loading ELO history for agent {agent.profile.name}: {e}")
+                
+                self.agents.append(agent)
+                
+                # Create LLM for the agent using config file
                 if agent.profile.name in config_map:
                     config = config_map[agent.profile.name]
                     agent_llm = create_agent_llm(
@@ -190,14 +174,89 @@ class Arena:
                         max_tokens=1500
                     )
                     self.agent_llms[agent.profile.agent_id] = agent_llm
-        except Exception as e:
-            logger.error(f"Failed to recreate LLM clients: {e}")
 
-    def initialize_new_state(self):
-        """Initializes a new arena state from the agent configuration file."""
-        self.load_agents_from_config()
-        self.create_dynamic_challenge_pool()
-        self.save_state()
+            logger.info(f"Loaded {len(self.agents)} agents from the database.")
+        except Exception as e:
+            logger.error(f"Error loading agents from database: {e}")
+            raise
+
+    def seed_agents_from_config(self):
+        """Seeds the database with agents from the configuration file."""
+        try:
+            with open(self.agents_file, 'r') as f:
+                agents_config = json.load(f)
+
+            agents_to_insert = []
+            for config in agents_config:
+                agent_data = {
+                    "name": config["name"],
+                    "model": config["model"],
+                    "description": f"Agent based on {config['model']}",
+                    "specializations": config.get("specializations", []),
+                    "current_division": config["division"].lower()
+                }
+                agents_to_insert.append(agent_data)
+            
+            if agents_to_insert:
+                supabase.table("agents").insert(agents_to_insert).execute()
+                logger.info(f"Successfully seeded {len(agents_to_insert)} agents to the database.")
+
+        except FileNotFoundError:
+            logger.error(f"Agents file not found: {self.agents_file}")
+            raise
+        except Exception as e:
+            logger.error(f"Error seeding agents from config: {e}")
+            raise
+
+    def load_challenges_from_db(self):
+        """Loads challenges from the Supabase database."""
+        try:
+            response = supabase.table("challenges").select("*").execute()
+            self.challenges = [Challenge.from_dict(data) for data in response.data]
+            logger.info(f"Loaded {len(self.challenges)} challenges from the database.")
+        except Exception as e:
+            logger.error(f"Error loading challenges from database: {e}")
+
+    def update_agent_in_db(self, agent: Agent):
+        """Updates an agent's state in the database."""
+        try:
+            agent_data = agent.model_dump(mode='json')
+            profile_data = agent_data['profile']
+            stats_data = agent_data['stats']
+
+            # Remove elo_history from stats_data to avoid schema mismatch
+            if 'elo_history' in stats_data:
+                del stats_data['elo_history']
+
+            update_data = {
+                "description": profile_data["description"],
+                "specializations": profile_data["specializations"],
+                "last_active": profile_data["last_active"],
+                "is_active": profile_data["is_active"],
+                "metadata": profile_data["metadata"],
+                "current_division": agent.division.value,
+                "division_change_history": agent_data["division_change_history"],
+                **stats_data
+            }
+            
+            supabase.table("agents").update(update_data).eq("id", agent.profile.agent_id).execute()
+        except Exception as e:
+            logger.error(f"Error updating agent {agent.profile.name} in DB: {e}")
+
+    def save_state(self):
+        """Saves the current state of all agents to the database."""
+        print("Saving arena state to database...")
+        try:
+            for agent in self.agents:
+                self.update_agent_in_db(agent)
+            
+            # Challenges are currently in-memory, but could be saved too
+            # For now, we only save agents.
+
+            print("Arena state saved successfully to database.")
+        except Exception as e:
+            logger.error(f"Error saving arena state to database: {e}")
+            raise
 
     def simulate_realistic_match(self, agent1: Agent, agent2: Agent, challenge: Challenge) -> Tuple[Optional[str], Dict[str, float]]:
         """Simulate a complete match with real LLM responses and evaluation."""
@@ -244,7 +303,7 @@ class Arena:
                         
                         # Update match with partial response
                         match.submit_partial_response(agent.profile.name, partial_response)
-                        self.match_store.update_match(match)
+                        self.match_store.update_match(match, is_streaming=True)
                     
                     response_time = time.time() - start_time
                     final_response_text = "".join(response_chunks)
@@ -290,6 +349,9 @@ class Arena:
             # Wait for both to complete
             results = loop.run_until_complete(asyncio.gather(agent1_task, agent2_task))
             (response1_text, response1_time), (response2_text, response2_time) = results
+            
+            # Now that both agents have completed, update the match in the database
+            self.match_store.update_match(match)
             
             print(f"      🏁 Both agents completed! Agent1: {response1_time:.1f}s, Agent2: {response2_time:.1f}s")
 
@@ -391,7 +453,7 @@ class Arena:
                     chunk_content = get_content(chunk)
                     response_chunks.append(chunk_content)
                     
-                    # Create partial response and update match in real-time
+                    # Create partial response and update match in memory
                     partial_response_text = "".join(response_chunks)
                     partial_response = AgentResponse(
                         agent_id=agent_to_respond.profile.name,
@@ -406,7 +468,7 @@ class Arena:
                     else:
                         match.transcript.append(partial_response)
                     
-                    self.match_store.update_match(match)
+                    self.match_store.update_match(match, is_streaming=True)
                 
                 # Final complete response
                 response_text = "".join(response_chunks)
@@ -440,7 +502,8 @@ class Arena:
             else:
                 match.transcript.append(response)
             
-            self.match_store.update_match(match)  # Update match in store
+            # Update database after each complete turn
+            self.match_store.update_match(match)
 
         # After all turns, set status to awaiting judgment
         match.status = MatchStatus.AWAITING_JUDGMENT
@@ -540,8 +603,11 @@ class Arena:
         arena_agent1.stats.best_streak = max(arena_agent1.stats.best_streak, arena_agent1.stats.current_streak)
         arena_agent2.stats.best_streak = max(arena_agent2.stats.best_streak, arena_agent2.stats.current_streak)
 
-        # Save state after updating stats
-        print("Updated ELO ratings:", 
+        # Update agents in the database
+        self.update_agent_in_db(arena_agent1)
+        self.update_agent_in_db(arena_agent2)
+
+        print("Updated ELO ratings and saved to DB:", 
               f"{arena_agent1.profile.name}: {arena_agent1.stats.elo_rating:.0f}",
               f"{arena_agent2.profile.name}: {arena_agent2.stats.elo_rating:.0f}")
         
@@ -559,25 +625,31 @@ class Arena:
             if matches >= 3:
                 if agent.division == Division.NOVICE and (win_rate >= 60 or streak >= 3):
                     agent.promote_division(Division.EXPERT, f"Promoted with {win_rate:.1f}% win rate and {elo:.0f} ELO")
+                    self.update_agent_in_db(agent)
                     changes.append(f"🔺 {agent.profile.name}: NOVICE → EXPERT (Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
                 elif agent.division == Division.EXPERT and (win_rate >= 70 or streak >= 4):
                     agent.promote_division(Division.MASTER, f"Promoted with {win_rate:.1f}% win rate and {elo:.0f} ELO")
+                    self.update_agent_in_db(agent)
                     changes.append(f"🔺 {agent.profile.name}: EXPERT → MASTER (Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
                 elif agent.division == Division.MASTER and (win_rate >= 75 or streak >= 5):
                     current_kings = [a for a in self.agents if a.division == Division.KING]
                     if not current_kings:
                         agent.promote_division(Division.KING, f"Crowned with {win_rate:.1f}% win rate and {elo:.0f} ELO")
+                        self.update_agent_in_db(agent)
                         changes.append(f"👑 {agent.profile.name}: MASTER → KING (CROWNED! Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
             
             if matches >= 4:
                 if agent.division == Division.KING and (win_rate <= 40 or streak <= -3):
                     agent.demote_division(Division.MASTER, f"Dethroned with {win_rate:.1f}% win rate and {elo:.0f} ELO")
+                    self.update_agent_in_db(agent)
                     changes.append(f"🔻 {agent.profile.name}: KING → MASTER (DETHRONED! Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
                 elif agent.division == Division.MASTER and (win_rate <= 35 or streak <= -4):
                     agent.demote_division(Division.EXPERT, f"Demoted with {win_rate:.1f}% win rate and {elo:.0f} ELO")
+                    self.update_agent_in_db(agent)
                     changes.append(f"🔻 {agent.profile.name}: MASTER → EXPERT (Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
                 elif agent.division == Division.EXPERT and (win_rate <= 30 or streak <= -4):
                     agent.demote_division(Division.NOVICE, f"Demoted with {win_rate:.1f}% win rate and {elo:.0f} ELO")
+                    self.update_agent_in_db(agent)
                     changes.append(f"🔻 {agent.profile.name}: EXPERT → NOVICE (Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
         
         if changes:
@@ -587,8 +659,8 @@ class Arena:
         elif context == "round":  # Only show this message for tournament rounds to avoid spam
             print(f"\n📋 No division changes after {context}")
 
-    def create_dynamic_challenge_pool(self, challenge_count: int = 8):
-        """Create challenges using real LLM generation."""
+    def create_dynamic_challenge_pool(self, challenge_count: int = 3):
+        """Create challenges using real LLM generation and save them to the database."""
         print(f"   🎯 Generating {challenge_count} dynamic challenges using real LLMs...")
         generator = ChallengeGenerator()
         
@@ -605,15 +677,39 @@ class Arena:
             (ChallengeType.DEBATE, ChallengeDifficulty.EXPERT),
         ]
         
+        new_challenges = []
         for i, (challenge_type, difficulty) in enumerate(challenge_specs[:challenge_count]):
             try:
                 challenge = generator.generate_challenge(challenge_type, difficulty)
                 self.challenges.append(challenge)
+                new_challenges.append(challenge)
                 print(f"      ✅ Generated #{i+1}: {challenge.title} ({challenge_type.value}, {difficulty.name})")
                 
             except Exception as e:
                 print(f"      ❌ Failed to generate challenge #{i+1}: {e}")
                 time.sleep(2)
+
+        if new_challenges:
+            try:
+                challenges_to_insert = [
+                    {
+                        "challenge_id": c.challenge_id,
+                        "title": c.title,
+                        "description": c.description,
+                        "challenge_type": c.challenge_type.value,
+                        "difficulty": c.difficulty.value,  # Store as integer directly
+                        "scoring_rubric": c.scoring_rubric,
+                        "tags": c.tags,
+                        "source": c.source,
+                        "is_active": c.is_active,
+                        "metadata": c.metadata
+                    }
+                    for c in new_challenges
+                ]
+                supabase.table("challenges").insert(challenges_to_insert).execute()
+                logger.info(f"Saved {len(new_challenges)} new challenges to the database.")
+            except Exception as e:
+                logger.error(f"Error saving challenges to database: {e}")
 
     def run_tournament(self, num_rounds: int = 5):
         """Runs the entire tournament for a specified number of rounds."""

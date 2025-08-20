@@ -24,8 +24,7 @@ app.add_middleware(
     expose_headers=["content-type", "content-length"],  # Required for SSE
 )
 
-# Initialize arena
-arena = Arena("agents.json", "arena_state.json")
+arena = Arena("agents.json")
 
 def match_to_json(match: Match) -> dict:
     """Convert a Match object to a JSON-friendly format."""
