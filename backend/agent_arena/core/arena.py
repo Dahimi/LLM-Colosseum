@@ -23,8 +23,7 @@ MAX_STREAMING_FAILURES = 1
 MAX_STREAMING_FAILURE_RATE = 50.0
 
 class Arena:
-    def __init__(self, agents_file: str = None):
-        self.agents_file = agents_file  # Keep for backward compatibility
+    def __init__(self):
         self.agents: List[Agent] = []
         self.challenges: List[Challenge] = []
         self.agent_llms: Dict[str, any] = {}
@@ -44,43 +43,15 @@ class Arena:
             
     def load_agent_configs_from_db(self):
         """Load agent configurations from the database.
-        
-        If the agent_configs table doesn't exist or is empty, it will be created and seeded
-        from the agents_file (if provided).
         """
         try:
             logger.info("Loading agent configurations from database")
-            # Check if agent_configs table exists by trying to select from it
             response = supabase.table("agent_configs").select("*").execute()
-            
-            if not response.data and self.agents_file:
-                # If table exists but is empty, seed it from file
-                self._seed_agent_configs_from_file()
-                # Retry loading
-                response = supabase.table("agent_configs").select("*").execute()
-            
-            # Store configs by agent name for easy lookup
             self.agent_configs = {config["name"]: config for config in response.data}
             logger.info(f"Loaded {len(self.agent_configs)} agent configurations from database")
             
         except Exception as e:
-            logger.error(f"Error loading agent configurations: {e}")
-    
-    def _seed_agent_configs_from_file(self):
-        """Seed the agent_configs table from the agents.json file."""
-        if not self.agents_file:
-            logger.warning("No agents file specified for seeding configs")
-            return
-            
-        try:
-            with open(self.agents_file, 'r') as f:
-                agents_config = json.load(f)
-            
-            # Insert all configs into the database
-            supabase.table("agent_configs").insert(agents_config).execute()
-            logger.info(f"Seeded {len(agents_config)} agent configurations from {self.agents_file}")
-        except Exception as e:
-            logger.error(f"Error seeding agent configs from file: {e}")
+            logger.error(f"Error loading agent configurations: {e}", exc_info=True)
 
     def start_match_async(self, agent1: Agent, agent2: Agent, challenge: Challenge) -> Match:
         """Start a match asynchronously and return immediately."""
@@ -127,18 +98,24 @@ class Arena:
         # Select random agents and challenge
         agent1, agent2 = random.sample(division_agents, 2)
         
-        # Select appropriate challenge
+        # Select appropriate challenge directly from the database
         if division.lower() == Division.NOVICE.value:
-            appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 2 and c.challenge_type != ChallengeType.DEBATE]
+            challenge = self.get_random_challenge_from_db(difficulty_max=2)
         elif division.lower() == Division.EXPERT.value:
-            appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 3 and c.challenge_type != ChallengeType.DEBATE]
+            challenge = self.get_random_challenge_from_db(difficulty_max=3)
         else:
-            appropriate_challenges = [c for c in self.challenges if c.difficulty.value >= 3]
+            challenge = self.get_random_challenge_from_db(difficulty_min=3)
         
-        if not appropriate_challenges:
-            appropriate_challenges = self.challenges
-        
-        challenge = random.choice(appropriate_challenges)
+        # Fall back: If no challenges found, create a new one
+        if not challenge:
+            logger.warning("No challenges available, generating a new one")
+            generator = ChallengeGenerator()
+            if division.lower() == Division.NOVICE.value:
+                challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.BEGINNER)
+            elif division.lower() == Division.EXPERT.value:
+                challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.INTERMEDIATE)
+            else:
+                challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.ADVANCED)
         
         # Start match asynchronously
         return self.start_match_async(agent1, agent2, challenge)
@@ -332,10 +309,7 @@ class Arena:
         active_matches = self.match_store.get_live_matches()
         if active_matches:
             logger.warning(f"Reloading with {len(active_matches)} active matches. This could cause inconsistencies.")
-        
-        # Store agent LLMs to reuse them
-        old_agent_llms = self.agent_llms.copy()
-        
+    
         # Clear existing agents
         old_agents = {agent.profile.name: agent for agent in self.agents}
         self.agents = []
@@ -887,6 +861,39 @@ class Arena:
             except Exception as e:
                 logger.error(f"Error saving challenges to database: {e}")
 
+    def get_random_challenge_from_db(self, difficulty_min: int = None, difficulty_max: int = None, challenge_type: ChallengeType = None) -> Optional[Challenge]:
+        """Get a random challenge directly from the database based on criteria.
+        
+        Args:
+            difficulty_min: Minimum difficulty value (inclusive)
+            difficulty_max: Maximum difficulty value (inclusive)
+            challenge_type: Specific challenge type to filter by
+            
+        Returns:
+            A randomly selected Challenge object, or None if no matching challenges found
+        """
+        try:
+            # Call the database function with parameters
+            challenge_type_value = challenge_type.value if challenge_type else None
+            response = supabase.rpc(
+                "get_random_challenge", 
+                {
+                    "difficulty_min": difficulty_min, 
+                    "difficulty_max": difficulty_max,
+                    "challenge_type": challenge_type_value
+                }
+            ).execute()
+            
+            if response.data and len(response.data) > 0:
+                return Challenge.from_dict(response.data[0])
+            else:
+                logger.warning("No matching challenges found in database")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error getting random challenge from database: {e}", exc_info=True)
+            return None
+
     def run_tournament(self, num_rounds: int = 5):
         """Runs the entire tournament for a specified number of rounds."""
         print("🏆 ARENA TOURNAMENT STARTED 🏆")
@@ -931,16 +938,36 @@ class Arena:
                 agent2 = agents_to_match[i + 1]
                 
                 if division == Division.NOVICE:
-                    appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 2]
+                    challenge = self.get_random_challenge_from_db(difficulty_max=2)
                 elif division == Division.EXPERT:
-                    appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 3]
+                    challenge = self.get_random_challenge_from_db(difficulty_max=3)
                 else:
-                    appropriate_challenges = [c for c in self.challenges if c.difficulty.value >= 3]
+                    challenge = self.get_random_challenge_from_db(difficulty_min=3)
                 
-                if not appropriate_challenges:
-                    appropriate_challenges = self.challenges
-                
-                challenge = random.choice(appropriate_challenges)
+                # Fall back to in-memory challenges if database query failed
+                if not challenge and self.challenges:
+                    logger.warning("Falling back to in-memory challenges")
+                    if division == Division.NOVICE:
+                        appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 2]
+                    elif division == Division.EXPERT:
+                        appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 3]
+                    else:
+                        appropriate_challenges = [c for c in self.challenges if c.difficulty.value >= 3]
+                    
+                    if not appropriate_challenges:
+                        appropriate_challenges = self.challenges
+                    
+                    challenge = random.choice(appropriate_challenges)
+                elif not challenge:
+                    # If no challenges found, create a new one
+                    logger.warning("No challenges available, generating a new one")
+                    generator = ChallengeGenerator()
+                    if division == Division.NOVICE:
+                        challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.BEGINNER)
+                    elif division == Division.EXPERT:
+                        challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.INTERMEDIATE)
+                    else:
+                        challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.ADVANCED)
                 
                 print(f"\n   🥊 Match {match_count + 1}: {agent1.profile.name} vs {agent2.profile.name}")
                 print(f"      Challenge: {challenge.title} ({challenge.difficulty.name})")
