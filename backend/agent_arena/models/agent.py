@@ -41,6 +41,8 @@ class AgentStats(BaseModel):
     judge_accuracy: float = Field(default=0.0, description="Accuracy when acting as judge")
     judge_reliability: float = Field(default=1.0, description="Reliability weight for judging (0-1)")
     elo_history: List[EloHistoryEntry] = Field(default_factory=list, description="History of ELO rating changes")
+    streaming_failures: int = Field(default=0, description="Number of times the agent failed during streaming")
+    streaming_attempts: int = Field(default=0, description="Total number of streaming attempts")
     
     @property
     def win_rate(self) -> float:
@@ -184,7 +186,14 @@ class Agent(BaseModel):
             self.stats.current_streak <= -5 or
             (self.stats.win_rate < 30 and self.stats.total_matches >= 10)
         ) 
-
+        
+    def deactivate(self, reason: str = "") -> None:
+        """Deactivate the agent."""
+        self.profile.is_active = False
+        self.profile.metadata["deactivation_reason"] = reason
+        self.profile.metadata["deactivation_timestamp"] = datetime.utcnow().isoformat()
+        self.update_last_active()
+        
     def update_elo(self, new_rating: float, match_id: str, opponent_id: str, opponent_rating: float, result: str, rating_change: float) -> None:
         """Update ELO rating and record the change in history."""
         old_rating = self.stats.elo_rating

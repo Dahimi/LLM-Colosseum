@@ -19,23 +19,68 @@ from agent_arena.models.agent import EloHistoryEntry
 
 logger = get_logger(__name__)
 
+MAX_STREAMING_FAILURES = 1
+MAX_STREAMING_FAILURE_RATE = 50.0
 
 class Arena:
-    def __init__(self, agents_file: str):
-        self.agents_file = agents_file  # Keep for seeding
+    def __init__(self, agents_file: str = None):
+        self.agents_file = agents_file  # Keep for backward compatibility
         self.agents: List[Agent] = []
         self.challenges: List[Challenge] = []
         self.agent_llms: Dict[str, any] = {}
+        self.agent_configs: Dict[str, Dict] = {}  # Store agent configs by name
         # Initialize match store with a file in the same directory as state_file
         self.match_store = MatchStore() # Will be updated later
         self._initialize_from_db()
+        logger.info("Arena initialized from database")
 
     def _initialize_from_db(self):
         """Initializes the arena state from the database."""
+        self.load_agent_configs_from_db()  # Load configs first
         self.load_agents_from_db()
         self.load_challenges_from_db()
         if not self.challenges:
             self.create_dynamic_challenge_pool()
+            
+    def load_agent_configs_from_db(self):
+        """Load agent configurations from the database.
+        
+        If the agent_configs table doesn't exist or is empty, it will be created and seeded
+        from the agents_file (if provided).
+        """
+        try:
+            logger.info("Loading agent configurations from database")
+            # Check if agent_configs table exists by trying to select from it
+            response = supabase.table("agent_configs").select("*").execute()
+            
+            if not response.data and self.agents_file:
+                # If table exists but is empty, seed it from file
+                self._seed_agent_configs_from_file()
+                # Retry loading
+                response = supabase.table("agent_configs").select("*").execute()
+            
+            # Store configs by agent name for easy lookup
+            self.agent_configs = {config["name"]: config for config in response.data}
+            logger.info(f"Loaded {len(self.agent_configs)} agent configurations from database")
+            
+        except Exception as e:
+            logger.error(f"Error loading agent configurations: {e}")
+    
+    def _seed_agent_configs_from_file(self):
+        """Seed the agent_configs table from the agents.json file."""
+        if not self.agents_file:
+            logger.warning("No agents file specified for seeding configs")
+            return
+            
+        try:
+            with open(self.agents_file, 'r') as f:
+                agents_config = json.load(f)
+            
+            # Insert all configs into the database
+            supabase.table("agent_configs").insert(agents_config).execute()
+            logger.info(f"Seeded {len(agents_config)} agent configurations from {self.agents_file}")
+        except Exception as e:
+            logger.error(f"Error seeding agent configs from file: {e}")
 
     def start_match_async(self, agent1: Agent, agent2: Agent, challenge: Challenge) -> Match:
         """Start a match asynchronously and return immediately."""
@@ -70,23 +115,23 @@ class Arena:
 
     def start_quick_match(self, division: str) -> Match:
         """Start a quick match between random agents in a division."""
-        # Get agents in the division
+        # Get active agents in the division
         division_agents = [
             agent for agent in self.agents 
-            if agent.division.value.lower() == division.lower()
+            if agent.division.value.lower() == division.lower() and agent.profile.is_active
         ]
         
         if len(division_agents) < 2:
-            raise ValueError(f"Not enough agents in {division} division")
+            raise ValueError(f"Not enough active agents in {division} division")
         
         # Select random agents and challenge
         agent1, agent2 = random.sample(division_agents, 2)
         
         # Select appropriate challenge
         if division.lower() == Division.NOVICE.value:
-            appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 2]
+            appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 2 and c.challenge_type != ChallengeType.DEBATE]
         elif division.lower() == Division.EXPERT.value:
-            appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 3]
+            appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 3 and c.challenge_type != ChallengeType.DEBATE]
         else:
             appropriate_challenges = [c for c in self.challenges if c.difficulty.value >= 3]
         
@@ -103,17 +148,13 @@ class Arena:
         try:
             response = supabase.table("agents").select("*").execute()
             if not response.data:
-                logger.info("No agents found in the database. Seeding from agents.json...")
+                logger.info("No agents found in the database. Seeding from agent configs...")
                 self.seed_agents_from_config()
                 # Retry loading after seeding
                 response = supabase.table("agents").select("*").execute()
 
             agents_data = response.data
             
-            with open(self.agents_file, 'r') as f:
-                agents_config = json.load(f)
-            config_map = {cfg['name']: cfg for cfg in agents_config}
-
             for agent_data in agents_data:
                 # Reconstruct Agent Pydantic model from DB data
                 profile_data = {
@@ -149,31 +190,50 @@ class Arena:
                         .order("timestamp", desc=False).execute()
                     
                     if elo_history_response.data:
+                        # Start with base rating and reconstruct historical ratings
+                        historical_rating = 1200.0  # Base ELO rating
+                        
                         for entry in elo_history_response.data:
+                            # Get the rating change from this match
+                            rating_change = entry.get("rating_change", 0.0)
+                            
+                            # Calculate the rating after this match
+                            historical_rating += rating_change
+                            
                             elo_entry = EloHistoryEntry(
                                 timestamp=entry.get("timestamp"),
-                                rating=agent.stats.elo_rating,  # Use current rating as we don't store historical ratings
+                                rating=historical_rating,  # Use calculated historical rating
                                 match_id=entry.get("match_id"),
                                 opponent_id=entry.get("opponent_id"),
                                 opponent_rating=entry.get("opponent_elo", 1200.0),
                                 result=entry.get("result"),
-                                rating_change=entry.get("rating_change", 0.0)
+                                rating_change=rating_change
                             )
                             agent.stats.elo_history.append(elo_entry)
+                        
+                        # Verify that the final calculated rating matches the current rating
+                        if abs(historical_rating - agent.stats.elo_rating) > 0.01:
+                            logger.warning(
+                                f"Calculated historical rating ({historical_rating:.1f}) doesn't match "
+                                f"current rating ({agent.stats.elo_rating:.1f}) for agent {agent.profile.name}. "
+                                f"There may be missing entries in the ELO history."
+                            )
                 except Exception as e:
-                    logger.error(f"Error loading ELO history for agent {agent.profile.name}: {e}")
+                    logger.error(f"Error loading ELO history for agent {agent.profile.name}: {e}", exc_info=True)
                 
                 self.agents.append(agent)
                 
-                # Create LLM for the agent using config file
-                if agent.profile.name in config_map:
-                    config = config_map[agent.profile.name]
+                # Create LLM for the agent using config from database
+                if agent.profile.name in self.agent_configs:
+                    config = self.agent_configs[agent.profile.name]
                     agent_llm = create_agent_llm(
                         model_name=config["model"],
                         temperature=config["temperature"],
                         max_tokens=1500
                     )
                     self.agent_llms[agent.profile.agent_id] = agent_llm
+                else:
+                    logger.warning(f"No configuration found for agent {agent.profile.name}")
 
             logger.info(f"Loaded {len(self.agents)} agents from the database.")
         except Exception as e:
@@ -181,13 +241,15 @@ class Arena:
             raise
 
     def seed_agents_from_config(self):
-        """Seeds the database with agents from the configuration file."""
+        """Seeds the database with agents from the agent configurations."""
         try:
-            with open(self.agents_file, 'r') as f:
-                agents_config = json.load(f)
-
+            # Use configs from database instead of file
+            if not self.agent_configs:
+                logger.warning("No agent configurations available for seeding agents")
+                return
+                
             agents_to_insert = []
-            for config in agents_config:
+            for name, config in self.agent_configs.items():
                 agent_data = {
                     "name": config["name"],
                     "model": config["model"],
@@ -201,9 +263,6 @@ class Arena:
                 supabase.table("agents").insert(agents_to_insert).execute()
                 logger.info(f"Successfully seeded {len(agents_to_insert)} agents to the database.")
 
-        except FileNotFoundError:
-            logger.error(f"Agents file not found: {self.agents_file}")
-            raise
         except Exception as e:
             logger.error(f"Error seeding agents from config: {e}")
             raise
@@ -257,6 +316,82 @@ class Arena:
         except Exception as e:
             logger.error(f"Error saving arena state to database: {e}")
             raise
+            
+    def reload_from_db(self) -> Dict[str, int]:
+        """Reloads agents and challenges from the database.
+        
+        This method should be called when changes are made directly to the database
+        and need to be reflected in the running application.
+        
+        Returns:
+            A dictionary with counts of loaded entities
+        """
+        logger.info("Reloading arena state from database...")
+        
+        # Check if there are any active matches that could be affected
+        active_matches = self.match_store.get_live_matches()
+        if active_matches:
+            logger.warning(f"Reloading with {len(active_matches)} active matches. This could cause inconsistencies.")
+        
+        # Store agent LLMs to reuse them
+        old_agent_llms = self.agent_llms.copy()
+        
+        # Clear existing agents
+        old_agents = {agent.profile.name: agent for agent in self.agents}
+        self.agents = []
+        
+        # Reload agents from DB
+        self.load_agents_from_db()
+        
+        # Reload challenges from DB
+        old_challenges = {c.challenge_id: c for c in self.challenges}
+        self.challenges = []
+        self.load_challenges_from_db()
+        
+        # Create new challenges if needed (this is optional)
+        if not self.challenges:
+            self.create_dynamic_challenge_pool()
+            
+        # Reinitialize the match store to reload matches from DB
+        old_match_store = self.match_store
+        old_match_count = len(old_match_store.matches)
+        old_live_match_count = len(old_match_store.live_matches)
+        
+        # Create a new match store instance which will load from DB
+        self.match_store = MatchStore()
+        new_match_count = len(self.match_store.matches)
+        new_live_match_count = len(self.match_store.live_matches)
+        
+        # Count changes for reporting
+        new_agents = set(agent.profile.name for agent in self.agents)
+        old_agent_names = set(old_agents.keys())
+        
+        added_agents = new_agents - old_agent_names
+        removed_agents = old_agent_names - new_agents
+        updated_agents = new_agents.intersection(old_agent_names)
+        
+        new_challenges = set(c.challenge_id for c in self.challenges)
+        old_challenge_ids = set(old_challenges.keys())
+        
+        added_challenges = new_challenges - old_challenge_ids
+        removed_challenges = old_challenge_ids - new_challenges
+        
+        result = {
+            "agents_loaded": len(self.agents),
+            "challenges_loaded": len(self.challenges),
+            "agents_added": len(added_agents),
+            "agents_removed": len(removed_agents),
+            "agents_updated": len(updated_agents),
+            "challenges_added": len(added_challenges),
+            "challenges_removed": len(removed_challenges),
+            "matches_before": old_match_count,
+            "matches_after": new_match_count,
+            "live_matches_before": old_live_match_count,
+            "live_matches_after": new_live_match_count
+        }
+        
+        logger.info(f"Arena reload complete: {result}")
+        return result
 
     def simulate_realistic_match(self, agent1: Agent, agent2: Agent, challenge: Challenge) -> Tuple[Optional[str], Dict[str, float]]:
         """Simulate a complete match with real LLM responses and evaluation."""
@@ -287,6 +422,9 @@ class Arena:
                 start_time = time.time()
                 response_chunks = []
                 
+                # Record this streaming attempt
+                agent.stats.streaming_attempts += 1
+                
                 try:
                     async for chunk in agent_llm.astream(prompt):
                         chunk_content = get_content(chunk)
@@ -303,7 +441,7 @@ class Arena:
                         
                         # Update match with partial response
                         match.submit_partial_response(agent.profile.name, partial_response)
-                        self.match_store.update_match(match, is_streaming=True)
+                        self.match_store.update_match(match)
                     
                     response_time = time.time() - start_time
                     final_response_text = "".join(response_chunks)
@@ -316,6 +454,8 @@ class Arena:
                         is_streaming=False
                     )
                     match.submit_response(agent.profile.name, final_response)
+                    
+                    # Update match with correct streaming status
                     self.match_store.update_match(match)
                     
                     print(f"      ✅ {agent.profile.name} finished streaming ({response_time:.1f}s)")
@@ -323,6 +463,18 @@ class Arena:
                     
                 except Exception as e:
                     print(f"      ❌ Error streaming {agent.profile.name}: {e}")
+                    # Record this as a failed attempt
+                    agent.stats.streaming_failures += 1
+                    failure_rate = agent.stats.streaming_failures / agent.stats.streaming_attempts
+                    # Check if the agent should be deactivated due to high failure rate
+                    print(f"      ❌ {agent.profile.name} failed streaming {agent.stats.streaming_failures} times out of {agent.stats.streaming_attempts} attempts")
+                    if agent.stats.streaming_failures >= MAX_STREAMING_FAILURES and failure_rate > MAX_STREAMING_FAILURE_RATE:
+                        reason = f"Deactivated due to high failure rate ({failure_rate:.1f}% over {agent.stats.streaming_attempts} attempts)"
+                        print(f"      🚫 Deactivating agent {agent.profile.name}: {reason}")
+                        agent.deactivate(reason=reason)
+                        # Update the agent in the database
+                        self.update_agent_in_db(agent)
+                    
                     # Fallback response
                     fallback_text = f"Error occurred while generating response: {str(e)}"
                     fallback_response = AgentResponse(
@@ -332,7 +484,9 @@ class Arena:
                         is_streaming=False
                     )
                     match.submit_response(agent.profile.name, fallback_response)
+                    # Update match with correct streaming status
                     self.match_store.update_match(match)
+                    
                     return fallback_text, time.time() - start_time
             
             # Create event loop if it doesn't exist
@@ -349,7 +503,7 @@ class Arena:
             # Wait for both to complete
             results = loop.run_until_complete(asyncio.gather(agent1_task, agent2_task))
             (response1_text, response1_time), (response2_text, response2_time) = results
-            
+            match.status = MatchStatus.AWAITING_JUDGMENT
             # Now that both agents have completed, update the match in the database
             self.match_store.update_match(match)
             
@@ -387,7 +541,7 @@ class Arena:
 
             return winner_id, scores
         except Exception as e:
-            print(f"      ❌ Match simulation failed: {e}")
+            logger.error(f"      ❌ Match simulation failed: {e}", exc_info=True)
             winner_id = random.choice([agent1.profile.name, agent2.profile.name])
             scores = {agent1.profile.name: 6.0, agent2.profile.name: 5.5}
             match.complete_match(winner_id, scores)
@@ -444,6 +598,8 @@ class Arena:
                 prompt += "Provide your opening statement."
 
             agent_llm = self.agent_llms[agent_to_respond.profile.agent_id]
+            # Record this streaming attempt
+            agent_to_respond.stats.streaming_attempts += 1
             try:
                 start_time = time.time()
                 response_chunks = []
@@ -468,7 +624,7 @@ class Arena:
                     else:
                         match.transcript.append(partial_response)
                     
-                    self.match_store.update_match(match, is_streaming=True)
+                    self.match_store.update_match(match)
                 
                 # Final complete response
                 response_text = "".join(response_chunks)
@@ -476,6 +632,21 @@ class Arena:
                 
             except Exception as e:
                 print(f"      ❌ Error getting response from {agent_to_respond.profile.name}: {e}")
+
+                # Record this as a failed attempt
+                agent_to_respond.stats.streaming_failures += 1
+                failure_rate = (agent_to_respond.stats.streaming_failures / agent_to_respond.stats.streaming_attempts) * 100.0 if agent_to_respond.stats.streaming_attempts > 0 else 0
+                
+                print(f"      ❌ {agent_to_respond.profile.name} failed streaming {agent_to_respond.stats.streaming_failures} times out of {agent_to_respond.stats.streaming_attempts} attempts. Failure rate: {failure_rate:.1f}%")
+
+                # Check if the agent should be deactivated due to high failure rate
+                if agent_to_respond.stats.streaming_failures >= MAX_STREAMING_FAILURES and failure_rate > MAX_STREAMING_FAILURE_RATE:
+                    reason = f"Deactivated due to high failure rate ({failure_rate:.1f}% over {agent_to_respond.stats.streaming_attempts} attempts)"
+                    print(f"      🚫 Deactivating agent {agent_to_respond.profile.name}: {reason}")
+                    agent_to_respond.deactivate(reason=reason)
+                    # Update the agent in the database
+                    self.update_agent_in_db(agent_to_respond)
+
                 print(f"      {opponent_agent.profile.name} wins by default as their opponent failed to respond.")
                 winner_id = opponent_agent.profile.name
                 scores = {
@@ -603,6 +774,11 @@ class Arena:
         arena_agent1.stats.best_streak = max(arena_agent1.stats.best_streak, arena_agent1.stats.current_streak)
         arena_agent2.stats.best_streak = max(arena_agent2.stats.best_streak, arena_agent2.stats.current_streak)
 
+        arena_agent1.stats.streaming_attempts = agent1.stats.streaming_attempts
+        arena_agent1.stats.streaming_failures = agent1.stats.streaming_failures
+        arena_agent2.stats.streaming_attempts = agent2.stats.streaming_attempts
+        arena_agent2.stats.streaming_failures = agent2.stats.streaming_failures
+
         # Update agents in the database
         self.update_agent_in_db(arena_agent1)
         self.update_agent_in_db(arena_agent2)
@@ -659,7 +835,7 @@ class Arena:
         elif context == "round":  # Only show this message for tournament rounds to avoid spam
             print(f"\n📋 No division changes after {context}")
 
-    def create_dynamic_challenge_pool(self, challenge_count: int = 3):
+    def create_dynamic_challenge_pool(self, challenge_count: int = 8):
         """Create challenges using real LLM generation and save them to the database."""
         print(f"   🎯 Generating {challenge_count} dynamic challenges using real LLMs...")
         generator = ChallengeGenerator()
@@ -728,8 +904,12 @@ class Arena:
         print(f"\n🏆 REALISTIC TOURNAMENT ROUND {round_num}")
         print("=" * 60)
         
+        # Group active agents by division
         divisions = {}
         for agent in self.agents:
+            if not agent.profile.is_active:
+                continue  # Skip inactive agents
+                
             if agent.division not in divisions:
                 divisions[agent.division] = []
             divisions[agent.division].append(agent)
@@ -737,13 +917,18 @@ class Arena:
         match_count = 0
         for division, division_agents in divisions.items():
             if len(division_agents) < 2:
+                print(f"\n⚠️ Not enough active agents in {division.value.upper()} division for matches")
                 continue
             
             print(f"\n📊 {division.value.upper()} DIVISION MATCHES:")
             random.shuffle(division_agents)
-            for i in range(0, len(division_agents) - 1, 2):
-                agent1 = division_agents[i]
-                agent2 = division_agents[i + 1]
+            
+            # If odd number of agents, the last one will sit out this round
+            agents_to_match = division_agents if len(division_agents) % 2 == 0 else division_agents[:-1]
+            
+            for i in range(0, len(agents_to_match), 2):
+                agent1 = agents_to_match[i]
+                agent2 = agents_to_match[i + 1]
                 
                 if division == Division.NOVICE:
                     appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 2]

@@ -69,7 +69,7 @@ class MatchStore:
         except Exception as e:
             logger.error(f"Error adding match to DB: {e}")
     
-    def update_match(self, match: Match, is_streaming: bool = False) -> None:
+    def update_match(self, match: Match) -> None:
         """Update a match in the store and optionally in the database."""
         # Always update in-memory store
         if match.status == MatchStatus.IN_PROGRESS:
@@ -79,7 +79,7 @@ class MatchStore:
         self.matches[match.match_id] = match
         
         # Only update database if not streaming or match status changed
-        if not is_streaming or match.status != MatchStatus.IN_PROGRESS:
+        if match.status != MatchStatus.IN_PROGRESS and match.status != MatchStatus.AWAITING_JUDGMENT:
             try:
                 match_dict = match.model_dump(mode='json')
                 # Ensure enums are stored as strings
@@ -90,7 +90,7 @@ class MatchStore:
                 
                 supabase.table("matches").update(match_dict).eq("match_id", match.match_id).execute()
             except Exception as e:
-                logger.error(f"Error updating match in DB: {e}")
+                logger.error(f"Error updating match in DB: {e}", exc_info=True)
     
     def get_match(self, match_id: str) -> Optional[Match]:
         """Get a match by ID from memory, falling back to database if needed."""

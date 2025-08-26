@@ -128,10 +128,6 @@ class Match(BaseModel):
         if self.match_type == MatchType.DEBATE:
             self.transcript.append(response)
 
-        # Check if both responses are in for non-debate matches
-        if self.match_type != MatchType.DEBATE and self.agent1_response and self.agent2_response:
-            self.status = MatchStatus.AWAITING_JUDGMENT
-        
         return True
     
     def submit_partial_response(self, agent_id: str, partial_response: AgentResponse) -> bool:
@@ -145,7 +141,6 @@ class Match(BaseModel):
             self.agent2_response = partial_response
         else:
             return False
-        
         return True
     
     def complete_match(self, winner_id: Optional[str], final_scores: Dict[str, float]) -> None:

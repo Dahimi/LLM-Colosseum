@@ -1,30 +1,48 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Header, Depends, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Dict, Any, List
 import asyncio
 import json
 from datetime import datetime
 import random
 from typing import List, Optional
+import os
 from agent_arena.core.arena import Arena
 from agent_arena.models.match import Match, MatchStatus, MatchType
 from agent_arena.models.challenge import Challenge, ChallengeType, ChallengeDifficulty
 from agent_arena.models.agent import Division
+from pydantic import BaseModel, Field
+from agent_arena.db import supabase
 
 app = FastAPI()
 
 # Configure CORS for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["content-type", "content-length"],  # Required for SSE
 )
 
+ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
+
+async def verify_api_key(x_api_key: str = Header(...)):
+    if x_api_key != ADMIN_API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API key")
+    return x_api_key
+
 arena = Arena("agents.json")
+
+# Pydantic model for agent configuration
+class AgentConfig(BaseModel):
+    name: str
+    model: str
+    temperature: float = Field(default=0.5, ge=0.0, le=1.0)
+    division: str
+    specializations: List[str] = Field(default_factory=list)
 
 def match_to_json(match: Match) -> dict:
     """Convert a Match object to a JSON-friendly format."""
@@ -59,6 +77,160 @@ def match_to_json(match: Match) -> dict:
         }
     
     return match_dict
+
+@app.post("/admin/reload", dependencies=[Depends(verify_api_key)])
+async def reload_data():
+    """Admin endpoint to reload all data from the database.
+    
+    This endpoint should be called when changes are made directly to the database
+    and need to be reflected in the running application.
+    
+    Requires admin API key authentication.
+    """
+    try:
+        result = arena.reload_from_db()
+        return {
+            "success": True,
+            "message": "Arena data reloaded successfully",
+            "details": result
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Failed to reload arena data: {str(e)}",
+            "error": str(e)
+        }
+
+# Agent Configuration Management Endpoints
+@app.get("/admin/agent-configs", dependencies=[Depends(verify_api_key)])
+async def get_agent_configs():
+    """Get all agent configurations."""
+    try:
+        from agent_arena.db import supabase
+        response = supabase.table("agent_configs").select("*").execute()
+        return {
+            "success": True,
+            "configs": response.data
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Failed to get agent configurations: {str(e)}",
+            "error": str(e)
+        }
+
+@app.get("/admin/agent-configs/{name}", dependencies=[Depends(verify_api_key)])
+async def get_agent_config(name: str):
+    """Get a specific agent configuration."""
+    try:
+        from agent_arena.db import supabase
+        response = supabase.table("agent_configs").select("*").eq("name", name).execute()
+        if not response.data:
+            return {
+                "success": False,
+                "message": f"Agent configuration '{name}' not found"
+            }
+        return {
+            "success": True,
+            "config": response.data[0]
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Failed to get agent configuration: {str(e)}",
+            "error": str(e)
+        }
+
+@app.post("/admin/agent-configs", dependencies=[Depends(verify_api_key)])
+async def create_agent_config(config: AgentConfig):
+    """Create a new agent configuration."""
+    try:
+        # Check if config with this name already exists
+        existing = supabase.table("agent_configs").select("*").eq("name", config.name).execute()
+        if existing.data:
+            return {
+                "success": False,
+                "message": f"Agent configuration with name '{config.name}' already exists"
+            }
+        
+        # Insert new config
+        config_dict = config.model_dump()
+        supabase.table("agent_configs").insert(config_dict).execute()
+        
+        # Reload agent configs in arena
+        arena.load_agent_configs_from_db()
+        
+        return {
+            "success": True,
+            "message": f"Agent configuration '{config.name}' created successfully",
+            "config": config_dict
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Failed to create agent configuration: {str(e)}",
+            "error": str(e)
+        }
+
+@app.put("/admin/agent-configs/{name}", dependencies=[Depends(verify_api_key)])
+async def update_agent_config(name: str, config: AgentConfig):
+    """Update an existing agent configuration."""
+    try:
+        # Check if config exists
+        existing = supabase.table("agent_configs").select("*").eq("name", name).execute()
+        if not existing.data:
+            return {
+                "success": False,
+                "message": f"Agent configuration '{name}' not found"
+            }
+        
+        # Update config
+        config_dict = config.model_dump()
+        supabase.table("agent_configs").update(config_dict).eq("name", name).execute()
+        
+        # Reload agent configs in arena
+        arena.load_agent_configs_from_db()
+        
+        return {
+            "success": True,
+            "message": f"Agent configuration '{name}' updated successfully",
+            "config": config_dict
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Failed to update agent configuration: {str(e)}",
+            "error": str(e)
+        }
+
+@app.delete("/admin/agent-configs/{name}", dependencies=[Depends(verify_api_key)])
+async def delete_agent_config(name: str):
+    """Delete an agent configuration."""
+    try:
+        # Check if config exists
+        existing = supabase.table("agent_configs").select("*").eq("name", name).execute()
+        if not existing.data:
+            return {
+                "success": False,
+                "message": f"Agent configuration '{name}' not found"
+            }
+        
+        # Delete config
+        supabase.table("agent_configs").delete().eq("name", name).execute()
+        
+        # Reload agent configs in arena
+        arena.load_agent_configs_from_db()
+        
+        return {
+            "success": True,
+            "message": f"Agent configuration '{name}' deleted successfully"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Failed to delete agent configuration: {str(e)}",
+            "error": str(e)
+        }
 
 @app.get("/agents")
 async def get_agents():
