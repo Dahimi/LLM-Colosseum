@@ -5,3 +5,4 @@ pydantic==2.11.7
 python-dotenv==1.1.1
 sse_starlette==1.6.5
 supabase==2.18.1
+uvicorn
