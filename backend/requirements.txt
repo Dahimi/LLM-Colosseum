@@ -1,17 +1,7 @@
-fastapi
-sse-starlette==1.6.5
-pydantic>=2.0.0
-python-dateutil>=2.8.0
-typing-extensions>=4.0.0
-
-# LangChain core
-langchain>=0.1.0
-
-# LLM Providers (install as needed)
-langchain-groq>=0.1.0
-langchain-google-genai>=1.0.0
-langchain-openai>=0.1.0
-langchain-anthropic>=0.1.0 
-langsmith 
-supabase
-uvicorn
+fastapi==0.116.1
+langchain==0.3.27
+langchain_openai==0.3.32
+pydantic==2.11.7
+python-dotenv==1.1.1
+sse_starlette==1.6.5
+supabase==2.18.1
