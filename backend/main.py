@@ -286,7 +286,7 @@ async def stream_matches(request: Request):
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
                 "Content-Type": "text/event-stream",
-                "Access-Control-Allow-Origin": "http://localhost:3000",
+                "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Credentials": "true",
             }
         )
@@ -332,7 +332,7 @@ async def stream_match(match_id: str, request: Request):
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
                 "Content-Type": "text/event-stream",
-                "Access-Control-Allow-Origin": "http://localhost:3000",
+                "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Credentials": "true",
             }
         )
