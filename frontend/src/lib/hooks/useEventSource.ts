@@ -21,8 +21,8 @@ export function useEventSource<T>(url: string, options: UseEventSourceOptions<T>
 
   const [error, setError] = useState<Event | null>(null);
   const retryCount = useRef(0);
-  const retryTimeout = useRef<NodeJS.Timeout>();
-  const eventSourceRef = useRef<EventSource>();
+  const retryTimeout = useRef<NodeJS.Timeout | undefined>(undefined);
+  const eventSourceRef = useRef<EventSource | undefined>(undefined);
 
   const connect = () => {
     if (eventSourceRef.current) {
