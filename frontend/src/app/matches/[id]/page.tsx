@@ -355,34 +355,6 @@ export default function MatchPage({ params }: PageProps) {
                           </div>
                         </div>
                         <p className="text-amber-700 text-sm mt-1">Both agents are generating responses simultaneously!</p>
-                        
-                        {/* Progress Race */}
-                        <div className="mt-3 space-y-2">
-                          <div className="flex items-center gap-3">
-                            <span className="text-blue-700 text-sm font-medium w-20 text-right">{agent1.profile.name}</span>
-                            <div className="flex-1 bg-blue-100 rounded-full h-2 relative overflow-hidden">
-                              <div 
-                                className="bg-blue-500 h-full rounded-full transition-all duration-300 ease-out"
-                                style={{ 
-                                  width: `${Math.min(100, (match.agent1_response?.response_text.length || 0) / 10)}%` 
-                                }}
-                              ></div>
-                            </div>
-                            <span className="text-blue-600 text-xs w-12">{match.agent1_response?.response_text.length || 0} chars</span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-purple-700 text-sm font-medium w-20 text-right">{agent2.profile.name}</span>
-                            <div className="flex-1 bg-purple-100 rounded-full h-2 relative overflow-hidden">
-                              <div 
-                                className="bg-purple-500 h-full rounded-full transition-all duration-300 ease-out"
-                                style={{ 
-                                  width: `${Math.min(100, (match.agent2_response?.response_text.length || 0) / 10)}%` 
-                                }}
-                              ></div>
-                            </div>
-                            <span className="text-purple-600 text-xs w-12">{match.agent2_response?.response_text.length || 0} chars</span>
-                          </div>
-                        </div>
                       </div>
                     </div>
                   )}

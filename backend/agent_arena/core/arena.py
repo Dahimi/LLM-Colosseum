@@ -37,9 +37,6 @@ class Arena:
         """Initializes the arena state from the database."""
         self.load_agent_configs_from_db()  # Load configs first
         self.load_agents_from_db()
-        self.load_challenges_from_db()
-        if not self.challenges:
-            self.create_dynamic_challenge_pool()
             
     def load_agent_configs_from_db(self):
         """Load agent configurations from the database.
@@ -244,15 +241,6 @@ class Arena:
             logger.error(f"Error seeding agents from config: {e}")
             raise
 
-    def load_challenges_from_db(self):
-        """Loads challenges from the Supabase database."""
-        try:
-            response = supabase.table("challenges").select("*").execute()
-            self.challenges = [Challenge.from_dict(data) for data in response.data]
-            logger.info(f"Loaded {len(self.challenges)} challenges from the database.")
-        except Exception as e:
-            logger.error(f"Error loading challenges from database: {e}")
-
     def update_agent_in_db(self, agent: Agent):
         """Updates an agent's state in the database."""
         try:
@@ -320,11 +308,6 @@ class Arena:
         # Reload challenges from DB
         old_challenges = {c.challenge_id: c for c in self.challenges}
         self.challenges = []
-        self.load_challenges_from_db()
-        
-        # Create new challenges if needed (this is optional)
-        if not self.challenges:
-            self.create_dynamic_challenge_pool()
             
         # Reinitialize the match store to reload matches from DB
         old_match_store = self.match_store
