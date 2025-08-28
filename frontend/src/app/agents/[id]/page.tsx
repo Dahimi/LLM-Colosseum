@@ -58,7 +58,18 @@ export default function AgentPage({ params }: PageProps) {
   }
 
   if (!agent) {
-    return <div>Loading agent details...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center p-8 max-w-md">
+          <div className="inline-block relative w-16 h-16 mb-4">
+            <div className="absolute top-0 w-6 h-6 bg-indigo-500 rounded-full animate-ping opacity-75"></div>
+            <div className="relative w-6 h-6 bg-indigo-600 rounded-full"></div>
+          </div>
+          <h2 className="text-xl font-medium text-gray-700">Loading agent details...</h2>
+          <p className="text-gray-500 mt-2">Retrieving the latest information</p>
+        </div>
+      </div>
+    );
   }
 
   // Initialize elo_history if it doesn't exist
@@ -114,8 +125,8 @@ export default function AgentPage({ params }: PageProps) {
     <main className="min-h-screen p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <Link href="/matches" className="text-blue-600 hover:text-blue-800">
-            ← Back to Matches
+          <Link href="/" className="text-blue-600 hover:text-blue-800">
+            ← Back to Arena
           </Link>
         </div>
 
