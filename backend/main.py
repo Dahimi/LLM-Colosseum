@@ -17,10 +17,17 @@ from agent_arena.db import supabase
 
 app = FastAPI()
 
+# Define allowed origins
+ALLOWED_ORIGINS = [
+    "https://llm-arena-nine.vercel.app",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+]
+
 # Configure CORS for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -279,6 +286,12 @@ async def get_agent(agent_id: str):
 async def stream_matches(request: Request):
     """SSE endpoint for streaming match updates."""
     try:
+        # Get the origin from the request headers or use the first allowed origin as default
+        origin = request.headers.get("origin", ALLOWED_ORIGINS[0])
+        # Ensure the origin is in our allowed list
+        if origin not in ALLOWED_ORIGINS:
+            origin = ALLOWED_ORIGINS[0]
+            
         return EventSourceResponse(
             match_updates(),
             media_type="text/event-stream",
@@ -286,8 +299,9 @@ async def stream_matches(request: Request):
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
                 "Content-Type": "text/event-stream",
-                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Origin": origin,
                 "Access-Control-Allow-Credentials": "true",
+                "X-Accel-Buffering": "no",  # Prevent proxy buffering
             }
         )
     except Exception as e:
@@ -325,6 +339,12 @@ async def match_updates() -> AsyncGenerator[dict, None]:
 async def stream_match(match_id: str, request: Request):
     """SSE endpoint for streaming specific match updates."""
     try:
+        # Get the origin from the request headers or use the first allowed origin as default
+        origin = request.headers.get("origin", ALLOWED_ORIGINS[0])
+        # Ensure the origin is in our allowed list
+        if origin not in ALLOWED_ORIGINS:
+            origin = ALLOWED_ORIGINS[0]
+            
         return EventSourceResponse(
             specific_match_updates(match_id),
             media_type="text/event-stream",
@@ -332,8 +352,9 @@ async def stream_match(match_id: str, request: Request):
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
                 "Content-Type": "text/event-stream",
-                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Origin": origin,
                 "Access-Control-Allow-Credentials": "true",
+                "X-Accel-Buffering": "no",  # Prevent proxy buffering
             }
         )
     except Exception as e:
