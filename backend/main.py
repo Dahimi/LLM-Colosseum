@@ -63,8 +63,8 @@ def match_to_json(match: Match) -> dict:
     # Convert status to uppercase to match frontend enum
     match_dict["status"] = match_dict["status"].upper()
     
-    # Add challenge details
-    challenge = next((c for c in arena.challenges if c.challenge_id == match.challenge_id), None)
+    # Add challenge details from the match store's cache
+    challenge = arena.match_store.get_challenge_for_match(match.challenge_id)
     if challenge:
         match_dict["challenge"] = {
             "challenge_id": challenge.challenge_id,

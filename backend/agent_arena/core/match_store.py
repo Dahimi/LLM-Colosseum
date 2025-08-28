@@ -1,5 +1,6 @@
 from typing import List, Optional, Dict
 from agent_arena.models.match import Match, MatchStatus
+from agent_arena.models.challenge import Challenge
 from agent_arena.db import supabase
 from agent_arena.utils.logging import get_logger
 from datetime import datetime, timezone
@@ -15,6 +16,7 @@ class MatchStore:
         # In-memory storage
         self.matches: Dict[str, Match] = {}
         self.live_matches: Dict[str, Match] = {}
+        self.challenge_cache: Dict[str, Challenge] = {}  # Cache challenges by challenge_id
         self.state_file = state_file
         self._load_from_db()
     
@@ -49,12 +51,16 @@ class MatchStore:
             self.matches = {}
             self.live_matches = {}
     
-    def add_match(self, match: Match) -> None:
+    def add_match(self, match: Match, challenge: Optional[Challenge] = None) -> None:
         """Add a match to the store and database."""
         # Update in-memory store
         if match.status == MatchStatus.IN_PROGRESS:
             self.live_matches[match.match_id] = match
         self.matches[match.match_id] = match
+        
+        # Cache the challenge if provided
+        if challenge and match.challenge_id:
+            self.challenge_cache[match.challenge_id] = challenge
         
         # Add to database
         try:
@@ -116,6 +122,29 @@ class MatchStore:
         except Exception as e:
             logger.error(f"Error getting match from DB: {e}")
             return None
+    
+    def get_challenge_for_match(self, challenge_id: str) -> Optional[Challenge]:
+        """Get challenge details for a match, using cache or fetching from DB if needed."""
+        # First try in-memory cache
+        if challenge_id in self.challenge_cache:
+            return self.challenge_cache[challenge_id]
+        
+        # If not in cache, fetch from database
+        try:
+            response = supabase.table("challenges").select("*").eq("challenge_id", challenge_id).execute()
+            if response.data:
+                challenge = Challenge.from_dict(response.data[0])
+                # Cache for future use
+                self.challenge_cache[challenge_id] = challenge
+                return challenge
+            return None
+        except Exception as e:
+            logger.error(f"Error getting challenge {challenge_id} from DB: {e}")
+            return None
+    
+    def add_challenge(self, challenge: Challenge) -> None:
+        """Add a challenge to the cache."""
+        self.challenge_cache[challenge.challenge_id] = challenge
     
     def get_live_matches(self) -> List[Match]:
         """Get all live (in-progress) matches from memory."""

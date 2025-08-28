@@ -25,7 +25,6 @@ MAX_STREAMING_FAILURE_RATE = 50.0
 class Arena:
     def __init__(self):
         self.agents: List[Agent] = []
-        self.challenges: List[Challenge] = []
         self.agent_llms: Dict[str, any] = {}
         self.agent_configs: Dict[str, Dict] = {}  # Store agent configs by name
         # Initialize match store with a file in the same directory as state_file
@@ -60,7 +59,8 @@ class Arena:
             division=agent1.division.value
         )
         match.start_match()
-        self.match_store.add_match(match)
+        # Cache the challenge when adding the match
+        self.match_store.add_match(match, challenge)
 
         # Run the match in a background thread
         def run_match():
@@ -305,9 +305,8 @@ class Arena:
         # Reload agents from DB
         self.load_agents_from_db()
         
-        # Reload challenges from DB
-        old_challenges = {c.challenge_id: c for c in self.challenges}
-        self.challenges = []
+        # No need to reload challenges as they're fetched on demand
+        old_challenge_count = len(self.match_store.challenge_cache)
             
         # Reinitialize the match store to reload matches from DB
         old_match_store = self.match_store
@@ -327,20 +326,13 @@ class Arena:
         removed_agents = old_agent_names - new_agents
         updated_agents = new_agents.intersection(old_agent_names)
         
-        new_challenges = set(c.challenge_id for c in self.challenges)
-        old_challenge_ids = set(old_challenges.keys())
-        
-        added_challenges = new_challenges - old_challenge_ids
-        removed_challenges = old_challenge_ids - new_challenges
-        
         result = {
             "agents_loaded": len(self.agents),
-            "challenges_loaded": len(self.challenges),
+            "challenge_cache_before": old_challenge_count,
+            "challenge_cache_after": len(self.match_store.challenge_cache),
             "agents_added": len(added_agents),
             "agents_removed": len(removed_agents),
             "agents_updated": len(updated_agents),
-            "challenges_added": len(added_challenges),
-            "challenges_removed": len(removed_challenges),
             "matches_before": old_match_count,
             "matches_after": new_match_count,
             "live_matches_before": old_live_match_count,
@@ -814,7 +806,7 @@ class Arena:
         for i, (challenge_type, difficulty) in enumerate(challenge_specs[:challenge_count]):
             try:
                 challenge = generator.generate_challenge(challenge_type, difficulty)
-                self.challenges.append(challenge)
+                self.match_store.add_challenge(challenge)
                 new_challenges.append(challenge)
                 print(f"      ✅ Generated #{i+1}: {challenge.title} ({challenge_type.value}, {difficulty.name})")
                 
@@ -927,21 +919,24 @@ class Arena:
                 else:
                     challenge = self.get_random_challenge_from_db(difficulty_min=3)
                 
-                # Fall back to in-memory challenges if database query failed
-                if not challenge and self.challenges:
-                    logger.warning("Falling back to in-memory challenges")
+                # Fall back to cached challenges if database query failed
+                if not challenge and self.match_store.challenge_cache:
+                    logger.warning("Falling back to cached challenges")
+                    cached_challenges = list(self.match_store.challenge_cache.values())
+                    
                     if division == Division.NOVICE:
-                        appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 2]
+                        appropriate_challenges = [c for c in cached_challenges if c.difficulty.value <= 2]
                     elif division == Division.EXPERT:
-                        appropriate_challenges = [c for c in self.challenges if c.difficulty.value <= 3]
+                        appropriate_challenges = [c for c in cached_challenges if c.difficulty.value <= 3]
                     else:
-                        appropriate_challenges = [c for c in self.challenges if c.difficulty.value >= 3]
+                        appropriate_challenges = [c for c in cached_challenges if c.difficulty.value >= 3]
                     
-                    if not appropriate_challenges:
-                        appropriate_challenges = self.challenges
-                    
-                    challenge = random.choice(appropriate_challenges)
-                elif not challenge:
+                    if appropriate_challenges:
+                        challenge = random.choice(appropriate_challenges)
+                    elif cached_challenges:
+                        challenge = random.choice(cached_challenges)
+                
+                if not challenge:
                     # If no challenges found, create a new one
                     logger.warning("No challenges available, generating a new one")
                     generator = ChallengeGenerator()
@@ -951,6 +946,9 @@ class Arena:
                         challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.INTERMEDIATE)
                     else:
                         challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.ADVANCED)
+                    
+                    # Cache the new challenge
+                    self.match_store.add_challenge(challenge)
                 
                 print(f"\n   🥊 Match {match_count + 1}: {agent1.profile.name} vs {agent2.profile.name}")
                 print(f"      Challenge: {challenge.title} ({challenge.difficulty.name})")
