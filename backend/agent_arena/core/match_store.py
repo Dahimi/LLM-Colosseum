@@ -12,20 +12,23 @@ logger = get_logger(__name__)
 class MatchStore:
     """Store for managing matches in memory with database persistence."""
     
-    def __init__(self, state_file: str = "match_store.json"):
+    def __init__(self, state_file: str = "match_store.json", max_completed_matches: int = 1000):
         # In-memory storage
         self.matches: Dict[str, Match] = {}
         self.live_matches: Dict[str, Match] = {}
         self.challenge_cache: Dict[str, Challenge] = {}  # Cache challenges by challenge_id
         self.state_file = state_file
+        self.max_completed_matches = max_completed_matches
         self._load_from_db()
     
     def _load_from_db(self):
         """Load matches from the database into memory."""
         try:
-            # Load completed matches
+            # Load limited number of completed matches (most recent first)
             completed_response = supabase.table("matches").select("*") \
-                .not_.in_("status", [MatchStatus.IN_PROGRESS.value, MatchStatus.PENDING.value]) \
+                .not_.in_("status", [MatchStatus.IN_PROGRESS.value, MatchStatus.PENDING.value, MatchStatus.AWAITING_JUDGMENT.value]) \
+                .order("completed_at", desc=True) \
+                .limit(self.max_completed_matches) \
                 .execute()
             
             # Load in-progress matches
@@ -78,11 +81,15 @@ class MatchStore:
     def update_match(self, match: Match) -> None:
         """Update a match in the store and optionally in the database."""
         # Always update in-memory store
-        if match.status == MatchStatus.IN_PROGRESS:
+        if match.status == MatchStatus.IN_PROGRESS or match.status == MatchStatus.PENDING or match.status == MatchStatus.AWAITING_JUDGMENT:
             self.live_matches[match.match_id] = match
-        elif match.match_id in self.live_matches:
-            del self.live_matches[match.match_id]
+        else:
+            # Match is completed, check if we need to trim the cache
+            if match.match_id in self.live_matches:
+                del self.live_matches[match.match_id]
+            
         self.matches[match.match_id] = match
+        self._trim_completed_matches()
         
         # Only update database if not streaming or match status changed
         if match.status != MatchStatus.IN_PROGRESS and match.status != MatchStatus.AWAITING_JUDGMENT:
@@ -97,6 +104,33 @@ class MatchStore:
                 supabase.table("matches").update(match_dict).eq("match_id", match.match_id).execute()
             except Exception as e:
                 logger.error(f"Error updating match in DB: {e}", exc_info=True)
+    
+    def _trim_completed_matches(self):
+        """Trim the completed matches cache if it exceeds the maximum size. and Remove the challenge cache if it exceeds the maximum size."""
+        completed_matches = {
+            match_id: match for match_id, match in self.matches.items() 
+            if match_id not in self.live_matches
+        }
+        
+        if len(completed_matches) > self.max_completed_matches:
+            # Sort completed matches by completion time (oldest first)
+            sorted_matches = sorted(
+                completed_matches.items(),
+                key=lambda x: (x[1].completed_at.replace(tzinfo=None) if x[1].completed_at and x[1].completed_at.tzinfo 
+                               else x[1].completed_at) or datetime.min,
+            )
+            
+            # Remove oldest matches until we're under the limit
+            matches_to_remove = len(completed_matches) - self.max_completed_matches
+            for i in range(matches_to_remove):
+                match_id, _ = sorted_matches[i]
+                if match_id in self.matches:
+                    del self.matches[match_id]
+                    # Remove the challenge cache if it exists
+                    if match_id in self.challenge_cache:
+                        del self.challenge_cache[match_id]
+            
+            logger.info(f"Trimmed {matches_to_remove} old completed matches from memory cache")
     
     def get_match(self, match_id: str) -> Optional[Match]:
         """Get a match by ID from memory, falling back to database if needed."""
