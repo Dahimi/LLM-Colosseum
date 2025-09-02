@@ -143,6 +143,7 @@ class ChallengeResponse(BaseModel):
     challenge_type: str = Field(description="Type of challenge")
     evaluation_criteria: List[str] = Field(description="List of evaluation criteria")
     expected_concepts: List[str] = Field(description="Key concepts expected in responses")
+    answer: Optional[str] = Field(default=None, description="Correct answer or solution (for challenges with definitive answers)")
 
 
 class EvaluationScores(BaseModel):

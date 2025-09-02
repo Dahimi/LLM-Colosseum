@@ -839,7 +839,8 @@ class Arena:
                         "tags": c.tags,
                         "source": c.source,
                         "is_active": c.is_active,
-                        "metadata": c.metadata
+                        "metadata": c.metadata,
+                        "answer": c.answer  # Include the answer field
                     }
                     for c in new_challenges
                 ]

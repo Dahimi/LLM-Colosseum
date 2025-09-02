@@ -102,7 +102,16 @@ Description:
 
 **EXPECTED CONCEPTS:**
 {chr(10).join(f"- {concept}" for concept in challenge.expected_concepts)}
+"""
 
+        # Include the answer if it exists
+        if challenge.answer:
+            prompt += f"""
+**CORRECT ANSWER:**
+{challenge.answer}
+"""
+
+        prompt += f"""
 **AGENT 1 RESPONSE:**
 {agent1_response.response_text}
 
@@ -131,7 +140,15 @@ Description:
 - A 'draw' is appropriate when responses are very close in quality
 - Explain your reasoning clearly
 - Scores should reflect the challenge difficulty level
+"""
 
+        if challenge.answer:
+            prompt += """
+- Compare responses against the provided correct answer
+- Prioritize correctness when a definitive answer exists
+"""
+
+        prompt += """
 Provide detailed scores and clear reasoning for your evaluation."""
         
         return prompt
@@ -147,7 +164,16 @@ Provide detailed scores and clear reasoning for your evaluation."""
 Title: {challenge.title}
 Description:
 {challenge.description}
+"""
 
+        # Include the answer if it exists
+        if challenge.answer:
+            prompt += f"""
+**REFERENCE INFORMATION:**
+{challenge.answer}
+"""
+
+        prompt += f"""
 **DEBATE TRANSCRIPT:**
 {transcript_text}
 
@@ -163,7 +189,14 @@ Description:
 3. Provide your overall reasoning for the evaluation, explaining who you thought won the debate and why.
 4. Recommend a winner: 'agent1', 'agent2', or 'draw'.
 5. Rate your confidence in this evaluation (0.0-1.0).
+"""
 
+        if challenge.answer:
+            prompt += """
+When evaluating factual claims, compare them against the reference information provided.
+"""
+
+        prompt += """
 Provide detailed scores and clear reasoning for your evaluation."""
         return prompt
 

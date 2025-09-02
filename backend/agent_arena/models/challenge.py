@@ -52,6 +52,7 @@ class Challenge(BaseModel):
     constraints: List[str] = Field(default_factory=list, description="Constraints or rules for solving")
     hints: List[str] = Field(default_factory=list, description="Optional hints (revealed based on difficulty)")
     examples: List[Dict[str, str]] = Field(default_factory=list, description="Example inputs/outputs")
+    answer: Optional[str] = Field(default=None, description="Correct answer or solution (used for evaluation)")
     
     # Evaluation criteria
     evaluation_criteria: List[str] = Field(default_factory=list, description="Specific criteria for judging responses")

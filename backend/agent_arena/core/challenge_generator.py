@@ -35,6 +35,7 @@ class ChallengeGenerator:
             creator_id=creator_id,
             evaluation_criteria=response.evaluation_criteria,
             expected_concepts=response.expected_concepts,
+            answer=response.answer,  # Include the answer field from the response
             tags=[challenge_type.value, f"difficulty_{difficulty.value}"]
         )
         
@@ -87,7 +88,8 @@ The challenge should be:
             ChallengeType.LOGICAL_REASONING: """
 Focus on: Deductive reasoning, logical consistency, systematic analysis
 Examples: Logic puzzles, constraint satisfaction, formal reasoning problems
-Requirements: Clear premises, unambiguous logical relationships, step-by-step reasoning needed""",
+Requirements: Clear premises, unambiguous logical relationships, step-by-step reasoning needed
+Answer: Provide a correct answer or solution for the challenge""",
             
             ChallengeType.CREATIVE_PROBLEM_SOLVING: """
 Focus on: Innovation, out-of-the-box thinking, novel approaches
@@ -97,27 +99,26 @@ Requirements: Multiple valid solutions possible, creativity over correctness, pr
             ChallengeType.MATHEMATICAL: """
 Focus on: Quantitative analysis, optimization, mathematical modeling
 Examples: Optimization problems, statistical analysis, computational mathematics
-Requirements: Numerical precision, clear mathematical relationships, calculable answers""",
-            
-            ChallengeType.ABSTRACT_THINKING: """
-Focus on: Pattern recognition, conceptual relationships, symbolic reasoning
-Examples: Pattern completion, analogical reasoning, conceptual mapping
-Requirements: Abstract concepts, transferable patterns, symbolic manipulation""",
+Requirements: Numerical precision, clear mathematical relationships, calculable answers
+Answer: Provide the correct numerical answer or mathematical solution""",
             
             ChallengeType.KNOWLEDGE_INTEGRATION: """
-Focus on: Cross-domain synthesis, information integration, comprehensive analysis
-Examples: Multi-disciplinary problems, synthesis tasks, comprehensive evaluations
-Requirements: Multiple knowledge domains, integration skills, holistic thinking""",
+Focus on: Connecting diverse domains, interdisciplinary thinking, synthesis
+Examples: Cross-domain problems, knowledge transfer challenges, integrative scenarios
+Requirements: Multiple knowledge domains needed, connections between fields, holistic understanding
+Answer: For factual questions, provide the correct answer with key details""",
             
-            ChallengeType.META_COGNITION: """
-Focus on: Reasoning about reasoning, strategy evaluation, self-reflection
-Examples: Strategy analysis, cognitive process evaluation, reasoning methodology
-Requirements: Meta-level thinking, process awareness, strategic reasoning""",
+            ChallengeType.ABSTRACT_THINKING: """
+Focus on: Conceptual reasoning, pattern recognition, abstraction
+Examples: Pattern completion, analogical reasoning, conceptual mapping
+Requirements: Looking beyond concrete details, finding underlying patterns, abstract representation
+Answer: If there's a definitive pattern or solution, provide it""",
             
             ChallengeType.DEBATE: """
-Focus on: Argumentation, rebuttal, and synthesis of complex topics. The goal is not to find a "correct" answer, but to see which agent can build a more coherent, persuasive, and well-supported case.
-Examples: "Is consciousness an emergent property or fundamental to the universe?", "Should AI development be open-source or regulated?", "Does free will exist in a deterministic universe?"
-Requirements: A clear, controversial, and debatable resolution. The topic should have sufficient depth for a multi-turn debate. The description should set the stage for the debate, but not take a side."""
+Focus on: Argumentation, persuasion, balanced perspectives
+Examples: Ethical dilemmas, policy debates, philosophical questions
+Requirements: Balanced framing, substantive arguments possible on both sides, clear resolution criteria
+Answer: Provide key facts, context, and considerations that judges should know to evaluate responses accurately"""
         }
         
         # Difficulty-specific guidance

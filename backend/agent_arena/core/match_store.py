@@ -12,14 +12,14 @@ logger = get_logger(__name__)
 class MatchStore:
     """Store for managing matches in memory with database persistence."""
     
-    def __init__(self, state_file: str = "match_store.json", max_completed_matches: int = 1000, max_live_matches: int = 2):
+    def __init__(self, state_file: str = "match_store.json", max_completed_matches: int = 1000, max_live_matches: int = None):
         # In-memory storage
         self.matches: Dict[str, Match] = {}
         self.live_matches: Dict[str, Match] = {}
         self.challenge_cache: Dict[str, Challenge] = {}  # Cache challenges by challenge_id
         self.state_file = state_file
         self.max_completed_matches = max_completed_matches
-        self.max_live_matches = max_live_matches
+        self.max_live_matches = max_live_matches if max_live_matches else int(os.getenv("MAX_LIVE_MATCHES", 10))
         self._load_from_db()
     
     def _load_from_db(self):
