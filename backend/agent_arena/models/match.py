@@ -83,6 +83,7 @@ class Match(BaseModel):
     result: Optional[MatchResult] = Field(default=None, description="Match result from agent1's perspective")
     final_scores: Dict[str, float] = Field(default_factory=dict, description="Final scores for each agent")
     evaluation_ids: List[str] = Field(default_factory=list, description="List of evaluation IDs from judges")
+    evaluation_details: List[Dict[str, Any]] = Field(default_factory=list, description="Detailed evaluations from judges")
     
     # Match parameters
     division: str = Field(description="Division where this match takes place")
@@ -101,6 +102,8 @@ class Match(BaseModel):
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Match":
         """Deserialize an object from a dictionary."""
+        if 'evaluation_details' not in data or data['evaluation_details'] is None:
+            data['evaluation_details'] = []
         return cls.model_validate(data)
 
     def __str__(self) -> str:

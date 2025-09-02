@@ -39,10 +39,14 @@ export default async function MatchesPage() {
         {/* Tournament Status and Controls */}
         <div className="mb-8">
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <div className="flex justify-between items-start">
-              <TournamentStatus status={tournamentStatus} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <TournamentStatus status={tournamentStatus} />
+              </div>
               <div className="space-y-6">
-                <QuickMatchControls />
+                <div className="min-w-[300px]">
+                  <QuickMatchControls />
+                </div>
                 <div className="border-t pt-6">
                   <h3 className="text-lg font-medium mb-4 text-gray-900">Tournament Mode</h3>
                   <TournamentControls />

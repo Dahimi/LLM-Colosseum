@@ -18,15 +18,9 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
-    if (!response.ok) {
-      return new Response(JSON.stringify(data), {
-        status: response.status,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
+    // Always pass through the status code and response from the backend
     return new Response(JSON.stringify(data), {
-      status: 200,
+      status: response.status,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {

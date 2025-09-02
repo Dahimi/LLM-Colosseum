@@ -14,6 +14,7 @@ from agent_arena.models.challenge import Challenge, ChallengeType, ChallengeDiff
 from agent_arena.models.agent import Division
 from pydantic import BaseModel, Field
 from agent_arena.db import supabase
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -82,6 +83,10 @@ def match_to_json(match: Match) -> dict:
             "type": "LOGICAL_REASONING",
             "difficulty": "INTERMEDIATE"
         }
+    
+    # Ensure evaluation_details is included
+    if hasattr(match, 'evaluation_details') and match.evaluation_details:
+        match_dict["evaluation_details"] = match.evaluation_details
     
     return match_dict
 
@@ -404,12 +409,34 @@ async def get_match(match_id: str):
 async def start_quick_match(division: str):
     """Start a quick match between two random agents in the specified division."""
     try:
+        # Check if we've reached the maximum number of live matches
+        if arena.match_store.has_reached_live_match_limit():
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "error": "too_many_matches",
+                    "message": f"Maximum number of live matches ({arena.match_store.max_live_matches}) reached. Please wait for some matches to complete.",
+                    "live_match_count": len(arena.match_store.live_matches),
+                    "max_live_matches": arena.match_store.max_live_matches
+                }
+            )
+        
         # Start the match asynchronously
         match = arena.start_quick_match(division)
         
         # Return immediately with the match info
         return match_to_json(match)
     except ValueError as e:
+        if "Maximum number of live matches" in str(e):
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "error": "too_many_matches",
+                    "message": str(e),
+                    "live_match_count": len(arena.match_store.live_matches),
+                    "max_live_matches": arena.match_store.max_live_matches
+                }
+            )
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

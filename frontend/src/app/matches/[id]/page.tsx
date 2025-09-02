@@ -7,6 +7,7 @@ import { Agent } from '@/types/arena';
 import { fetchMatch, fetchAgents, API_BASE_URL, transformMatch } from '@/lib/api';
 import { useEventSource } from '@/lib/hooks/useEventSource';
 import { use } from 'react';
+import { JudgeEvaluationCard } from '@/components/JudgeEvaluationCard';
 
 interface PageProps {
   params: Promise<{
@@ -25,6 +26,7 @@ export default function MatchPage({ params }: PageProps) {
   const debateContainerRef = useRef<HTMLDivElement>(null);
   const [lastTranscriptLength, setLastTranscriptLength] = useState(0);
   const [userHasScrolled, setUserHasScrolled] = useState(false);
+  const [isEvaluationsExpanded, setIsEvaluationsExpanded] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -529,56 +531,35 @@ export default function MatchPage({ params }: PageProps) {
           )}
 
           {/* Judge Evaluations */}
-          {match.status === MatchStatus.COMPLETED && match.evaluations && match.evaluations.length > 0 && (
+          {match.status === MatchStatus.COMPLETED && match.evaluation_details && match.evaluation_details.length > 0 && (
             <div className="mt-8">
-              <h3 className="font-semibold mb-4 text-indigo-900">Judge Evaluations</h3>
-              <div className="space-y-6">
-                {match.evaluations.map((evaluation, index) => (
-                  <div key={index} className="bg-emerald-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-emerald-800 mb-4">Judge {index + 1}</h4>
-                    
-                    {/* Overall Reasoning */}
-                    <div className="mb-4">
-                      <p className="font-medium text-emerald-800 mb-1">Overall Analysis</p>
-                      <p className="whitespace-pre-wrap text-emerald-900">{evaluation.overall_reasoning}</p>
-                    </div>
-
-                    {/* Comparative Analysis */}
-                    <div className="mb-4">
-                      <p className="font-medium text-emerald-800 mb-1">Comparative Analysis</p>
-                      <p className="whitespace-pre-wrap text-emerald-900">{evaluation.comparative_analysis}</p>
-                    </div>
-
-                    {/* Key Differentiators */}
-                    {evaluation.key_differentiators.length > 0 && (
-                      <div className="mb-4">
-                        <p className="font-medium text-emerald-800 mb-1">Key Differentiators</p>
-                        <ul className="list-disc list-inside space-y-1">
-                          {evaluation.key_differentiators.map((point, i) => (
-                            <li key={i} className="text-emerald-900">{point}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* Scores */}
-                    <div className="mt-4 grid grid-cols-2 gap-4 bg-emerald-100/50 p-3 rounded-lg">
-                      <div>
-                        <p className="text-blue-800">{agent1.profile.name}</p>
-                        <p className="text-blue-900 font-medium">
-                          Score: {evaluation.agent1_total_score.toFixed(1)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-purple-800">{agent2.profile.name}</p>
-                        <p className="text-purple-900 font-medium">
-                          Score: {evaluation.agent2_total_score.toFixed(1)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <button 
+                onClick={() => setIsEvaluationsExpanded(!isEvaluationsExpanded)}
+                className="w-full flex items-center justify-between bg-indigo-50 hover:bg-indigo-100 transition-colors px-4 py-3 rounded-lg mb-4"
+              >
+                <h3 className="font-semibold text-indigo-900 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                  Judge Evaluations
+                </h3>
+                <svg 
+                  className={`w-5 h-5 text-indigo-700 transform transition-transform ${isEvaluationsExpanded ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {isEvaluationsExpanded && (
+                <div className="space-y-6">
+                  {match.evaluation_details.map((evaluation, index) => (
+                    <JudgeEvaluationCard key={index} evaluation={evaluation} agent1={agent1} agent2={agent2} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

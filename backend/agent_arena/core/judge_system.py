@@ -251,6 +251,41 @@ def evaluate_match_with_llm_judges(
     evaluations = judge_panel.evaluate_match(match, challenge)
     consensus = judge_panel.get_consensus_result(evaluations)
     
+    # Convert evaluations to serializable format
+    evaluation_details = []
+    for eval in evaluations:
+        # Extract key information from each evaluation
+        eval_detail = {
+            "judge_id": eval.judge_id,
+            "recommended_winner": eval.recommended_winner,
+            "overall_reasoning": eval.overall_reasoning,
+            "agent1_total_score": eval.agent1_total_score,
+            "agent2_total_score": eval.agent2_total_score,
+            "evaluation_quality": eval.evaluation_quality,
+            "agent1_scores": [],
+            "agent2_scores": []
+        }
+        
+        # Add detailed scores for each criterion
+        for score in eval.agent1_scores:
+            eval_detail["agent1_scores"].append({
+                "criterion": score.criterion.value,
+                "score": score.score,
+                "reasoning": score.reasoning,
+                "confidence": score.confidence
+            })
+            
+        for score in eval.agent2_scores:
+            eval_detail["agent2_scores"].append({
+                "criterion": score.criterion.value,
+                "score": score.score,
+                "reasoning": score.reasoning,
+                "confidence": score.confidence
+            })
+            
+        evaluation_details.append(eval_detail)
+    
+    consensus["evaluation_details"] = evaluation_details
     return consensus
 
 

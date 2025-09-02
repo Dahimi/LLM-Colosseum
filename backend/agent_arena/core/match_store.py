@@ -12,13 +12,14 @@ logger = get_logger(__name__)
 class MatchStore:
     """Store for managing matches in memory with database persistence."""
     
-    def __init__(self, state_file: str = "match_store.json", max_completed_matches: int = 1000):
+    def __init__(self, state_file: str = "match_store.json", max_completed_matches: int = 1000, max_live_matches: int = 2):
         # In-memory storage
         self.matches: Dict[str, Match] = {}
         self.live_matches: Dict[str, Match] = {}
         self.challenge_cache: Dict[str, Challenge] = {}  # Cache challenges by challenge_id
         self.state_file = state_file
         self.max_completed_matches = max_completed_matches
+        self.max_live_matches = max_live_matches
         self._load_from_db()
     
     def _load_from_db(self):
@@ -274,3 +275,11 @@ class MatchStore:
             logger.info(f"Synced {len(self.matches)} matches to database")
         except Exception as e:
             logger.error(f"Error syncing matches to database: {e}") 
+
+    def has_reached_live_match_limit(self) -> bool:
+        """Check if the number of live matches has reached the configured limit.
+        
+        Returns:
+            bool: True if the limit has been reached, False otherwise
+        """
+        return len(self.live_matches) >= self.max_live_matches 

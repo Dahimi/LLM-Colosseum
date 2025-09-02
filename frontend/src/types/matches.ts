@@ -35,13 +35,22 @@ export interface AgentResponse {
   is_streaming?: boolean;
 }
 
+export interface JudgeScore {
+  criterion: string;
+  score: number;
+  reasoning: string;
+  confidence: number;
+}
+
 export interface JudgeEvaluation {
+  judge_id: string;
   overall_reasoning: string;
-  comparative_analysis: string;
-  key_differentiators: string[];
   agent1_total_score: number;
   agent2_total_score: number;
   recommended_winner: string | null;
+  evaluation_quality: number;
+  agent1_scores: JudgeScore[];
+  agent2_scores: JudgeScore[];
 }
 
 export interface Match {
@@ -60,7 +69,8 @@ export interface Match {
   agent2_response?: AgentResponse;
   transcript?: AgentResponse[];  // For debate matches
   judge_feedback?: string[];
-  evaluations?: JudgeEvaluation[];  // Judge evaluations
+  evaluations?: JudgeEvaluation[];  // Legacy field
+  evaluation_details?: JudgeEvaluation[];  // Detailed judge evaluations
   match_type: 'REGULAR_DUEL' | 'DEBATE';
   final_scores?: { [key: string]: number };
   division?: string;  // Division where the match takes place

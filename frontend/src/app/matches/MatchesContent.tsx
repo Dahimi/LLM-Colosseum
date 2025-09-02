@@ -21,6 +21,8 @@ export function MatchesContent({ agentsMap: initialAgentsMap }: MatchesContentPr
   const [liveMatches, setLiveMatches] = useState<Match[]>([]);
   const [agentsMap, setAgentsMap] = useState(initialAgentsMap);
   const [error, setError] = useState<string | null>(null);
+  // Maximum number of live matches allowed (should match the backend setting)
+  const MAX_LIVE_MATCHES = parseInt(process.env.NEXT_PUBLIC_MAX_LIVE_MATCHES || '2');
   
   // Keep track of previous matches
   const previousMatchesRef = useRef<Match[]>([]);
@@ -99,6 +101,21 @@ export function MatchesContent({ agentsMap: initialAgentsMap }: MatchesContentPr
               </span>
             )}
           </h2>
+          <div className="flex items-center">
+            <div className="text-sm text-gray-600 mr-2">Match Slots:</div>
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: MAX_LIVE_MATCHES }).map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`w-3 h-3 rounded-full ${i < liveMatches.length ? 'bg-red-500' : 'bg-gray-200'}`}
+                  title={i < liveMatches.length ? 'Active match' : 'Available slot'}
+                />
+              ))}
+            </div>
+            <div className="text-sm text-gray-600 ml-2">
+              {liveMatches.length}/{MAX_LIVE_MATCHES}
+            </div>
+          </div>
         </div>
 
         {liveMatches.length === 0 ? (

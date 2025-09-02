@@ -83,6 +83,10 @@ class Arena:
 
     def start_quick_match(self, division: str) -> Match:
         """Start a quick match between random agents in a division."""
+        # Check if we've reached the maximum number of live matches
+        if self.match_store.has_reached_live_match_limit():
+            raise ValueError(f"Maximum number of live matches ({self.match_store.max_live_matches}) reached. Please wait for some matches to complete.")
+            
         # Get active agents in the division
         division_agents = [
             agent for agent in self.agents 
@@ -477,6 +481,10 @@ class Arena:
                 agent2.profile.name: final_score_agent2
             }
 
+            # Store evaluation details in the match
+            if "evaluation_details" in evaluation_result:
+                match.evaluation_details = evaluation_result["evaluation_details"]
+
             # Update match with results
             match.complete_match(winner_id, scores)
             self.match_store.update_match(match)
@@ -644,6 +652,10 @@ class Arena:
             agent2.profile.name: evaluation_result.get("agent2_avg", 5.0)
         }
         
+        # Store evaluation details in the match
+        if "evaluation_details" in evaluation_result:
+            match.evaluation_details = evaluation_result["evaluation_details"]
+            
         match.complete_match(winner_id, scores)
         self.match_store.update_match(match)
         print("update_agent_stats_and_elo debate match")
