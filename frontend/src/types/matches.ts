@@ -21,6 +21,9 @@ export interface Challenge {
   description: string;
   type: ChallengeType;
   difficulty: string;
+  source?: string;
+  answer?: string;
+  tags?: string[];
 }
 
 export interface AgentResponse {

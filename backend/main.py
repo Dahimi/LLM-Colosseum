@@ -72,7 +72,10 @@ def match_to_json(match: Match) -> dict:
             "title": challenge.title,
             "description": challenge.description,
             "type": challenge.challenge_type.value.upper(),
-            "difficulty": challenge.difficulty.value
+            "difficulty": challenge.difficulty.value,
+            "source": challenge.source,
+            "answer": challenge.answer,
+            "tags": challenge.tags
         }
     else:
         # Provide default challenge data if not found
@@ -81,7 +84,10 @@ def match_to_json(match: Match) -> dict:
             "title": "Challenge",
             "description": "Challenge description",
             "type": "LOGICAL_REASONING",
-            "difficulty": "INTERMEDIATE"
+            "difficulty": "INTERMEDIATE",
+            "source": "unknown",
+            "answer": None,
+            "tags": []
         }
     
     # Ensure evaluation_details is included

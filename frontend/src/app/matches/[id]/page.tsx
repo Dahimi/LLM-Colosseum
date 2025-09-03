@@ -196,9 +196,37 @@ export default function MatchPage({ params }: PageProps) {
 
           {/* Challenge Description */}
           <div className="mt-8 p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold mb-2 text-indigo-900">Challenge</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-indigo-900">Challenge</h3>
+              <div className="flex items-center gap-2">
+                {match.challenge.source && (
+                  <span className="px-2 py-1 bg-indigo-200 text-indigo-800 text-xs rounded-full">
+                    {match.challenge.source}
+                  </span>
+                )}
+                <span className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded-full">
+                  {match.challenge.type}
+                </span>
+                <span className="px-2 py-1 bg-blue-200 text-blue-800 text-xs rounded-full">
+                  Difficulty: {match.challenge.difficulty}
+                </span>
+              </div>
+            </div>
             <p className="text-lg font-medium text-indigo-900 mb-2">{match.challenge.title}</p>
-            <p className="whitespace-pre-wrap text-indigo-900">{match.challenge.description}</p>
+            <p className="whitespace-pre-wrap text-indigo-900 mb-3">{match.challenge.description}</p>
+            
+            {match.challenge.tags && match.challenge.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-3">
+                {match.challenge.tags.map((tag, index) => (
+                  <span 
+                    key={index}
+                    className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Match Responses */}
