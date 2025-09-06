@@ -40,8 +40,9 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
           li: ({ children }) => (
             <li className="text-gray-700">{children}</li>
           ),
-          code: ({ inline, children }) => (
-            inline ? (
+          code: ({ children, ...props }) => {
+            const inline = !props.className;
+            return inline ? (
               <code className="bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm font-mono">
                 {children}
               </code>
@@ -49,8 +50,8 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
               <code className="block bg-gray-100 text-gray-800 p-3 rounded text-sm font-mono overflow-x-auto">
                 {children}
               </code>
-            )
-          ),
+            );
+          },
           pre: ({ children }) => (
             <pre className="bg-gray-100 text-gray-800 p-3 rounded text-sm font-mono overflow-x-auto mb-3">
               {children}
