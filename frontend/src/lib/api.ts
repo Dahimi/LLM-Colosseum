@@ -9,7 +9,7 @@ export function transformMatch(rawMatch: any): Match {
   return {
     ...rawMatch,
     status: rawMatch.status?.toUpperCase() as MatchStatus,
-    match_type: rawMatch.match_type?.toUpperCase() as 'REGULAR_DUEL' | 'DEBATE',
+    match_type: rawMatch.match_type?.toUpperCase() as 'REGULAR_DUEL' | 'DEBATE' | 'KING_CHALLENGE',
     challenge: {
       ...rawMatch.challenge,
       type: rawMatch.challenge.type?.toUpperCase() as ChallengeType,
@@ -98,6 +98,20 @@ export async function fetchLiveMatches(): Promise<Match[]> {
   const data = await response.json();
   console.log('Raw live matches data:', data);
   return data.map(transformMatch);
+}
+
+export async function startKingChallenge(): Promise<Match> {
+  const response = await fetch(`${API_BASE_URL}/matches/king-challenge`, {
+    method: 'POST'
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Failed to start king challenge');
+  }
+  
+  const data = await response.json();
+  return transformMatch(data);
 }
 
 export async function startTournament(numRounds: number = 1): Promise<void> {

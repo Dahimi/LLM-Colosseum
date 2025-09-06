@@ -74,7 +74,7 @@ export interface Match {
   judge_feedback?: string[];
   evaluations?: JudgeEvaluation[];  // Legacy field
   evaluation_details?: JudgeEvaluation[];  // Detailed judge evaluations
-  match_type: 'REGULAR_DUEL' | 'DEBATE';
+  match_type: 'REGULAR_DUEL' | 'DEBATE' | 'KING_CHALLENGE';
   final_scores?: { [key: string]: number };
   division?: string;  // Division where the match takes place
 } 

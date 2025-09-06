@@ -70,6 +70,11 @@ export function MatchCard({ match, agents }: MatchCardProps) {
                   Debate Match
                 </span>
               )}
+              {match.match_type === 'KING_CHALLENGE' && (
+                <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full flex items-center">
+                  👑 King Challenge
+                </span>
+              )}
             </div>
           </div>
           <span className={`px-2 py-1 rounded text-sm ${getStatusColor(match.status)}`}>

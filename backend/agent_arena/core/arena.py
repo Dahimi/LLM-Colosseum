@@ -753,6 +753,8 @@ class Arena:
     def apply_realistic_division_changes(self, context: str = "match"):
         """Apply promotion and demotion rules based on performance metrics."""
         changes = []
+        eligible_challengers = []
+        
         for agent in self.agents:
             win_rate = agent.stats.win_rate
             streak = agent.stats.current_streak
@@ -769,11 +771,20 @@ class Arena:
                     self.update_agent_in_db(agent)
                     changes.append(f"🔺 {agent.profile.name}: EXPERT → MASTER (Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
                 elif agent.division == Division.MASTER and (win_rate >= 75 or streak >= 5):
-                    current_kings = [a for a in self.agents if a.division == Division.KING]
+                    # Check if there's already a King
+                    current_kings = [a for a in self.agents if a.division == Division.KING and a.profile.is_active]
                     if not current_kings:
+                        # No current King, so promote this Master to King
                         agent.promote_division(Division.KING, f"Crowned with {win_rate:.1f}% win rate and {elo:.0f} ELO")
                         self.update_agent_in_db(agent)
                         changes.append(f"👑 {agent.profile.name}: MASTER → KING (CROWNED! Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
+                    else:
+                        # There's already a King, so this Master needs to challenge them
+                        king = current_kings[0]
+                        logger.info(f"{agent.profile.name} qualifies for King promotion but must challenge {king.profile.name} for the crown")
+                        # Add to eligible challengers list
+                        eligible_challengers.append(agent)
+                        # We don't automatically start a challenge here - that's done through the king-challenge endpoint
             
             if matches >= 4:
                 if agent.division == Division.KING and (win_rate <= 40 or streak <= -3):
@@ -788,6 +799,29 @@ class Arena:
                     agent.demote_division(Division.NOVICE, f"Demoted with {win_rate:.1f}% win rate and {elo:.0f} ELO")
                     self.update_agent_in_db(agent)
                     changes.append(f"🔻 {agent.profile.name}: EXPERT → NOVICE (Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
+        
+        # Automatically trigger a king challenge if there are eligible challengers
+        if eligible_challengers and context != "king_challenge":  # Prevent infinite recursion
+            # Sort challengers by ELO rating to find the best one
+            eligible_challengers.sort(key=lambda a: a.stats.elo_rating, reverse=True)
+            best_challenger = eligible_challengers[0]
+            
+            try:
+                # Check if we can start a king challenge (not too many matches already)
+                if not self.match_store.has_reached_live_match_limit():
+                    # Check if a king challenge is already in progress
+                    existing_king_challenges = [
+                        m for m in self.match_store.get_live_matches()
+                        if m.match_type == MatchType.KING_CHALLENGE
+                    ]
+                    if not existing_king_challenges:
+                        logger.info(f"Automatically starting king challenge for {best_challenger.profile.name}")
+                        self.start_king_challenge()
+                        changes.append(f"👑 KING CHALLENGE: {best_challenger.profile.name} challenges for the crown!")
+                    else:
+                        logger.info("Cannot start automatic king challenge: another king challenge is already in progress")
+            except Exception as e:
+                logger.error(f"Failed to automatically start king challenge: {e}")
         
         if changes:
             print(f"\n🔄 DIVISION CHANGES (after {context}):")
@@ -989,6 +1023,105 @@ class Arena:
         
         print(f"\n✅ Round {round_num} completed: {match_count} realistic matches")
         self.apply_realistic_division_changes(context="round")
+
+    def start_king_challenge(self) -> Match:
+        """Start a king challenge match between the current king and the best performing master.
+        
+        This allows the top Master division agent to challenge the current King.
+        If the challenger wins, they become the new King and the previous King is demoted to Master.
+        
+        Returns:
+            Match: The created match object
+        
+        Raises:
+            ValueError: If there's no King or no eligible Master challenger
+        """
+        # Check if we've reached the maximum number of live matches
+        if self.match_store.has_reached_live_match_limit():
+            raise ValueError(f"Maximum number of live matches ({self.match_store.max_live_matches}) reached. Please wait for some matches to complete.")
+            
+        # Check if a king challenge is already in progress
+        existing_king_challenges = [
+            m for m in self.match_store.get_live_matches()
+            if m.match_type == MatchType.KING_CHALLENGE
+        ]
+        if existing_king_challenges:
+            raise ValueError("A King Challenge is already in progress. Please wait for it to complete before starting another.")
+            
+        # Find the current king
+        kings = [agent for agent in self.agents if agent.division == Division.KING and agent.profile.is_active]
+        if not kings:
+            raise ValueError("No King to challenge. Run tournaments until a King is crowned.")
+        
+        king = kings[0]  # There should only be one king
+        
+        # Find the best performing Master
+        masters = [agent for agent in self.agents if agent.division == Division.MASTER and agent.profile.is_active]
+        if not masters:
+            raise ValueError("No Master division agents available to challenge the King.")
+        
+        # Sort masters by ELO rating to find the best challenger
+        masters.sort(key=lambda a: a.stats.elo_rating, reverse=True)
+        challenger = masters[0]
+        
+        print(f"👑 KING CHALLENGE: {challenger.profile.name} (Master) challenges {king.profile.name} (King)")
+        
+        # Select an advanced challenge for the king match
+        challenge = self.get_random_challenge_from_db(difficulty_min=4)
+        
+        # Fall back to generating a challenge if none found
+        if not challenge:
+            logger.warning("No suitable challenge found for King Challenge, generating a new one")
+            generator = ChallengeGenerator()
+            challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.ADVANCED)
+            self.match_store.add_challenge(challenge)
+        
+        # Create the match with special type
+        match = Match(
+            match_type=MatchType.KING_CHALLENGE,
+            challenge_id=challenge.challenge_id,
+            agent1_id=king.profile.name,
+            agent2_id=challenger.profile.name,
+            division=Division.KING.value,
+            stakes={"title": "King of the Hill"},
+            special_rules=["King defends the crown", "Challenger must win to claim the crown"],
+            context="King Challenge Match"
+        )
+        
+        match.start_match()
+        self.match_store.add_match(match, challenge)
+        
+        # Run the match in a background thread
+        def run_match():
+            try:
+                winner_id, scores = self.simulate_realistic_match(king, challenger, challenge)
+                
+                # Handle the outcome of the king challenge
+                if winner_id == challenger.profile.name:
+                    # Challenger won - promote to King and demote current king
+                    print(f"👑 {challenger.profile.name} DEFEATS {king.profile.name} AND CLAIMS THE CROWN!")
+                    challenger.promote_division(Division.KING, f"Defeated the King with a score of {scores[challenger.profile.name]:.1f}")
+                    king.demote_division(Division.MASTER, f"Lost the crown to {challenger.profile.name}")
+                    self.update_agent_in_db(challenger)
+                    self.update_agent_in_db(king)
+                else:
+                    # King successfully defended
+                    print(f"👑 {king.profile.name} DEFENDS THE CROWN against {challenger.profile.name}!")
+                
+                # Apply division changes with special context to prevent automatic king challenge
+                self.apply_realistic_division_changes(context="king_challenge")
+                self.save_state()
+                
+            except Exception as e:
+                logger.error(f"Error in king challenge match: {e}", exc_info=True)
+                match.status = MatchStatus.CANCELLED
+                self.match_store.update_match(match)
+        
+        thread = threading.Thread(target=run_match)
+        thread.daemon = True
+        thread.start()
+        
+        return match
 
 
 def print_comprehensive_status(agents: List[Agent], round_num: int):

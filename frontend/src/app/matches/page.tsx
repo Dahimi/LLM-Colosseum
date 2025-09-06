@@ -3,6 +3,7 @@ import { MatchCard } from '@/components/MatchCard';
 import { TournamentStatus } from '@/components/TournamentStatus';
 import { TournamentControls } from '@/components/TournamentControls';
 import { QuickMatchControls } from '@/components/QuickMatchControls';
+import { KingChallengeButton } from '@/components/KingChallengeButton';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { MatchesContent } from './MatchesContent';
@@ -45,12 +46,25 @@ export default async function MatchesPage() {
               </div>
               <div className="space-y-6">
                 <div className="min-w-[300px]">
-                  <QuickMatchControls />
+                  <h3 className="text-lg font-medium mb-4 text-gray-900">Arena Controls</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <QuickMatchControls />
+                    
+                    {/* King Challenge Button */}
+                    <KingChallengeButton 
+                      currentKing={tournamentStatus.current_king} 
+                      eligibleChallengers={tournamentStatus.eligible_challengers || []} 
+                    />
+                  </div>
                 </div>
+                
+                {/* Tournament controls are hidden for now */}
+                {/* 
                 <div className="border-t pt-6">
                   <h3 className="text-lg font-medium mb-4 text-gray-900">Tournament Mode</h3>
                   <TournamentControls />
                 </div>
+                */}
               </div>
             </div>
           </div>

@@ -8,6 +8,18 @@ interface TournamentStatus {
   };
   total_matches: number;
   current_king: string | null;
+  king_stats?: {
+    elo_rating: number;
+    win_rate: number;
+    total_matches: number;
+    current_streak: number;
+  } | null;
+  eligible_challengers?: Array<{
+    name: string;
+    elo_rating: number;
+    win_rate: number;
+    current_streak: number;
+  }>;
 }
 
 interface TournamentStatusProps {

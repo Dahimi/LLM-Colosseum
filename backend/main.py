@@ -447,6 +447,32 @@ async def start_quick_match(division: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/matches/king-challenge")
+async def start_king_challenge():
+    """Start a king challenge match between the current king and the best performing master."""
+    try:
+        # Check if we've reached the maximum number of live matches
+        if arena.match_store.has_reached_live_match_limit():
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "error": "too_many_matches",
+                    "message": f"Maximum number of live matches ({arena.match_store.max_live_matches}) reached. Please wait for some matches to complete.",
+                    "live_match_count": len(arena.match_store.live_matches),
+                    "max_live_matches": arena.match_store.max_live_matches
+                }
+            )
+        
+        # Start the king challenge match
+        match = arena.start_king_challenge()
+        
+        # Return immediately with the match info
+        return match_to_json(match)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/tournament/start")
 async def start_tournament(num_rounds: int = 1):
     """Start a new tournament round."""
@@ -460,6 +486,25 @@ async def start_tournament(num_rounds: int = 1):
 @app.get("/tournament/status")
 async def get_tournament_status():
     """Get the current tournament status."""
+    # Find the current king
+    king = next((a for a in arena.agents if a.division.value == "king"), None)
+    
+    # Find eligible challengers (Masters with high ratings)
+    eligible_challengers = []
+    if king:
+        masters = [a for a in arena.agents if a.division.value == "master" and a.profile.is_active]
+        # Sort by ELO rating
+        masters.sort(key=lambda a: a.stats.elo_rating, reverse=True)
+        eligible_challengers = [
+            {
+                "name": a.profile.name,
+                "elo_rating": a.stats.elo_rating,
+                "win_rate": a.stats.win_rate,
+                "current_streak": a.stats.current_streak
+            }
+            for a in masters[:3]  # Top 3 challengers
+        ]
+    
     return {
         "total_agents": len(arena.agents),
         "divisions": {
@@ -469,5 +514,12 @@ async def get_tournament_status():
             "NOVICE": len([a for a in arena.agents if a.division.value == "novice"])
         },
         "total_matches": sum(a.stats.total_matches for a in arena.agents) // 2,
-        "current_king": next((a.profile.name for a in arena.agents if a.division.value == "king"), None)
+        "current_king": king.profile.name if king else None,
+        "king_stats": {
+            "elo_rating": king.stats.elo_rating,
+            "win_rate": king.stats.win_rate,
+            "total_matches": king.stats.total_matches,
+            "current_streak": king.stats.current_streak
+        } if king else None,
+        "eligible_challengers": eligible_challengers
     } 
