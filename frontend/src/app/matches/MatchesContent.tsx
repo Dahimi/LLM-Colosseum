@@ -44,7 +44,7 @@ export function MatchesContent({ agentsMap: initialAgentsMap }: MatchesContentPr
   // Use SSE for real-time updates
   useEventSource<MatchUpdate>(`${API_BASE_URL}/matches/stream`, {
     onMessage: async (data) => {
-      console.log("=== SSE Update Received ===");
+      // Debug: console.log("=== SSE Update Received ===");
       
       // Check if any match has just become completed
       const newlyCompletedMatch = data.matches.some(newMatch => {
@@ -57,14 +57,14 @@ export function MatchesContent({ agentsMap: initialAgentsMap }: MatchesContentPr
                             newMatch.status === 'COMPLETED';
         
         if (justCompleted) {
-          console.log(`Match ${newMatch.match_id} just completed. Previous status: ${previousMatch.status}`);
+          // Debug: console.log(`Match ${newMatch.match_id} just completed. Previous status: ${previousMatch.status}`);
           return true;
         }
         return false;
       });
 
       if (newlyCompletedMatch) {
-        console.log("Match just completed, refreshing agents");
+                  // Debug: console.log("Match just completed, refreshing agents");
         await refreshAgents();
       }
 

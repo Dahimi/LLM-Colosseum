@@ -57,7 +57,7 @@ export function useEventSource<T>(url: string, options: UseEventSourceOptions<T>
             initialRetryDelay * Math.pow(2, retryCount.current),
             30000 // Max delay of 30 seconds
           );
-          console.log(`Retrying connection in ${delay}ms (attempt ${retryCount.current + 1}/${maxRetries})`);
+          // Debug: console.log(`Retrying connection in ${delay}ms (attempt ${retryCount.current + 1}/${maxRetries})`);
           
           retryTimeout.current = setTimeout(() => {
             retryCount.current++;
@@ -69,7 +69,7 @@ export function useEventSource<T>(url: string, options: UseEventSourceOptions<T>
       };
 
       eventSource.onopen = () => {
-        console.log('SSE connection established');
+        // Debug: console.log('SSE connection established');
         setError(null);
       };
     } catch (err) {

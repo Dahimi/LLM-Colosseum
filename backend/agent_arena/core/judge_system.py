@@ -223,8 +223,6 @@ class JudgePanel:
             try:
                 evaluation = judge.evaluate_match(match, challenge)
                 evaluations.append(evaluation)
-                with open("evaluation.txt", "w") as f:
-                    f.write(evaluation.model_dump_json(indent=4))
                 print(f"   ✅ Judge {i+1}: {evaluation.recommended_winner} (confidence: {evaluation.evaluation_quality})")
             except Exception as e:
                 print(f"   ❌ Judge {i+1} failed: {e}")

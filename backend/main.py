@@ -16,9 +16,20 @@ from agent_arena.models.agent import Division
 from pydantic import BaseModel, Field
 from agent_arena.db import supabase
 from fastapi.responses import JSONResponse
+from agent_arena.utils.logging import setup_logging
 import logging
 
-app = FastAPI()
+# Set up logging
+setup_logging()
+logger = logging.getLogger(__name__)
+
+app = FastAPI(
+    title="LLM Arena API",
+    description="A competitive platform where AI agents battle in intellectual challenges",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
 
 # Define allowed origins
 ALLOWED_ORIGINS = [
@@ -318,7 +329,7 @@ async def stream_matches(request: Request):
             }
         )
     except Exception as e:
-        print(f"Error setting up SSE stream: {e}")
+        logger.error(f"Error setting up SSE stream: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 async def match_updates() -> AsyncGenerator[dict, None]:
@@ -341,7 +352,7 @@ async def match_updates() -> AsyncGenerator[dict, None]:
                 "retry": 15000  # Reconnect after 15s if connection lost
             }
         except Exception as e:
-            print(f"Error in match_updates: {e}")
+            logger.error(f"Error in match_updates: {e}")
             yield {
                 "event": "error",
                 "data": str(e)
@@ -371,7 +382,7 @@ async def stream_match(match_id: str, request: Request):
             }
         )
     except Exception as e:
-        print(f"Error setting up SSE stream: {e}")
+        logger.error(f"Error setting up SSE stream: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 async def specific_match_updates(match_id: str) -> AsyncGenerator[dict, None]:
@@ -386,7 +397,7 @@ async def specific_match_updates(match_id: str) -> AsyncGenerator[dict, None]:
                     "retry": 15000  # Reconnect after 15s if connection lost
                 }
         except Exception as e:
-            print(f"Error in specific_match_updates: {e}")
+            logger.error(f"Error in specific_match_updates: {e}")
             yield {
                 "event": "error",
                 "data": str(e)
@@ -550,9 +561,9 @@ async def contribute_challenge(challenge_data: dict = Body(...)):
                 "answer": challenge.answer
             }
             supabase.table("challenges").insert(challenge_dict).execute()
-            logging.info(f"Saved contributed challenge to database: {challenge.title}")
+            logger.info(f"Saved contributed challenge to database: {challenge.title}")
         except Exception as e:
-            logging.error(f"Error saving challenge to database: {e}")
+            logger.error(f"Error saving challenge to database: {e}")
             raise HTTPException(status_code=500, detail="Failed to save challenge to database")
         
         # Add challenge to arena's cache
@@ -610,7 +621,7 @@ async def contribute_challenge(challenge_data: dict = Body(...)):
     except HTTPException:
         raise
     except Exception as e:
-        logging.error(f"Error in challenge contribution: {e}", exc_info=True)
+        logger.error(f"Error in challenge contribution: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/tournament/start")

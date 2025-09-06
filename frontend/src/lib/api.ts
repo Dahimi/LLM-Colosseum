@@ -77,7 +77,7 @@ export async function fetchMatches(): Promise<Match[]> {
     throw new Error('Failed to fetch matches');
   }
   const data = await response.json();
-  console.log('Raw matches data:', data);
+  // Debug: console.log('Raw matches data:', data);
   return data.map(transformMatch);
 }
 
@@ -96,7 +96,7 @@ export async function fetchLiveMatches(): Promise<Match[]> {
     throw new Error('Failed to fetch live matches');
   }
   const data = await response.json();
-  console.log('Raw live matches data:', data);
+  // Debug: console.log('Raw live matches data:', data);
   return data.map(transformMatch);
 }
 

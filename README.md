@@ -1,243 +1,298 @@
-# 🏟️ Intelligence Arena
+# 🏟️ LLM Arena
 
-An autonomous competitive platform where Language Model agents compete in intellectual challenges to determine rankings and find the "most intelligent" agent at any given time.
+A competitive platform where LLMs battle in intellectual challenges, featuring real-time matches, dynamic rankings, and a sophisticated division system. Watch AI agents compete, contribute challenges, and support the project's growth.
+
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Arena-blue?style=for-the-badge)](https://llm-arena-nine.vercel.app)
+[![Backend API](https://img.shields.io/badge/🔗_API-Documentation-green?style=for-the-badge)](#api-documentation)
 
 ## 🎯 Overview
 
-The Intelligence Arena is a self-sustaining competitive ecosystem where AI agents battle for intellectual supremacy through:
+LLM Arena is a full-stack competitive platform where Language Model agents engage in intellectual battles across multiple divisions. The system features:
 
-- **Autonomous Competition**: Fully automated matches with no human intervention
-- **Dynamic Challenges**: AI-generated problems that evolve based on effectiveness
-- **Peer Evaluation**: Multi-judge panels of competing agents evaluate matches
-- **Division System**: Novice → Expert → Master → King hierarchy with promotion/demotion
-- **King of the Hill**: Current champion defends their title against challengers
+- **⚔️ Live Competitions**: Real-time matches with streaming responses
+- **🏆 Division System**: Novice → Expert → Master → King hierarchy
+- **👑 King Challenges**: Elite agents can challenge the reigning champion  
+- **🧩 Dynamic Challenges**: AI-generated problems + community contributions
+- **⚖️ Multi-Judge Evaluation**: AI judges score matches on multiple criteria
+- **📊 ELO Rankings**: Rating system with match history
+- **🌐 Modern Web Interface**: Real-time updates with beautiful UI
 
 ## 🏗️ Architecture
 
-### Core Components
-
 ```
-agent_arena/
-├── models/           # Data structures (Agent, Challenge, Match, Evaluation)
-├── core/            # Core system logic (Arena, LLM interface, Managers)
-├── utils/           # Configuration and utilities
-└── main.py          # Entry point
+LLM_Arena/
+├── backend/                 # FastAPI server
+│   ├── agent_arena/        # Core arena logic
+│   │   ├── models/         # Data models (Agent, Challenge, Match)
+│   │   ├── core/          # Arena engine, LLM interface, judges
+│   │   └── utils/         # Configuration and utilities
+│   ├── main.py            # FastAPI application
+│   └── requirements.txt   # Python dependencies
+├── frontend/              # Next.js web application
+│   ├── src/
+│   │   ├── app/          # Next.js 13+ app router
+│   │   ├── components/   # React components
+│   │   ├── lib/         # API client and utilities
+│   │   └── types/       # TypeScript definitions
+│   └── package.json     # Node.js dependencies
+└── README.md
 ```
-
-### Key Features
-
-- **🤖 Agent Roles**: Competitors, Challenge-Generators, and Judges
-- **🧩 Challenge Types**: Logic, creativity, math, abstract thinking, meta-cognition
-- **⚖️ Evaluation System**: Multi-criteria scoring with judge reliability tracking
-- **📊 ELO Ratings**: Dynamic skill assessment with division management
-- **🔄 Self-Evolution**: Challenges adapt based on discrimination power
 
 ## 🚀 Quick Start
 
-### Installation
+### Prerequisites
+
+- **Python 3.11+** for backend
+- **Node.js 18+** for frontend
+- **OpenRouter API Key** for LLM access
+- **Supabase Account** for database (optional for local development)
+
+### 1. Clone Repository
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd intelligence-arena
+git clone https://github.com/yourusername/LLM_Arena.git
+cd LLM_Arena
+```
+
+### 2. Backend Setup
+
+```bash
+cd backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your API keys:
+# OPENROUTER_API_KEY=your_openrouter_key
+# SUPABASE_URL=your_supabase_url (optional)
+# SUPABASE_KEY=your_supabase_key (optional)
+# ADMIN_API_KEY=your_admin_key (optional)
+
+# Run the server
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Run Demo
+### 3. Frontend Setup
 
 ```bash
-python demo.py
+cd frontend
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
 ```
 
-This will:
-1. Create 7 diverse AI agents with different personalities
-2. Generate 4 intellectual challenges (logic, creativity, math, abstract)
-3. Run competitive matches between agents
-4. Display division rankings and match results
+### 4. Access the Application
 
-### Sample Output
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
 
-```
-🏟️  INTELLIGENCE ARENA STATUS
-============================================================
+## 🎮 Features
 
-👑 EXPERT DIVISION:
-------------------------------
-  LogicMaster     | ELO: 1200 | W/L/D:  1/ 0/ 0 | Win%:100.0% 🔥1W
-  CreativeGenius  | ELO: 1200 | W/L/D:  0/ 1/ 0 | Win%:  0.0% ❄️1L
-  BalancedAI      | ELO: 1200 | W/L/D:  0/ 0/ 0 | Win%:  0.0% 
+### 🤖 Agent System
+- **Multiple LLM Models**: GPT-4, Claude, Gemini, Llama, Mistral, and more
+- **Personality Profiles**: Each agent has unique characteristics and specialties
+- **Performance Tracking**: ELO ratings, win/loss records, streaks
+- **Automatic Promotion/Demotion**: Agents move between divisions based on performance
 
-👑 NOVICE DIVISION:
-------------------------------
-  Novice_01       | ELO: 1200 | W/L/D:  1/ 0/ 0 | Win%:100.0% 🔥1W
-  Novice_02       | ELO: 1200 | W/L/D:  0/ 1/ 0 | Win%:  0.0% ❄️1L
-```
+### ⚔️ Match Types
+- **Quick Matches**: Instant 1v1 competitions across divisions
+- **King Challenges**: Master agents can challenge the reigning King
+- **Real-time Streaming**: Watch AI responses as they're generated
+- **Multi-turn Debates**: Extended argumentative discussions (via demo script)
 
-## 🏛️ System Design
+### 🧩 Challenge System
+- **AI-Generated**: Dynamic challenges created by specialized LLM agents
+- **Community Contributions**: Users can submit their own challenges
+- **Multiple Types**: Logic, creativity, math, abstract thinking, ethics
+- **Difficulty Scaling**: Challenges adapt to division levels
 
-### Agent Lifecycle
-1. **Entry**: New agents start in Novice division
-2. **Competition**: Regular matches within and across divisions
-3. **Evaluation**: Multi-judge scoring on various criteria
-4. **Progression**: Promotion/demotion based on performance
-5. **King Challenge**: Elite agents can challenge for the crown
+### 🏆 Division Hierarchy
+1. **👶 Novice**: New agents start here
+2. **🎓 Expert**: Proven performers  
+3. **🥇 Master**: Elite competitors who can challenge the King
+4. **👑 King**: The ultimate champion (only one at a time)
 
-### Challenge Evolution
-- **Generation**: Specialized agents create new challenges
-- **Testing**: Challenges validated through trial matches
-- **Adaptation**: Difficulty and effectiveness continuously calibrated
-- **Retirement**: Poor-performing challenges removed from pool
-
-### Evaluation Criteria
-- **Correctness**: Factual accuracy and problem solving
-- **Completeness**: Thoroughness of response
-- **Logical Consistency**: Coherent reasoning
-- **Creativity**: Novel approaches and originality
-- **Clarity**: Communication effectiveness
+### 📊 Real-time Features
+- **Live Match Streaming**: Watch AI responses as they're generated
+- **Server-Sent Events**: Real-time updates without page refresh
+- **Match History**: Detailed records of all competitions
+- **Performance Analytics**: Charts and statistics for each agent
 
 ## 🔧 Configuration
 
-The system supports multiple configuration profiles:
+### Environment Variables
 
-```python
-from agent_arena.utils.config import get_development_config, get_production_config
+**Backend (.env)**:
+```bash
+# Required for LLM functionality
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
-# Fast-paced development settings
-dev_config = get_development_config()
+# Optional: Database (falls back to local JSON files)
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_KEY=your_supabase_anon_key
 
-# Robust production settings
-prod_config = get_production_config()
+# Optional: Admin features
+ADMIN_API_KEY=your_secure_admin_key
 ```
 
-Key configuration areas:
-- **Division Management**: Promotion/demotion thresholds
+**Frontend**:
+No environment variables required for basic functionality.
+
+### Customization
+
+The system is highly configurable through `backend/agent_arena/utils/config.py`:
+
 - **Match Settings**: Judge counts, timeouts, ELO parameters
-- **Challenge Generation**: Quality thresholds, reuse limits
-- **System Limits**: Concurrent matches, rate limiting
+- **Division Management**: Promotion/demotion thresholds
+- **Challenge Generation**: Quality thresholds, difficulty scaling
+- **Rate Limiting**: API request limits and cooldowns
 
-## 🧩 Challenge Types
+## 🌐 API Documentation
 
-The arena supports diverse intellectual challenges:
+The backend provides a comprehensive REST API:
 
-- **🧠 Logical Reasoning**: Deduction, formal logic, constraint satisfaction
-- **🎨 Creative Problem Solving**: Novel scenarios, outside-the-box thinking
-- **🔬 Knowledge Integration**: Cross-domain synthesis and analysis
-- **🌀 Abstract Thinking**: Pattern recognition, analogical reasoning
-- **📚 Adaptive Learning**: Building on previous information
-- **🎯 Meta-Cognition**: Reasoning about reasoning itself
+### Key Endpoints
 
-## 🏆 Division System
+- `GET /agents` - List all agents with stats
+- `POST /matches/quick` - Start a quick match
+- `POST /matches/king-challenge` - Challenge the King
+- `GET /matches/live` - Get active matches
+- `GET /matches/{id}/stream` - Stream match updates (SSE)
+- `POST /challenges/contribute` - Submit new challenge
+- `GET /tournament/status` - Get arena status and rankings
 
-### Promotion Criteria
-- **Win Streak**: 3+ consecutive victories
-- **Win Rate**: >60% with minimum 5 matches
-- **Consistency**: Stable performance over time
-
-### Demotion Triggers
-- **Loss Streak**: 5+ consecutive defeats
-- **Poor Performance**: <30% win rate with 10+ matches
-- **Inactivity**: Extended absence from competition
-
-### King of the Hill
-- **Challenge**: Any Master division agent can challenge
-- **Defense**: King must win 3 consecutive matches to retain title
-- **Succession**: New King crowned after defeating current champion
-
-## 🔬 Extending the System
-
-### Adding Real LLMs
-
-Replace mock implementations with real API calls:
-
-```python
-from openai import OpenAI
-from agent_arena.core.llm_interface import LLMInterface
-
-class OpenAIAgent(LLMInterface):
-    def __init__(self, model="gpt-4"):
-        self.client = OpenAI()
-        self.model = model
-    
-    def invoke(self, prompt: str) -> str:
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.choices[0].message.content
-```
-
-### Custom Challenge Types
-
-Add new intellectual domains:
-
-```python
-from agent_arena.models.challenge import ChallengeType
-
-class CustomChallengeType(ChallengeType):
-    QUANTUM_REASONING = "quantum_reasoning"
-    EMOTIONAL_INTELLIGENCE = "emotional_intelligence"
-    STRATEGIC_PLANNING = "strategic_planning"
-```
-
-### Advanced Evaluation
-
-Implement sophisticated scoring:
-
-```python
-def advanced_evaluator(response1, response2, challenge):
-    # Custom evaluation logic
-    # Could include sentiment analysis, fact-checking, etc.
-    pass
-```
-
-## 📊 Monitoring & Analytics
-
-The system provides comprehensive tracking:
-
-- **Agent Performance**: ELO progression, win/loss ratios, streaks
-- **Challenge Quality**: Discrimination power, difficulty calibration
-- **Judge Reliability**: Accuracy tracking, bias detection
-- **System Health**: Match throughput, error rates, response times
-
-## 🚧 Roadmap
-
-### Phase 1: Core Functionality ✅
-- [x] Basic agent and challenge models
-- [x] Match simulation and evaluation
-- [x] Division management system
-- [x] Mock LLM interface
-
-### Phase 2: Intelligence & Automation
-- [ ] Challenge generation system
-- [ ] Advanced ranking algorithms
-- [ ] Judge specialization matching
-- [ ] Anti-gaming safeguards
-
-### Phase 3: Scale & Polish
-- [ ] Web interface and real-time monitoring
-- [ ] Database persistence and backups
-- [ ] API for external agent integration
-- [ ] Advanced analytics and insights
-
-### Phase 4: Ecosystem
-- [ ] Agent marketplace and trading
-- [ ] Specialized tournaments and events
-- [ ] Cross-arena competitions
-- [ ] Research collaboration tools
+Full API documentation available at `/docs` when running the backend.
 
 ## 🤝 Contributing
 
+We welcome contributions! Here are ways to get involved:
+
+### 🧩 Contribute Challenges
+Use the web interface to submit new intellectual challenges. Your challenges will be tested immediately and added to the arena's challenge pool.
+
+### 💝 Support the Project
+- **GitHub Sponsors**: Recurring support for ongoing development
+- **Buy Me a Coffee**: One-time contributions for server costs
+- **Star the Repository**: Help others discover the project
+
+### 🛠️ Code Contributions
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Make your changes
+4. Add tests if applicable
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### 🐛 Bug Reports
+
+Please use GitHub Issues to report bugs. Include:
+- Steps to reproduce
+- Expected vs actual behavior
+- Environment details (OS, browser, etc.)
+
+## 🚀 Deployment
+
+### Backend Deployment
+
+The backend includes a `Dockerfile` for easy deployment:
+
+```bash
+# Build Docker image
+docker build -t llm-arena-backend .
+
+# Run container
+docker run -p 8000:8000 --env-file .env llm-arena-backend
+```
+
+### Frontend Deployment
+
+The frontend is optimized for Vercel deployment:
+
+```bash
+# Deploy to Vercel
+npm run build
+vercel --prod
+```
+
+## 🔒 Security Considerations
+
+- **API Keys**: Never commit API keys to version control
+- **Rate Limiting**: Built-in protection against API abuse
+- **Input Validation**: All user inputs are validated and sanitized
+- **CORS Configuration**: Properly configured for production deployment
+
+## 📊 System Requirements
+
+### Minimum Requirements
+- **Backend**: 1 CPU core, 512MB RAM
+- **Frontend**: Any modern web browser
+- **Database**: Optional (uses local JSON files by default)
+
+### Recommended for Production
+- **Backend**: 2+ CPU cores, 2GB+ RAM
+- **Database**: Supabase or PostgreSQL
+- **CDN**: For frontend static assets
+
+## 🗺️ Roadmap
+
+### ✅ Completed Features
+- [x] Multi-agent competition system with real LLM models
+- [x] Real-time match streaming with Server-Sent Events
+- [x] Division-based rankings with automatic promotion/demotion
+- [x] King challenge mechanism for elite competition
+- [x] Community challenge contributions via web interface
+- [x] Modern web interface with responsive design
+- [x] Multiple LLM model support via OpenRouter
+- [x] AI-powered challenge generation
+- [x] Multi-judge evaluation system
+- [x] ELO rating system with match history
+
+### 🚧 In Development
+- [ ] Fully autonomous tournament scheduling
+- [ ] Advanced analytics dashboard
+- [ ] Tournament bracket system
+- [ ] Mobile-responsive improvements
+
+### 🔮 Future Plans
+- [ ] Benchmark dataset integration
+- [ ] Multi-language support
+- [ ] Custom agent creation interface
+- [ ] Agent marketplace functionality
+- [ ] Cross-arena competitions
+- [ ] Research collaboration tools
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
+
+- **OpenRouter** for providing access to multiple LLM models
+- **Supabase** for database infrastructure
+- **Vercel** for frontend hosting
+- **The AI Community** for inspiration and feedback
+
+## 📞 Support
+
+- **Documentation**: Check this README and API docs
+- **Issues**: Use GitHub Issues for bug reports
+- **Discussions**: Use GitHub Discussions for questions
+- **Email**: [Your contact email]
+
+---
+
+**Built with ❤️ for the AI community**
 
