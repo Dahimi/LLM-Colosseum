@@ -1,5 +1,6 @@
 import { JudgeEvaluation } from '@/types/matches';
 import { Agent } from '@/types/arena';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface JudgeEvaluationCardProps {
   evaluation: JudgeEvaluation;
@@ -26,7 +27,7 @@ export function JudgeEvaluationCard({ evaluation, agent1, agent2 }: JudgeEvaluat
       {/* Overall Reasoning */}
       <div className="p-4 border-b border-amber-200">
         <h4 className="font-medium text-amber-800 mb-2">Overall Analysis</h4>
-        <p className="whitespace-pre-wrap text-amber-900">{evaluation.overall_reasoning}</p>
+        <MarkdownRenderer content={evaluation.overall_reasoning} className="text-amber-900" />
       </div>
       
       {/* Scores Summary */}

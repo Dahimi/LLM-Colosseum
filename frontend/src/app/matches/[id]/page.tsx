@@ -8,6 +8,7 @@ import { fetchMatch, fetchAgents, API_BASE_URL, transformMatch } from '@/lib/api
 import { useEventSource } from '@/lib/hooks/useEventSource';
 import { use } from 'react';
 import { JudgeEvaluationCard } from '@/components/JudgeEvaluationCard';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 
 interface PageProps {
   params: Promise<{
@@ -213,7 +214,12 @@ export default function MatchPage({ params }: PageProps) {
               </div>
             </div>
             <p className="text-lg font-medium text-indigo-900 mb-2">{match.challenge.title}</p>
-            <p className="whitespace-pre-wrap text-indigo-900 mb-3">{match.challenge.description}</p>
+            <div className="mb-3">
+              <MarkdownRenderer 
+                content={match.challenge.description} 
+                className="text-indigo-900"
+              />
+            </div>
             
             {match.challenge.tags && match.challenge.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-3">
@@ -274,12 +280,12 @@ export default function MatchPage({ params }: PageProps) {
                             
                             {/* Message Content */}
                             <div className="p-4">
-                              <p className={`whitespace-pre-wrap leading-relaxed ${isAgent1 ? 'text-blue-900' : 'text-purple-900'}`}>
-                                {response.response_text}
+                              <div className={`leading-relaxed ${isAgent1 ? 'text-blue-900' : 'text-purple-900'}`}>
+                                <MarkdownRenderer content={response.response_text} />
                                 {response.is_streaming && (
                                   <span className={`inline-block w-2 h-5 ml-1 animate-pulse ${isAgent1 ? 'bg-blue-500' : 'bg-purple-500'}`}></span>
                                 )}
-                              </p>
+                              </div>
                               {response.response_time > 0 && (
                                 <div className={`flex items-center gap-1 mt-3 text-xs ${isAgent1 ? 'text-blue-600' : 'text-purple-600'}`}>
                                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -432,12 +438,12 @@ export default function MatchPage({ params }: PageProps) {
                           </div>
                         </div>
                         <div className="p-6">
-                          <p className="whitespace-pre-wrap text-blue-900 leading-relaxed">
-                            {match.agent1_response.response_text}
+                          <div className="text-blue-900 leading-relaxed">
+                            <MarkdownRenderer content={match.agent1_response.response_text} />
                             {match.agent1_response.is_streaming && (
                               <span className="inline-block w-2 h-5 bg-blue-500 ml-1 animate-pulse"></span>
                             )}
-                          </p>
+                          </div>
                         </div>
                         {match.agent1_response.score !== undefined && !match.agent1_response.is_streaming && (
                           <div className="bg-blue-500/10 px-4 py-2 border-t border-blue-200">
@@ -492,12 +498,12 @@ export default function MatchPage({ params }: PageProps) {
                           </div>
                         </div>
                         <div className="p-6">
-                          <p className="whitespace-pre-wrap text-purple-900 leading-relaxed">
-                            {match.agent2_response.response_text}
+                          <div className="text-purple-900 leading-relaxed">
+                            <MarkdownRenderer content={match.agent2_response.response_text} />
                             {match.agent2_response.is_streaming && (
                               <span className="inline-block w-2 h-5 bg-purple-500 ml-1 animate-pulse"></span>
                             )}
-                          </p>
+                          </div>
                         </div>
                         {match.agent2_response.score !== undefined && !match.agent2_response.is_streaming && (
                           <div className="bg-purple-500/10 px-4 py-2 border-t border-purple-200">
