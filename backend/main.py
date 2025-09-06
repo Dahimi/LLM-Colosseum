@@ -9,12 +9,14 @@ import random
 from typing import List, Optional
 import os
 from agent_arena.core.arena import Arena
-from agent_arena.models.match import Match, MatchStatus, MatchType
+from agent_arena.models.match import Match
 from agent_arena.models.challenge import Challenge, ChallengeType, ChallengeDifficulty
+import uuid
 from agent_arena.models.agent import Division
 from pydantic import BaseModel, Field
 from agent_arena.db import supabase
 from fastapi.responses import JSONResponse
+import logging
 
 app = FastAPI()
 
@@ -471,6 +473,144 @@ async def start_king_challenge():
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Challenge Contribution Endpoint
+@app.post("/challenges/contribute")
+async def contribute_challenge(challenge_data: dict = Body(...)):
+    """Accept a user-contributed challenge and start a test match with it."""
+    try:
+        
+        # Validate required fields
+        required_fields = ['title', 'description', 'type', 'difficulty', 'division']
+        for field in required_fields:
+            if field not in challenge_data or not challenge_data[field]:
+                raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
+        
+        # Create challenge object
+        challenge_id = str(uuid.uuid4())
+        
+        # Map difficulty string to enum
+        difficulty_mapping = {
+            'BEGINNER': ChallengeDifficulty.BEGINNER,
+            'INTERMEDIATE': ChallengeDifficulty.INTERMEDIATE,
+            'ADVANCED': ChallengeDifficulty.ADVANCED,
+            'EXPERT': ChallengeDifficulty.EXPERT,
+            'MASTER': ChallengeDifficulty.MASTER
+        }
+        
+        # Map challenge type string to enum
+        type_mapping = {
+            'LOGICAL_REASONING': ChallengeType.LOGICAL_REASONING,
+            'DEBATE': ChallengeType.DEBATE,
+            'CREATIVE_PROBLEM_SOLVING': ChallengeType.CREATIVE_PROBLEM_SOLVING,
+            'MATHEMATICAL': ChallengeType.MATHEMATICAL,
+            'ABSTRACT_THINKING': ChallengeType.ABSTRACT_THINKING
+        }
+        
+        challenge_type = type_mapping.get(challenge_data['type'])
+        difficulty = difficulty_mapping.get(challenge_data['difficulty'])
+        
+        if not challenge_type:
+            raise HTTPException(status_code=400, detail=f"Invalid challenge type: {challenge_data['type']}")
+        if not difficulty:
+            raise HTTPException(status_code=400, detail=f"Invalid difficulty: {challenge_data['difficulty']}")
+        
+        challenge = Challenge(
+            challenge_id=challenge_id,
+            title=challenge_data['title'],
+            description=challenge_data['description'],
+            challenge_type=challenge_type,
+            difficulty=difficulty,
+            scoring_rubric={
+                "criteria": "Standard evaluation criteria",
+                "max_score": 10,
+                "dimensions": ["correctness", "completeness", "clarity", "creativity"]
+            },
+            tags=challenge_data.get('tags', []),
+            source=challenge_data.get('source', 'community'),
+            is_active=True,
+            metadata=challenge_data.get('metadata', {}),
+            answer=challenge_data.get('answer', '')
+        )
+        
+        # Save challenge to database
+        try:
+            challenge_dict = {
+                "challenge_id": challenge.challenge_id,
+                "title": challenge.title,
+                "description": challenge.description,
+                "challenge_type": challenge.challenge_type.value,
+                "difficulty": challenge.difficulty.value,
+                "scoring_rubric": challenge.scoring_rubric,
+                "tags": challenge.tags,
+                "source": challenge.source,
+                "is_active": challenge.is_active,
+                "metadata": challenge.metadata,
+                "answer": challenge.answer
+            }
+            supabase.table("challenges").insert(challenge_dict).execute()
+            logging.info(f"Saved contributed challenge to database: {challenge.title}")
+        except Exception as e:
+            logging.error(f"Error saving challenge to database: {e}")
+            raise HTTPException(status_code=500, detail="Failed to save challenge to database")
+        
+        # Add challenge to arena's cache
+        arena.match_store.add_challenge(challenge)
+        
+        # Start a test match with the contributed challenge
+        division = challenge_data.get('division', 'expert').lower()
+        
+        # Check if we've reached the maximum number of live matches
+        if arena.match_store.has_reached_live_match_limit():
+            return JSONResponse(
+                status_code=200,  # Still success since challenge was saved
+                content={
+                    "success": True,
+                    "message": f"Challenge '{challenge.title}' saved successfully! Test match will start when slots are available.",
+                    "challenge_id": challenge.challenge_id,
+                    "match_id": None,
+                    "note": "Maximum live matches reached - test match queued"
+                }
+            )
+        
+        # Get active agents in the specified division
+        division_agents = [
+            agent for agent in arena.agents 
+            if agent.division.value.lower() == division and agent.profile.is_active
+        ]
+        
+        if len(division_agents) < 2:
+            return JSONResponse(
+                status_code=200,  # Still success since challenge was saved
+                content={
+                    "success": True,
+                    "message": f"Challenge '{challenge.title}' saved successfully! Not enough agents in {division} division for test match.",
+                    "challenge_id": challenge.challenge_id,
+                    "match_id": None,
+                    "note": f"Need at least 2 active agents in {division} division"
+                }
+            )
+        
+        # Select random agents for the test match
+        import random
+        agent1, agent2 = random.sample(division_agents, 2)
+        
+        # Create and start the test match
+        match = arena.start_match_async(agent1, agent2, challenge)
+        
+        return {
+            "success": True,
+            "message": f"Challenge '{challenge.title}' submitted and test match started!",
+            "challenge_id": challenge.challenge_id,
+            "match_id": match.match_id,
+            "test_match": match_to_json(match)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error in challenge contribution: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/tournament/start")

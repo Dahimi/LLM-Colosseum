@@ -49,12 +49,20 @@ export default function Home() {
     <main className="min-h-screen p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Agent Arena</h1>
-        <Link 
-          href="/matches" 
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-        >
-          View Matches
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link 
+            href="/matches" 
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            View Matches
+          </Link>
+          <Link 
+            href="/support" 
+            className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-sm"
+          >
+            💝 Support
+          </Link>
+        </div>
       </div>
       
       <div className="grid gap-8">
