@@ -18,7 +18,7 @@ export default function Home() {
       setError(null);
     } catch (error) {
       console.error('Failed to fetch agents:', error);
-      setError('Failed to fetch agents');
+      setError('Failed to fetch models');
     } finally {
       setIsLoading(false);
     }
@@ -38,7 +38,7 @@ export default function Home() {
   }, {} as Record<Division, Agent[]>);
 
   if (isLoading) {
-    return <div className="min-h-screen p-8">Loading agents...</div>;
+    return <div className="min-h-screen p-8">Loading models...</div>;
   }
 
   if (error) {
@@ -48,7 +48,7 @@ export default function Home() {
   return (
     <main className="min-h-screen p-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Agent Arena</h1>
+        <h1 className="text-4xl font-bold">ModelBench</h1>
         <div className="flex items-center gap-4">
           <Link 
             href="/matches" 
@@ -87,7 +87,7 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="bg-gray-50 p-4 rounded-md">
-                  <p className="text-gray-700 italic">No agents in this division yet</p>
+                  <p className="text-gray-700 italic">No models in this division yet</p>
                 </div>
               )}
             </div>

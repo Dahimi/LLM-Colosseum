@@ -25,7 +25,7 @@ export function MatchCard({ match, agents }: MatchCardProps) {
     });
     return (
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <p className="text-yellow-800">Match data incomplete (missing agent information)</p>
+        <p className="text-yellow-800">Match data incomplete (missing model information)</p>
         <p className="text-sm text-yellow-600">Match ID: {match.match_id}</p>
       </div>
     );
@@ -82,7 +82,7 @@ export function MatchCard({ match, agents }: MatchCardProps) {
           </span>
         </div>
 
-        {/* Agents */}
+        {/* Models */}
         <div className="grid grid-cols-3 gap-2 items-center mb-4">
           <div className="text-center">
             <p className="font-medium text-gray-900">{agent1.profile.name}</p>

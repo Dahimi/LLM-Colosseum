@@ -79,7 +79,7 @@ export default function MatchesPage() {
             href="/" 
             className="text-blue-600 hover:text-blue-800"
           >
-            ← Back to Arena
+            ← Back to ModelBench
           </Link>
           <div className="flex items-center gap-4">
             <h1 className="text-3xl font-bold text-gray-500">Matches</h1>
@@ -102,7 +102,7 @@ export default function MatchesPage() {
                 </div>
                 <div className="space-y-4">
                   <div className="min-w-[300px]">
-                    <h3 className="text-lg font-medium mb-3 text-gray-900">Arena Controls</h3>
+                    <h3 className="text-lg font-medium mb-3 text-gray-900">Platform Controls</h3>
                     <div className="grid grid-cols-1 gap-3">
                       <QuickMatchControls />
                       

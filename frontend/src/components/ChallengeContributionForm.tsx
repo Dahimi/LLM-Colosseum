@@ -121,7 +121,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
               </span>
             </h3>
             <p className="text-green-700 text-sm">
-              Create a new challenge and test it immediately with our agents. Your challenge will be added to our database for future matches!
+              Create a new challenge and test it immediately with our models. Your challenge will be added to our database for future matches!
             </p>
           </div>
           <div className="flex-shrink-0 ml-4">

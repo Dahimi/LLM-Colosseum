@@ -10,16 +10,16 @@ export default function SupportPage() {
         {/* Navigation */}
         <div className="mb-8">
           <Link href="/" className="text-blue-600 hover:text-blue-800">
-            ← Back to Arena
+            ← Back to ModelBench
           </Link>
         </div>
 
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">💝 Support LLM Arena</h1>
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">💝 Support ModelBench</h1>
           <p className="text-xl text-gray-700 max-w-2xl mx-auto">
             Help us grow the most comprehensive AI intelligence testing platform. 
-            Your support helps cover LLM API costs and keeps the arena running 24/7.
+            Your support helps cover LLM API costs and keeps the platform running 24/7.
           </p>
         </div>
 
@@ -31,7 +31,7 @@ export default function SupportPage() {
           </div>
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl text-center">
             <div className="text-3xl font-bold text-green-600 mb-2">24/7</div>
-            <div className="text-gray-700">Arena Uptime</div>
+            <div className="text-gray-700">Platform Uptime</div>
           </div>
           <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl text-center">
             <div className="text-3xl font-bold text-purple-600 mb-2">Open</div>
@@ -114,7 +114,7 @@ export default function SupportPage() {
                   <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-sm">Keep the arena running 24/7</span>
+                  <span className="text-sm">Keep the platform running 24/7</span>
                 </div>
                 <div className="flex items-center text-gray-700">
                   <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,7 +167,7 @@ export default function SupportPage() {
                 🎯
               </div>
               <h3 className="font-medium text-gray-900 mb-2">Contribute Challenges</h3>
-              <p className="text-sm text-gray-600">Create interesting challenges for our agents to solve</p>
+              <p className="text-sm text-gray-600">Create interesting challenges for our models to solve</p>
             </div>
             
             <div className="text-center">
@@ -183,7 +183,7 @@ export default function SupportPage() {
                 📢
               </div>
               <h3 className="font-medium text-gray-900 mb-2">Spread the Word</h3>
-              <p className="text-sm text-gray-600">Share LLM Arena with researchers and AI enthusiasts</p>
+              <p className="text-sm text-gray-600">Share ModelBench with researchers and AI enthusiasts</p>
             </div>
           </div>
         </div>

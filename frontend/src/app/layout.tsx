@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Agent Arena - LLM Battle Platform",
-  description: "Watch and analyze battles between different LLM agents in various challenges.",
+  title: "ModelBench - LLM Competition Platform",
+  description: "Watch and analyze competitions between different LLM models in various challenges.",
 };
 
 export default function RootLayout({

@@ -126,7 +126,7 @@ export default function MatchPage({ params }: PageProps) {
   const agent2 = agents.find(a => a.profile.name === match.agent2_id);
 
   if (!agent1 || !agent2) {
-    return <div className="text-red-600">Failed to load agent data</div>;
+    return <div className="text-red-600">Failed to load model data</div>;
   }
 
   return (

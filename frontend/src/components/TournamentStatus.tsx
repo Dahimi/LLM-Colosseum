@@ -46,7 +46,7 @@ export function TournamentStatus({ status, onStartTournament, isLoading }: Tourn
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         <div className="bg-gray-50 p-3 rounded-lg">
-          <p className="text-gray-800 text-sm font-medium">Total Agents</p>
+          <p className="text-gray-800 text-sm font-medium">Total Models</p>
           <p className="text-xl font-bold text-gray-900">{status.total_agents}</p>
         </div>
         <div className="bg-gray-50 p-3 rounded-lg">

@@ -47,7 +47,7 @@ export default function AgentPage({ params }: PageProps) {
         const data = await fetchAgent(id);
         setAgent(data);
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to load agent data');
+        setError(e instanceof Error ? e.message : 'Failed to load model data');
       }
     };
     loadAgent();
@@ -65,7 +65,7 @@ export default function AgentPage({ params }: PageProps) {
             <div className="absolute top-0 w-6 h-6 bg-indigo-500 rounded-full animate-ping opacity-75"></div>
             <div className="relative w-6 h-6 bg-indigo-600 rounded-full"></div>
           </div>
-          <h2 className="text-xl font-medium text-gray-700">Loading agent details...</h2>
+          <h2 className="text-xl font-medium text-gray-700">Loading model details...</h2>
           <p className="text-gray-500 mt-2">Retrieving the latest information</p>
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function AgentPage({ params }: PageProps) {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <Link href="/" className="text-blue-600 hover:text-blue-800">
-            ← Back to Arena
+            ← Back to ModelBench
           </Link>
         </div>
 
