@@ -515,7 +515,7 @@ class Arena:
             
             return winner_id, scores
 
-    def simulate_debate_match(self, agent1: Agent, agent2: Agent, challenge: Challenge, num_turns: int = 1) -> Tuple[Optional[str], Dict[str, float]]:
+    def simulate_debate_match(self, agent1: Agent, agent2: Agent, challenge: Challenge, num_turns: int = 3) -> Tuple[Optional[str], Dict[str, float]]:
         """Simulate a complete debate match."""
         stances = ["for", "against"]
         random.shuffle(stances)
