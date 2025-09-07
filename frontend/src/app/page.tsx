@@ -48,7 +48,7 @@ export default function Home() {
   return (
     <main className="min-h-screen p-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">ModelBench</h1>
+        <h1 className="text-4xl font-bold">LLM Colosseum</h1>
         <div className="flex items-center gap-4">
           <Link 
             href="/matches" 

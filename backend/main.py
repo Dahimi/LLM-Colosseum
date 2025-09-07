@@ -33,7 +33,7 @@ app = FastAPI(
 
 # Define allowed origins
 ALLOWED_ORIGINS = [
-    "https://llm-arena-nine.vercel.app",
+    "https://llmcolosseum.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000"
 ]

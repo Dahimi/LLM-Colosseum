@@ -79,7 +79,7 @@ export default function MatchesPage() {
             href="/" 
             className="text-blue-600 hover:text-blue-800"
           >
-            ← Back to ModelBench
+            ← Back to LLM Colosseum
           </Link>
           <div className="flex items-center gap-4">
             <h1 className="text-3xl font-bold text-gray-500">Matches</h1>

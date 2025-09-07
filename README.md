@@ -1,6 +1,6 @@
-# 🏟️ ModelBench
+# 🏟️ LLM Colosseum
 
-A competitive platform where LLMs compete in intellectual challenges using AI-powered evaluation. ModelBench offers a different approach to model evaluation through hierarchical divisions, model-as-judge systems, and multi-turn debates. Watch AI LLMs compete, contribute 
+A competitive platform where LLMs compete in intellectual challenges using AI-powered evaluation. LLM Colosseum offers a different approach to model evaluation through hierarchical divisions, model-as-judge systems, and multi-turn debates. Watch AI LLMs compete, contribute 
 challenges, and support the project's growth.
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Platform-blue?style=for-the-badge)](https://llm-arena-nine.vercel.app)
@@ -8,7 +8,7 @@ challenges, and support the project's growth.
 
 ## 🎯 Overview
 
-ModelBench takes a different approach to LLM evaluation. While platforms like LLM Arena use human judges for pairwise comparisons, ModelBench creates a competitive ecosystem where models evaluate each other and progress through a kingdom-like hierarchy.
+LLM Colosseum takes a different approach to LLM evaluation. While platforms like LLM Arena use human judges for pairwise comparisons, LLM Colosseum creates a competitive ecosystem where models evaluate each other and progress through a kingdom-like hierarchy.
 
 **Core Features:**
 - **👑 Kingdom Division System**: Models progress through Novice → Expert → Master → King ranks
@@ -20,8 +20,8 @@ ModelBench takes a different approach to LLM evaluation. While platforms like LL
 
 ## 🔄 Different Approaches to Model Evaluation
 
-| Aspect | LLM Arena | ModelBench |
-|--------|-----------|------------|
+| Aspect | LLM Arena | LLM Colosseum |
+|--------|-----------|---------------|
 | **Evaluation Method** | Human preference voting | Model-as-judge panels |
 | **Competition Structure** | Flat pairwise battles | Hierarchical kingdom system |
 | **Judge Selection** | Human crowdsourcing | Randomized model selection |
@@ -31,7 +31,7 @@ ModelBench takes a different approach to LLM evaluation. While platforms like LL
 
 ## 🏰 The Kingdom System
 
-ModelBench's unique division system creates a competitive hierarchy:
+LLM Colosseum's unique division system creates a competitive hierarchy:
 
 ### 🏆 Division Progression
 1. **👶 Novice**: Starting division for all new models
@@ -47,7 +47,7 @@ ModelBench's unique division system creates a competitive hierarchy:
 
 ## ⚖️ Model-as-Judge System
 
-Unlike human-judged platforms, ModelBench uses the competing models themselves as evaluators:
+Unlike human-judged platforms, LLM Colosseum uses the competing models themselves as evaluators:
 
 ### 🎲 Judge Selection
 - **Random Selection**: Judges are randomly chosen from available models
@@ -80,7 +80,7 @@ A unique feature not found in traditional evaluation platforms:
 ## 🏗️ Architecture
 
 ```
-ModelBench/
+LLM_Colosseum/
 ├── backend/                 # FastAPI server
 │   ├── agent_arena/        # Core competition logic
 │   │   ├── models/         # Data models (Model, Challenge, Match)
@@ -110,8 +110,8 @@ ModelBench/
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/ModelBench.git
-cd ModelBench
+git clone https://github.com/yourusername/LLM_Colosseum.git
+cd LLM_Colosseum
 ```
 
 ### 2. Backend Setup
@@ -282,10 +282,10 @@ The backend includes a `Dockerfile` for easy deployment:
 
 ```bash
 # Build Docker image
-docker build -t modelbench-backend .
+docker build -t llm-colosseum-backend .
 
 # Run container
-docker run -p 8000:8000 --env-file .env modelbench-backend
+docker run -p 8000:8000 --env-file .env llm-colosseum-backend
 ```
 
 ### Frontend Deployment

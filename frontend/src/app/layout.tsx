@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ModelBench - LLM Competition Platform",
+  title: "LLM Colosseum - AI Competition Platform",
   description: "Watch and analyze competitions between different LLM models in various challenges.",
 };
 

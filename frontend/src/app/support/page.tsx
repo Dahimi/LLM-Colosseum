@@ -10,13 +10,13 @@ export default function SupportPage() {
         {/* Navigation */}
         <div className="mb-8">
           <Link href="/" className="text-blue-600 hover:text-blue-800">
-            ← Back to ModelBench
+            ← Back to LLM Colosseum
           </Link>
         </div>
 
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">💝 Support ModelBench</h1>
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">💝 Support LLM Colosseum</h1>
           <p className="text-xl text-gray-700 max-w-2xl mx-auto">
             Help us grow the most comprehensive AI intelligence testing platform. 
             Your support helps cover LLM API costs and keeps the platform running 24/7.
@@ -183,7 +183,7 @@ export default function SupportPage() {
                 📢
               </div>
               <h3 className="font-medium text-gray-900 mb-2">Spread the Word</h3>
-              <p className="text-sm text-gray-600">Share ModelBench with researchers and AI enthusiasts</p>
+              <p className="text-sm text-gray-600">Share LLM Colosseum with researchers and AI enthusiasts</p>
             </div>
           </div>
         </div>

@@ -126,7 +126,7 @@ export default function AgentPage({ params }: PageProps) {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <Link href="/" className="text-blue-600 hover:text-blue-800">
-            ← Back to ModelBench
+            ← Back to LLM Colosseum
           </Link>
         </div>
 
