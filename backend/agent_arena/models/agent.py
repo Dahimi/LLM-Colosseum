@@ -77,6 +77,7 @@ class AgentProfile(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
     last_active: datetime = Field(default_factory=datetime.utcnow, description="Last activity timestamp")
     is_active: bool = Field(default=True, description="Whether agent is currently active")
+    supports_structured_output: bool = Field(default=False, description="Whether agent's model supports structured output")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional agent metadata")
 
     def to_dict(self) -> Dict[str, Any]:

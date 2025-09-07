@@ -110,7 +110,7 @@ class Arena:
         # Fall back: If no challenges found, create a new one
         if not challenge:
             logger.warning("No challenges available, generating a new one")
-            generator = ChallengeGenerator()
+            generator = ChallengeGenerator(agents=self.agents, agent_llms=self.agent_llms)
             if division.lower() == Division.NOVICE.value:
                 challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.BEGINNER)
             elif division.lower() == Division.EXPERT.value:
@@ -143,6 +143,7 @@ class Arena:
                     "created_at": agent_data["created_at"],
                     "last_active": agent_data["last_active"],
                     "is_active": agent_data["is_active"],
+                    "supports_structured_output": agent_data.get("supports_structured_output", False),
                     "metadata": agent_data.get("metadata") or {}
                 }
                 
@@ -261,6 +262,7 @@ class Arena:
                 "specializations": profile_data["specializations"],
                 "last_active": profile_data["last_active"],
                 "is_active": profile_data["is_active"],
+                "supports_structured_output": profile_data["supports_structured_output"],
                 "metadata": profile_data["metadata"],
                 "current_division": agent.division.value,
                 "division_change_history": agent_data["division_change_history"],
@@ -463,7 +465,7 @@ class Arena:
             print(f"      🏁 Both agents completed! Agent1: {response1_time:.1f}s, Agent2: {response2_time:.1f}s")
 
             print(f"      ⚖️  Evaluating with real LLM judges...")
-            evaluation_result = evaluate_match_with_llm_judges(match, challenge, judge_count=2)
+            evaluation_result = evaluate_match_with_llm_judges(match, challenge, judge_count=2, agents=self.agents, agent_llms=self.agent_llms)
 
             winner_agent_num = evaluation_result.get("winner")
             final_score_agent1 = evaluation_result.get("agent1_avg", 5.0)
@@ -638,7 +640,7 @@ class Arena:
         self.match_store.update_match(match)
 
         print(f"      ⚖️  Evaluating debate with real LLM judges...")
-        evaluation_result = evaluate_match_with_llm_judges(match, challenge, judge_count=2)
+        evaluation_result = evaluate_match_with_llm_judges(match, challenge, judge_count=2, agents=self.agents, agent_llms=self.agent_llms)
         winner_agent_num = evaluation_result.get("winner")
         if winner_agent_num == "agent1":
             winner_id = agent1.profile.name
@@ -779,9 +781,10 @@ class Arena:
                         self.update_agent_in_db(agent)
                         changes.append(f"👑 {agent.profile.name}: MASTER → KING (CROWNED! Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
                     else:
-                        # There's already a King, so this Master needs to challenge them
+                        # There's already a King, so this Master is now eligible to challenge
                         king = current_kings[0]
                         logger.info(f"{agent.profile.name} qualifies for King promotion but must challenge {king.profile.name} for the crown")
+                        changes.append(f"⚔️  {agent.profile.name} is now ELIGIBLE TO CHALLENGE THE KING! (Win rate: {win_rate:.1f}%, ELO: {elo:.0f})")
                         # Add to eligible challengers list
                         eligible_challengers.append(agent)
                         # We don't automatically start a challenge here - that's done through the king-challenge endpoint
@@ -817,11 +820,24 @@ class Arena:
                     if not existing_king_challenges:
                         logger.info(f"Automatically starting king challenge for {best_challenger.profile.name}")
                         self.start_king_challenge()
-                        changes.append(f"👑 KING CHALLENGE: {best_challenger.profile.name} challenges for the crown!")
+                        changes.append(f"⚔️  AUTOMATIC KING CHALLENGE: {best_challenger.profile.name} steps forward to challenge the crown!")
                     else:
                         logger.info("Cannot start automatic king challenge: another king challenge is already in progress")
+                        changes.append(f"⏳ {best_challenger.profile.name} awaits their chance to challenge the King (another challenge in progress)")
             except Exception as e:
                 logger.error(f"Failed to automatically start king challenge: {e}")
+        
+        # Handle King succession if no King exists
+        current_kings = [a for a in self.agents if a.division == Division.KING and a.profile.is_active]
+        if not current_kings:  # No King exists
+            # Find the best Master to promote to King
+            masters = [a for a in self.agents if a.division == Division.MASTER and a.profile.is_active]
+            if masters:
+                masters.sort(key=lambda a: a.stats.elo_rating, reverse=True)
+                new_king = masters[0]
+                new_king.promote_division(Division.KING, f"Ascended to the throne with {new_king.stats.elo_rating:.0f} ELO")
+                self.update_agent_in_db(new_king)
+                changes.append(f"👑 {new_king.profile.name}: MASTER → KING (ASCENDED TO THE THRONE! The realm has a new ruler!)")
         
         if changes:
             print(f"\n🔄 DIVISION CHANGES (after {context}):")
@@ -833,7 +849,7 @@ class Arena:
     def create_dynamic_challenge_pool(self, challenge_count: int = 8):
         """Create challenges using real LLM generation and save them to the database."""
         print(f"   🎯 Generating {challenge_count} dynamic challenges using real LLMs...")
-        generator = ChallengeGenerator()
+        generator = ChallengeGenerator(agents=self.agents, agent_llms=self.agent_llms)
         
         challenge_specs = [
             (ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.BEGINNER),
@@ -986,7 +1002,7 @@ class Arena:
                 if not challenge:
                     # If no challenges found, create a new one
                     logger.warning("No challenges available, generating a new one")
-                    generator = ChallengeGenerator()
+                    generator = ChallengeGenerator(agents=self.agents, agent_llms=self.agent_llms)
                     if division == Division.NOVICE:
                         challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.BEGINNER)
                     elif division == Division.EXPERT:
@@ -1072,7 +1088,7 @@ class Arena:
         # Fall back to generating a challenge if none found
         if not challenge:
             logger.warning("No suitable challenge found for King Challenge, generating a new one")
-            generator = ChallengeGenerator()
+            generator = ChallengeGenerator(agents=self.agents, agent_llms=self.agent_llms)
             challenge = generator.generate_challenge(ChallengeType.LOGICAL_REASONING, ChallengeDifficulty.ADVANCED)
             self.match_store.add_challenge(challenge)
         
@@ -1098,17 +1114,22 @@ class Arena:
                 
                 # Handle the outcome of the king challenge
                 if winner_id == challenger.profile.name:
-                    # Challenger won - promote to King and demote current king
-                    print(f"👑 {challenger.profile.name} DEFEATS {king.profile.name} AND CLAIMS THE CROWN!")
-                    challenger.promote_division(Division.KING, f"Defeated the King with a score of {scores[challenger.profile.name]:.1f}")
-                    king.demote_division(Division.MASTER, f"Lost the crown to {challenger.profile.name}")
-                    self.update_agent_in_db(challenger)
-                    self.update_agent_in_db(king)
+                    # Challenger won - they get prestige and ELO boost, but King keeps crown for now
+                    print(f"👑 {challenger.profile.name} DEFEATS THE KING {king.profile.name}!")
+                    print(f"   🔥 The challenger has proven their worth! The King's reign is under threat!")
+                    print(f"   📊 Final scores: {challenger.profile.name}: {scores[challenger.profile.name]:.1f}, {king.profile.name}: {scores[king.profile.name]:.1f}")
+                    
+                    # The normal ELO and stats updates will happen through update_agent_stats_and_elo
+                    # If the King's performance drops consistently, normal demotion rules will handle dethroning
+                    
                 else:
                     # King successfully defended
                     print(f"👑 {king.profile.name} DEFENDS THE CROWN against {challenger.profile.name}!")
+                    print(f"   ⚔️  The King's reign continues strong!")
+                    print(f"   📊 Final scores: {king.profile.name}: {scores[king.profile.name]:.1f}, {challenger.profile.name}: {scores[challenger.profile.name]:.1f}")
                 
                 # Apply division changes with special context to prevent automatic king challenge
+                # This will handle any natural promotions/demotions based on sustained performance
                 self.apply_realistic_division_changes(context="king_challenge")
                 self.save_state()
                 

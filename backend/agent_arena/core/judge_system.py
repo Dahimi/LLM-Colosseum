@@ -4,17 +4,20 @@ from typing import List, Dict, Optional
 from agent_arena.models.challenge import Challenge
 from agent_arena.models.match import Match, AgentResponse
 from agent_arena.models.evaluation import Evaluation, EvaluationCriteria, JudgeScore
-from agent_arena.core.llm_interface import create_system_llm, create_structured_llm, EvaluationResponse
+from agent_arena.core.llm_interface import create_system_llm, create_structured_llm, create_judge_llm, EvaluationResponse
 from agent_arena.models.match import MatchType
 
 
 class LLMJudge:
     """An LLM-based judge that evaluates agent responses."""
     
-    def __init__(self, judge_id: str):
+    def __init__(self, judge_id: str = None, agents=None, agent_llms=None):
         """Initialize the LLM judge."""
-        self.judge_id = judge_id
-        self.llm = create_system_llm()  # Low temp for consistency
+        # Create judge LLM using best agents or fallback to system LLM
+        llm, judge_name = create_judge_llm(agents, agent_llms)
+        
+        self.judge_id = judge_id or judge_name
+        self.llm = llm
         self.structured_llm = create_structured_llm(self.llm, EvaluationResponse)
     
     def evaluate_match(self, match: Match, challenge: Challenge) -> Evaluation:
@@ -31,7 +34,8 @@ class LLMJudge:
             match_id=match.match_id,
             judge_id=self.judge_id,
             overall_reasoning=llm_response.overall_reasoning,
-            recommended_winner=llm_response.recommended_winner
+            recommended_winner=llm_response.recommended_winner,
+            evaluation_quality=llm_response.confidence
         )
         
         # Convert LLM scores to JudgeScore objects
@@ -204,14 +208,20 @@ Provide detailed scores and clear reasoning for your evaluation."""
 class JudgePanel:
     """A panel of multiple LLM judges for comprehensive evaluation."""
     
-    def __init__(self, judge_count: int = 5):
+    def __init__(self, judge_count: int = 5, agents=None, agent_llms=None):
         """Initialize a panel of judges."""
         self.judges = []
         
         for i in range(judge_count):
-            judge_id = f"judge_{i+1}"
-            judge = LLMJudge(judge_id)
-            self.judges.append(judge)
+            try:
+                judge = LLMJudge(agents=agents, agent_llms=agent_llms)
+                self.judges.append(judge)
+            except Exception as e:
+                print(f"   ⚠️  Failed to create judge {i+1}: {e}")
+                # Fallback to system LLM judge
+                fallback_judge_id = f"system_judge_{i+1}"
+                fallback_judge = LLMJudge(judge_id=fallback_judge_id)
+                self.judges.append(fallback_judge)
     
     def evaluate_match(self, match: Match, challenge: Challenge) -> List[Evaluation]:
         """Evaluate a match using all judges in the panel."""
@@ -274,11 +284,13 @@ class JudgePanel:
 def evaluate_match_with_llm_judges(
     match: Match, 
     challenge: Challenge, 
-    judge_count: int = 3
+    judge_count: int = 3,
+    agents=None,
+    agent_llms=None
 ) -> Dict:
     """Convenience function to evaluate a match with LLM judges."""
     
-    judge_panel = JudgePanel(judge_count)
+    judge_panel = JudgePanel(judge_count, agents=agents, agent_llms=agent_llms)
     evaluations = judge_panel.evaluate_match(match, challenge)
     consensus = judge_panel.get_consensus_result(evaluations)
     

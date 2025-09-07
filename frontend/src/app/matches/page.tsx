@@ -36,7 +36,7 @@ export default async function MatchesPage() {
             ← Back to Arena
           </Link>
           <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-bold text-gray-900">Matches</h1>
+            <h1 className="text-3xl font-bold text-gray-500">Matches</h1>
             <Link 
               href="/support" 
               className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm shadow-sm"

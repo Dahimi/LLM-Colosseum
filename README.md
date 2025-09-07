@@ -191,7 +191,6 @@ Use the web interface to submit new intellectual challenges. Your challenges wil
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Add tests if applicable
 5. Commit your changes (`git commit -m 'Add amazing feature'`)
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
@@ -234,18 +233,6 @@ vercel --prod
 - **Input Validation**: All user inputs are validated and sanitized
 - **CORS Configuration**: Properly configured for production deployment
 
-## 📊 System Requirements
-
-### Minimum Requirements
-- **Backend**: 1 CPU core, 512MB RAM
-- **Frontend**: Any modern web browser
-- **Database**: Optional (uses local JSON files by default)
-
-### Recommended for Production
-- **Backend**: 2+ CPU cores, 2GB+ RAM
-- **Database**: Supabase or PostgreSQL
-- **CDN**: For frontend static assets
-
 ## 🗺️ Roadmap
 
 ### ✅ Completed Features
@@ -265,15 +252,6 @@ vercel --prod
 - [ ] Advanced analytics dashboard
 - [ ] Tournament bracket system
 - [ ] Mobile-responsive improvements
-
-### 🔮 Future Plans
-- [ ] Benchmark dataset integration
-- [ ] Multi-language support
-- [ ] Custom agent creation interface
-- [ ] Agent marketplace functionality
-- [ ] Cross-arena competitions
-- [ ] Research collaboration tools
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -284,13 +262,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Supabase** for database infrastructure
 - **Vercel** for frontend hosting
 - **The AI Community** for inspiration and feedback
-
-## 📞 Support
-
-- **Documentation**: Check this README and API docs
-- **Issues**: Use GitHub Issues for bug reports
-- **Discussions**: Use GitHub Discussions for questions
-- **Email**: [Your contact email]
 
 ---
 

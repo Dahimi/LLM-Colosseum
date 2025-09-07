@@ -3,15 +3,19 @@
 import random
 from typing import List, Optional
 from agent_arena.models.challenge import Challenge, ChallengeType, ChallengeDifficulty
-from agent_arena.core.llm_interface import create_system_llm, create_structured_llm, ChallengeResponse
+from agent_arena.core.llm_interface import create_system_llm, create_structured_llm, create_challenge_generator_llm, ChallengeResponse
 
 
 class ChallengeGenerator:
     """Generates challenges dynamically using LLMs."""
     
-    def __init__(self):
+    def __init__(self, agents=None, agent_llms=None):
         """Initialize the challenge generator with an LLM."""
-        self.llm = create_system_llm()
+        # Create challenge generator LLM using best agents or fallback to system LLM
+        llm, creator_name = create_challenge_generator_llm(agents, agent_llms)
+        
+        self.llm = llm
+        self.creator_name = creator_name
         self.structured_llm = create_structured_llm(self.llm, ChallengeResponse)
     
     def generate_challenge(
@@ -32,7 +36,7 @@ class ChallengeGenerator:
             description=response.description,
             challenge_type=challenge_type,
             difficulty=difficulty,
-            creator_id=creator_id,
+            creator_id=creator_id or self.creator_name,
             evaluation_criteria=response.evaluation_criteria,
             expected_concepts=response.expected_concepts,
             answer=response.answer,  # Include the answer field from the response
@@ -40,36 +44,46 @@ class ChallengeGenerator:
         )
         
         return challenge
-    
-    def generate_multiple_challenges(
-        self, 
-        count: int = 5,
-        challenge_types: Optional[List[ChallengeType]] = None,
-        difficulties: Optional[List[ChallengeDifficulty]] = None
+
+    def generate_challenge_batch(
+        self,
+        challenge_types: List[ChallengeType],
+        difficulties: List[ChallengeDifficulty], 
+        creator_ids: Optional[List[str]] = None
     ) -> List[Challenge]:
-        """Generate multiple challenges with varied types and difficulties."""
-        
-        if challenge_types is None:
-            challenge_types = list(ChallengeType)
-        
-        if difficulties is None:
-            difficulties = list(ChallengeDifficulty)
-        
-        challenges = []
-        
-        for _ in range(count):
-            challenge_type = random.choice(challenge_types)
-            difficulty = random.choice(difficulties)
+        """Generate multiple challenges in batch."""
+        if creator_ids is None:
+            creator_ids = [self.creator_name] * len(challenge_types)
             
-            try:
-                challenge = self.generate_challenge(challenge_type, difficulty)
-                challenges.append(challenge)
-            except Exception as e:
-                print(f"Warning: Failed to generate challenge: {e}")
-                continue
+        # Create prompts for each challenge
+        prompts = [
+            self._create_generation_prompt(ct, d) 
+            for ct, d in zip(challenge_types, difficulties)
+        ]
         
+        # Generate all challenges in batch
+        responses = self.structured_llm.batch(prompts)
+        
+        # Create Challenge objects from responses
+        challenges = []
+        for response, ct, d, cid in zip(responses, challenge_types, difficulties, creator_ids):
+            challenge = Challenge(
+                title=response.title,
+                description=response.description,
+                challenge_type=ct,
+                difficulty=d,
+                creator_id=cid,
+                evaluation_criteria=response.evaluation_criteria,
+                expected_concepts=response.expected_concepts,
+                answer=response.answer,
+                tags=[ct.value, f"difficulty_{d.value}"]
+            )
+            challenges.append(challenge)
+            
         return challenges
     
+    
+       
     def _create_generation_prompt(self, challenge_type: ChallengeType, difficulty: ChallengeDifficulty) -> str:
         """Create a detailed prompt for challenge generation."""
         
@@ -115,10 +129,15 @@ Requirements: Looking beyond concrete details, finding underlying patterns, abst
 Answer: If there's a definitive pattern or solution, provide it""",
             
             ChallengeType.DEBATE: """
-Focus on: Argumentation, persuasion, balanced perspectives
-Examples: Ethical dilemmas, policy debates, philosophical questions
-Requirements: Balanced framing, substantive arguments possible on both sides, clear resolution criteria
-Answer: Provide key facts, context, and considerations that judges should know to evaluate responses accurately"""
+Focus on: Argumentation quality, evidence-based reasoning, balanced perspectives, intellectual rigor
+Examples: Ethical dilemmas, policy debates, philosophical questions, contemporary issues, hypothetical scenarios
+Requirements: 
+- Controversial topic with legitimate arguments on multiple sides
+- No single "correct" answer - quality of argumentation matters most
+- Clear framing that allows for substantive debate
+- Avoids topics that are purely factual or have objective answers
+- Encourages evidence-based reasoning and logical consistency
+Answer: Do NOT provide a predetermined correct answer. Instead, provide key considerations, important facts, and evaluation criteria that judges should use to assess the quality of arguments presented by each side"""
         }
         
         # Difficulty-specific guidance
@@ -151,10 +170,14 @@ Make it interesting and creative while staying true to the challenge type and di
         return prompt
 
 
-def create_challenge_pool(generator: ChallengeGenerator, pool_size: int = 20) -> List[Challenge]:
+def create_challenge_pool(generator: ChallengeGenerator = None, pool_size: int = 20, agents=None, agent_llms=None) -> List[Challenge]:
     """Create a diverse pool of challenges for the arena."""
     
     print(f"🎯 Generating {pool_size} dynamic challenges using LLM...")
+    
+    # Create generator if not provided
+    if generator is None:
+        generator = ChallengeGenerator(agents=agents, agent_llms=agent_llms)
     
     # Ensure good distribution across types and difficulties
     challenge_types = list(ChallengeType)

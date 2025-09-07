@@ -73,7 +73,7 @@ export default function Home() {
             <div key={division} className="p-6 bg-white rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold mb-4 text-gray-900">
                 {division === Division.KING && '👑 '}
-                {division} Division
+                {division.toUpperCase()} DIVISION
                 <span className="text-gray-600 text-lg ml-2 font-medium">
                   ({divisionAgents.length})
                 </span>

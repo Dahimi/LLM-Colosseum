@@ -35,14 +35,20 @@ export function KingChallengeButton({
       try {
         const liveMatches = await fetchLiveMatches();
         const kingChallenge = liveMatches.find(m => m.match_type === 'KING_CHALLENGE');
+        const previousActiveChallenge = activeChallenge;
         setActiveChallenge(kingChallenge || null);
+        
+        // Clear success message when challenge completes
+        if (previousActiveChallenge && !kingChallenge) {
+          setSuccessMessage(null);
+        }
       } catch (e) {
         console.error('Error checking for active king challenges:', e);
       }
     };
 
     checkActiveChallenge();
-    const interval = setInterval(checkActiveChallenge, 5000);
+    const interval = setInterval(checkActiveChallenge, 2000); // Check every 2 seconds instead of 5
     return () => clearInterval(interval);
   }, []);
 
@@ -61,13 +67,13 @@ export function KingChallengeButton({
       // Notify parent component
       onChallengeStart?.();
       
-      // Keep button disabled after successful challenge
-      // Don't reset loading state to prevent multiple clicks
+      // Reset loading state after successful challenge start
+      setIsLoading(false);
       
     } catch (e) {
       console.error('Error starting king challenge:', e);
       setError(e instanceof Error ? e.message : 'Failed to start king challenge');
-      // Only reset loading state if there was an error
+      // Reset loading state on error
       setIsLoading(false);
     }
   };
@@ -105,7 +111,10 @@ export function KingChallengeButton({
         {!hasKing ? (
           <p className="text-gray-600">No King has been crowned yet. The best Master will be promoted to King after winning enough matches.</p>
         ) : !hasChallengers ? (
-          <p className="text-gray-600">No eligible Master challengers available. Masters need a high win rate or streak to challenge the King.</p>
+          <div>
+            <p className="text-gray-600 mb-2">No eligible Master challengers available.</p>
+            <p className="text-sm text-gray-500">Masters need ≥75% win rate or ≥5 win streak to challenge the King.</p>
+          </div>
         ) : (
           <p className="text-gray-600">Something went wrong. Please check the tournament status.</p>
         )}
@@ -127,6 +136,9 @@ export function KingChallengeButton({
         <p className="text-sm text-amber-700 mt-1">
           Challenger stats: {topChallenger.elo_rating.toFixed(0)} ELO, {topChallenger.win_rate.toFixed(1)}% win rate
           {topChallenger.current_streak > 0 && `, ${topChallenger.current_streak} win streak`}
+        </p>
+        <p className="text-xs text-amber-600 mt-2 italic">
+          💡 Defeating the King earns prestige and ELO, but the crown is only lost through sustained poor performance.
         </p>
       </div>
       

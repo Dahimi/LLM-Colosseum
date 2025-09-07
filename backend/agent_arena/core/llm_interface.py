@@ -6,8 +6,7 @@ import random
 from typing import Dict, List, Optional, Type
 from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from agent_arena.models.agent import Division
 from dotenv import load_dotenv
 from os import getenv
 
@@ -70,13 +69,105 @@ def create_agent_llm(model_name: str = None, **kwargs):
     return ChatOpenAI(
         openai_api_key=getenv("OPENROUTER_API_KEY"),
         openai_api_base=getenv("OPENROUTER_BASE_URL"),
-        model_name=model_name
+        model_name=model_name,
+        # max_completion_tokens=8000
     )
 
 def create_system_llm(**kwargs):
-    """Create an LLM instance for system tasks (challenges, evaluation)."""
+    """Create an LLM for system tasks (challenges, evaluation)."""
     model_name = random.choice(SYSTEM_MODELS)
     return create_agent_llm(model_name, **kwargs)
+
+def get_best_agents_for_system_tasks(agents, agent_llms, min_division_level=2):
+    """
+    Get the best agents (Expert and above) sorted by ELO for use as judges/challenge generators.
+    Only includes agents whose models support structured output.
+    
+    Args:
+        agents: List of Agent objects
+        agent_llms: Dict mapping agent_id to LLM instances
+        min_division_level: Minimum division level (2=Expert, 3=Master, 4=King)
+    
+    Returns:
+        List of tuples (agent, llm) sorted by ELO rating (highest first)
+    """
+    
+    # Map division to numeric levels for comparison
+    division_levels = {
+        Division.NOVICE: 1,
+        Division.EXPERT: 2, 
+        Division.MASTER: 3,
+        Division.KING: 4
+    }
+    
+    # Filter agents that are active, in Expert+ divisions, have LLMs, and support structured output
+    eligible_agents = [
+        agent for agent in agents 
+        if (agent.profile.is_active and 
+            division_levels.get(agent.division, 0) >= min_division_level and
+            agent.profile.agent_id in agent_llms and
+            agent.profile.supports_structured_output)
+    ]
+    
+    # Sort by ELO rating (highest first)
+    eligible_agents.sort(key=lambda a: a.stats.elo_rating, reverse=True)
+    
+    # Return tuples of (agent, llm)
+    return [(agent, agent_llms[agent.profile.agent_id]) for agent in eligible_agents]
+
+def create_judge_llm(agents=None, agent_llms=None, **kwargs):
+    """
+    Create an LLM for judging matches.
+    Prefers best agents (Expert+) with structured output support but falls back to system LLMs.
+    
+    Args:
+        agents: List of Agent objects (optional)
+        agent_llms: Dict mapping agent_id to LLM instances (optional)
+        **kwargs: Additional arguments for LLM creation
+    
+    Returns:
+        Tuple of (llm, judge_name) where judge_name identifies the judge
+    """
+    if agents and agent_llms:
+        best_agents = get_best_agents_for_system_tasks(agents, agent_llms, min_division_level=2)
+        if best_agents:
+            # Randomly select from the best agents
+            agent, llm = random.choice(best_agents)
+            judge_name = f"{agent.profile.name} ({agent.division.value.title()})"
+            return llm, judge_name
+    
+    # Fallback to system LLM
+    llm = create_system_llm(**kwargs)
+    model_name = random.choice(SYSTEM_MODELS)
+    judge_name = f"System-{model_name.split('/')[-1]}"
+    return llm, judge_name
+
+def create_challenge_generator_llm(agents=None, agent_llms=None, **kwargs):
+    """
+    Create an LLM for generating challenges.
+    Prefers best agents (Expert+) with structured output support but falls back to system LLMs.
+    
+    Args:
+        agents: List of Agent objects (optional)
+        agent_llms: Dict mapping agent_id to LLM instances (optional)
+        **kwargs: Additional arguments for LLM creation
+    
+    Returns:
+        Tuple of (llm, creator_name) where creator_name identifies the challenge creator
+    """
+    if agents and agent_llms:
+        best_agents = get_best_agents_for_system_tasks(agents, agent_llms, min_division_level=2)
+        if best_agents:
+            # Randomly select from the best agents
+            agent, llm = random.choice(best_agents)
+            creator_name = f"{agent.profile.name} ({agent.division.value.title()})"
+            return llm, creator_name
+    
+    # Fallback to system LLM
+    llm = create_system_llm(**kwargs)
+    model_name = random.choice(SYSTEM_MODELS)
+    creator_name = f"System-{model_name.split('/')[-1]}"
+    return llm, creator_name
 
 def create_structured_llm(llm, output_schema: Type[BaseModel]):
     """
