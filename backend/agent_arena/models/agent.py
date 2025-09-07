@@ -74,6 +74,8 @@ class AgentProfile(BaseModel):
     name: str = Field(description="Agent display name")
     description: str = Field(default="", description="Agent description or bio")
     specializations: List[str] = Field(default_factory=list, description="Areas of expertise")
+    model: str = Field(default="openai/gpt-4o-mini", description="LLM model identifier")
+    temperature: float = Field(default=0.5, ge=0.0, le=1.0, description="LLM temperature setting")
     created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
     last_active: datetime = Field(default_factory=datetime.utcnow, description="Last activity timestamp")
     is_active: bool = Field(default=True, description="Whether agent is currently active")

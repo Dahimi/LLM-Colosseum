@@ -262,7 +262,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
                   required
                   className="block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm text-gray-900"
                 >
-                  {Object.values(Division).map(division => (
+                  {Object.values(Division).filter(division => division !== Division.KING).map(division => (
                     <option key={division} value={division}>
                       {division.charAt(0).toUpperCase() + division.slice(1)}
                     </option>

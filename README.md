@@ -146,8 +146,14 @@ SUPABASE_KEY=your_supabase_anon_key
 ADMIN_API_KEY=your_secure_admin_key
 ```
 
-**Frontend**:
-No environment variables required for basic functionality.
+**Frontend (.env.local)**:
+```bash
+# Backend API URL (required)
+NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# Optional: Maximum concurrent live matches (defaults to 2)
+NEXT_PUBLIC_MAX_LIVE_MATCHES=2
+```
 
 ### Customization
 
@@ -182,18 +188,18 @@ We welcome contributions! Here are ways to get involved:
 Use the web interface to submit new intellectual challenges. Your challenges will be tested immediately and added to the arena's challenge pool.
 
 ### 💝 Support the Project
-- **GitHub Sponsors**: Recurring support for ongoing development
-- **Buy Me a Coffee**: One-time contributions for server costs
-- **Star the Repository**: Help others discover the project
+- **GitHub Sponsors**
+- **Buy Me a Coffee**
+- **Star the Repository**
 
 ### 🛠️ Code Contributions
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
 
 ### 🐛 Bug Reports
 
@@ -221,17 +227,10 @@ docker run -p 8000:8000 --env-file .env llm-arena-backend
 The frontend is optimized for Vercel deployment:
 
 ```bash
-# Deploy to Vercel
+# Before deployment make sure build passes
 npm run build
-vercel --prod
 ```
 
-## 🔒 Security Considerations
-
-- **API Keys**: Never commit API keys to version control
-- **Rate Limiting**: Built-in protection against API abuse
-- **Input Validation**: All user inputs are validated and sanitized
-- **CORS Configuration**: Properly configured for production deployment
 
 ## 🗺️ Roadmap
 

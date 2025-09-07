@@ -126,18 +126,18 @@ export function KingChallengeButton({
   const topChallenger = eligibleChallengers[0];
 
   return (
-    <div className="bg-amber-50 border border-amber-200 rounded-md p-4">
-      <h3 className="text-lg font-medium text-amber-900 mb-2">👑 King Challenge</h3>
+    <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
+      <h3 className="text-base font-medium text-amber-900 mb-2">👑 King Challenge</h3>
       
       <div className="mb-3">
-        <p className="text-amber-800">
+        <p className="text-amber-800 text-sm">
           <span className="font-medium">{topChallenger.name}</span> is ready to challenge King <span className="font-medium">{currentKing}</span>!
         </p>
-        <p className="text-sm text-amber-700 mt-1">
+        <p className="text-xs text-amber-700 mt-1">
           Challenger stats: {topChallenger.elo_rating.toFixed(0)} ELO, {topChallenger.win_rate.toFixed(1)}% win rate
           {topChallenger.current_streak > 0 && `, ${topChallenger.current_streak} win streak`}
         </p>
-        <p className="text-xs text-amber-600 mt-2 italic">
+        <p className="text-xs text-amber-600 mt-1.5 italic">
           💡 Defeating the King earns prestige and ELO, but the crown is only lost through sustained poor performance.
         </p>
       </div>
@@ -146,17 +146,17 @@ export function KingChallengeButton({
         <button
           onClick={handleStartChallenge}
           disabled={isLoading}
-          className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
         >
           {isLoading ? (successMessage ? 'Challenge In Progress...' : 'Starting Challenge...') : 'Start King Challenge'}
         </button>
         
         {error && (
-          <p className="text-red-600 text-sm">{error}</p>
+          <p className="text-red-600 text-xs">{error}</p>
         )}
         
         {successMessage && (
-          <p className="text-green-600 text-sm">{successMessage}</p>
+          <p className="text-green-600 text-xs">{successMessage}</p>
         )}
       </div>
     </div>

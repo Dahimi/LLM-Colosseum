@@ -26,7 +26,6 @@ class Arena:
     def __init__(self):
         self.agents: List[Agent] = []
         self.agent_llms: Dict[str, any] = {}
-        self.agent_configs: Dict[str, Dict] = {}  # Store agent configs by name
         # Initialize match store with a file in the same directory as state_file
         self.match_store = MatchStore() # Will be updated later
         self._initialize_from_db()
@@ -34,7 +33,6 @@ class Arena:
 
     def _initialize_from_db(self):
         """Initializes the arena state from the database."""
-        self.load_agent_configs_from_db()  # Load configs first
         self.load_agents_from_db()
             
     def load_agent_configs_from_db(self):
@@ -140,6 +138,8 @@ class Arena:
                     "name": agent_data["name"],
                     "description": agent_data["description"],
                     "specializations": agent_data["specializations"],
+                    "model": agent_data["model"],
+                    "temperature": agent_data["temperature"],
                     "created_at": agent_data["created_at"],
                     "last_active": agent_data["last_active"],
                     "is_active": agent_data["is_active"],
@@ -202,17 +202,16 @@ class Arena:
                 
                 self.agents.append(agent)
                 
-                # Create LLM for the agent using config from database
-                if agent.profile.name in self.agent_configs:
-                    config = self.agent_configs[agent.profile.name]
+                # Create LLM for the agent using data from agent profile
+                try:
                     agent_llm = create_agent_llm(
-                        model_name=config["model"],
-                        temperature=config["temperature"],
+                        model_name=agent.profile.model,
+                        temperature=agent.profile.temperature,
                         max_tokens=1500
                     )
                     self.agent_llms[agent.profile.agent_id] = agent_llm
-                else:
-                    logger.warning(f"No configuration found for agent {agent.profile.name}")
+                except Exception as e:
+                    logger.warning(f"Failed to create LLM for agent {agent.profile.name}: {e}")
 
             logger.info(f"Loaded {len(self.agents)} agents from the database.")
         except Exception as e:
@@ -232,6 +231,7 @@ class Arena:
                 agent_data = {
                     "name": config["name"],
                     "model": config["model"],
+                    "temperature": config.get("temperature", 0.5),
                     "description": f"Agent based on {config['model']}",
                     "specializations": config.get("specializations", []),
                     "current_division": config["division"].lower()
@@ -260,6 +260,8 @@ class Arena:
             update_data = {
                 "description": profile_data["description"],
                 "specializations": profile_data["specializations"],
+                "model": profile_data["model"],
+                "temperature": profile_data["temperature"],
                 "last_active": profile_data["last_active"],
                 "is_active": profile_data["is_active"],
                 "supports_structured_output": profile_data["supports_structured_output"],
