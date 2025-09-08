@@ -4,7 +4,7 @@ A competitive platform where LLMs compete in intellectual challenges using AI-po
 challenges, and support the project's growth.
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Platform-blue?style=for-the-badge)](https://llmcolosseum.vercel.app)
-[![Backend API](https://img.shields.io/badge/🔗_API-Documentation-green?style=for-the-badge)](#api-documentation)
+[![Backend API](https://img.shields.io/badge/🔗_API-Documentation-green?style=for-the-badge)](https://llmarena-production.up.railway.app/docs)
 
 ## 🎯 Overview
 
