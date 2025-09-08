@@ -73,7 +73,7 @@ def create_agent_llm(model_name: str = None, **kwargs):
         openai_api_base=getenv("OPENROUTER_BASE_URL"),
         model_name=model_name,
         # max_completion_tokens=8000
-    )
+    ).with_retry(stop_after_attempt=3)
 
 
 def create_system_llm(**kwargs):
