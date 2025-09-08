@@ -11,4 +11,4 @@ key: str = os.environ.get("SUPABASE_KEY")
 if not url or not key:
     raise Exception("Supabase URL and Key must be set in the environment variables.")
 
-supabase: Client = create_client(url, key) 
+supabase: Client = create_client(url, key)

@@ -9,6 +9,7 @@ import uuid
 
 class MatchStatus(Enum):
     """Status of a match."""
+
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     AWAITING_JUDGMENT = "awaiting_judgment"
@@ -19,6 +20,7 @@ class MatchStatus(Enum):
 
 class MatchResult(Enum):
     """Result of a match from perspective of agent1."""
+
     WIN = "win"
     LOSS = "loss"
     DRAW = "draw"
@@ -27,6 +29,7 @@ class MatchResult(Enum):
 
 class MatchType(Enum):
     """Type of match being played."""
+
     REGULAR_DUEL = "regular_duel"
     KING_CHALLENGE = "king_challenge"
     PROMOTION_MATCH = "promotion_match"
@@ -37,18 +40,29 @@ class MatchType(Enum):
 
 class AgentResponse(BaseModel):
     """An agent's response to a challenge."""
+
     agent_id: str = Field(description="ID of the responding agent")
     response_text: str = Field(description="The agent's response")
     response_time: float = Field(description="Time taken to respond (seconds)")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="When response was submitted")
-    is_structured: bool = Field(default=False, description="Whether response follows structured format")
-    structured_data: Optional[Dict[str, Any]] = Field(default=None, description="Parsed structured response")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional response metadata")
-    is_streaming: bool = Field(default=False, description="Whether this is a partial streaming response")
+    timestamp: datetime = Field(
+        default_factory=datetime.utcnow, description="When response was submitted"
+    )
+    is_structured: bool = Field(
+        default=False, description="Whether response follows structured format"
+    )
+    structured_data: Optional[Dict[str, Any]] = Field(
+        default=None, description="Parsed structured response"
+    )
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict, description="Additional response metadata"
+    )
+    is_streaming: bool = Field(
+        default=False, description="Whether this is a partial streaming response"
+    )
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize the object to a JSON-compatible dictionary."""
-        return self.model_dump(mode='json')
+        return self.model_dump(mode="json")
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "AgentResponse":
@@ -58,86 +72,123 @@ class AgentResponse(BaseModel):
 
 class Match(BaseModel):
     """A competition match between agents."""
-    match_id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique match identifier")
+
+    match_id: str = Field(
+        default_factory=lambda: str(uuid.uuid4()), description="Unique match identifier"
+    )
     match_type: MatchType = Field(description="Type of match")
     challenge_id: str = Field(description="ID of the challenge being used")
-    
+
     # Participants
     agent1_id: str = Field(description="First competing agent ID")
     agent2_id: str = Field(description="Second competing agent ID")
-    judge_ids: List[str] = Field(default_factory=list, description="List of judge agent IDs")
-    
+    judge_ids: List[str] = Field(
+        default_factory=list, description="List of judge agent IDs"
+    )
+
     # Match state
-    status: MatchStatus = Field(default=MatchStatus.PENDING, description="Current match status")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Match creation timestamp")
-    started_at: Optional[datetime] = Field(default=None, description="Match start timestamp")
-    completed_at: Optional[datetime] = Field(default=None, description="Match completion timestamp")
-    
+    status: MatchStatus = Field(
+        default=MatchStatus.PENDING, description="Current match status"
+    )
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow, description="Match creation timestamp"
+    )
+    started_at: Optional[datetime] = Field(
+        default=None, description="Match start timestamp"
+    )
+    completed_at: Optional[datetime] = Field(
+        default=None, description="Match completion timestamp"
+    )
+
     # Responses
-    agent1_response: Optional[AgentResponse] = Field(default=None, description="Agent 1's response")
-    agent2_response: Optional[AgentResponse] = Field(default=None, description="Agent 2's response")
-    transcript: List[AgentResponse] = Field(default_factory=list, description="Full transcript of the debate")
-    
+    agent1_response: Optional[AgentResponse] = Field(
+        default=None, description="Agent 1's response"
+    )
+    agent2_response: Optional[AgentResponse] = Field(
+        default=None, description="Agent 2's response"
+    )
+    transcript: List[AgentResponse] = Field(
+        default_factory=list, description="Full transcript of the debate"
+    )
+
     # Results
-    winner_id: Optional[str] = Field(default=None, description="ID of the winning agent")
-    result: Optional[MatchResult] = Field(default=None, description="Match result from agent1's perspective")
-    final_scores: Dict[str, float] = Field(default_factory=dict, description="Final scores for each agent")
-    evaluation_ids: List[str] = Field(default_factory=list, description="List of evaluation IDs from judges")
-    evaluation_details: List[Dict[str, Any]] = Field(default_factory=list, description="Detailed evaluations from judges")
-    
+    winner_id: Optional[str] = Field(
+        default=None, description="ID of the winning agent"
+    )
+    result: Optional[MatchResult] = Field(
+        default=None, description="Match result from agent1's perspective"
+    )
+    final_scores: Dict[str, float] = Field(
+        default_factory=dict, description="Final scores for each agent"
+    )
+    evaluation_ids: List[str] = Field(
+        default_factory=list, description="List of evaluation IDs from judges"
+    )
+    evaluation_details: List[Dict[str, Any]] = Field(
+        default_factory=list, description="Detailed evaluations from judges"
+    )
+
     # Match parameters
     division: str = Field(description="Division where this match takes place")
-    stakes: Dict[str, Any] = Field(default_factory=dict, description="What's at stake (ELO, promotion, etc.)")
-    special_rules: List[str] = Field(default_factory=list, description="Any special rules for this match")
-    
+    stakes: Dict[str, Any] = Field(
+        default_factory=dict, description="What's at stake (ELO, promotion, etc.)"
+    )
+    special_rules: List[str] = Field(
+        default_factory=list, description="Any special rules for this match"
+    )
+
     # Metadata
     context: str = Field(default="", description="Additional context about this match")
     tags: List[str] = Field(default_factory=list, description="Tags for categorization")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional match metadata")
-    
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict, description="Additional match metadata"
+    )
+
     def to_dict(self) -> Dict[str, Any]:
         """Serialize the object to a JSON-compatible dictionary."""
-        return self.model_dump(mode='json')
+        return self.model_dump(mode="json")
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Match":
         """Deserialize an object from a dictionary."""
-        if 'evaluation_details' not in data or data['evaluation_details'] is None:
-            data['evaluation_details'] = []
+        if "evaluation_details" not in data or data["evaluation_details"] is None:
+            data["evaluation_details"] = []
         return cls.model_validate(data)
 
     def __str__(self) -> str:
         """String representation of the match."""
         return f"Match({self.agent1_id} vs {self.agent2_id}, {self.status.value}, {self.match_type.value})"
-    
+
     def start_match(self) -> None:
         """Mark the match as started."""
         self.status = MatchStatus.IN_PROGRESS
         self.started_at = datetime.utcnow()
-    
+
     def submit_response(self, agent_id: str, response: AgentResponse) -> bool:
         """Submit a response from an agent."""
         if self.status != MatchStatus.IN_PROGRESS:
             return False
-        
+
         if agent_id == self.agent1_id:
             self.agent1_response = response
         elif agent_id == self.agent2_id:
             self.agent2_response = response
         else:
             return False
-        
+
         # For debates, add to transcript
         if self.match_type == MatchType.DEBATE:
             self.transcript.append(response)
 
         return True
-    
-    def submit_partial_response(self, agent_id: str, partial_response: AgentResponse) -> bool:
+
+    def submit_partial_response(
+        self, agent_id: str, partial_response: AgentResponse
+    ) -> bool:
         """Submit a partial streaming response from an agent."""
         if self.status != MatchStatus.IN_PROGRESS:
             return False
-        
+
         if agent_id == self.agent1_id:
             self.agent1_response = partial_response
         elif agent_id == self.agent2_id:
@@ -145,14 +196,16 @@ class Match(BaseModel):
         else:
             return False
         return True
-    
-    def complete_match(self, winner_id: Optional[str], final_scores: Dict[str, float]) -> None:
+
+    def complete_match(
+        self, winner_id: Optional[str], final_scores: Dict[str, float]
+    ) -> None:
         """Complete the match with results."""
         self.status = MatchStatus.COMPLETED
         self.completed_at = datetime.utcnow()
         self.winner_id = winner_id
         self.final_scores = final_scores
-        
+
         # Determine result from agent1's perspective
         if winner_id is None:
             self.result = MatchResult.DRAW
@@ -160,13 +213,13 @@ class Match(BaseModel):
             self.result = MatchResult.WIN
         else:
             self.result = MatchResult.LOSS
-    
+
     def cancel_match(self, reason: str = "") -> None:
         """Cancel the match."""
         self.status = MatchStatus.CANCELLED
         self.metadata["cancellation_reason"] = reason
         self.completed_at = datetime.utcnow()
-    
+
     def get_opponent_id(self, agent_id: str) -> Optional[str]:
         """Get the opponent's ID for a given agent."""
         if agent_id == self.agent1_id:
@@ -174,7 +227,7 @@ class Match(BaseModel):
         elif agent_id == self.agent2_id:
             return self.agent1_id
         return None
-    
+
     def get_agent_response(self, agent_id: str) -> Optional[AgentResponse]:
         """Get the response for a specific agent."""
         if agent_id == self.agent1_id:
@@ -182,19 +235,19 @@ class Match(BaseModel):
         elif agent_id == self.agent2_id:
             return self.agent2_response
         return None
-    
+
     def get_agent_score(self, agent_id: str) -> Optional[float]:
         """Get the final score for a specific agent."""
         return self.final_scores.get(agent_id)
-    
+
     def is_ready_for_judgment(self) -> bool:
         """Check if the match is ready for judge evaluation."""
         return (
-            self.status == MatchStatus.AWAITING_JUDGMENT and
-            self.agent1_response is not None and
-            self.agent2_response is not None
+            self.status == MatchStatus.AWAITING_JUDGMENT
+            and self.agent1_response is not None
+            and self.agent2_response is not None
         )
-    
+
     def is_debate_round_complete(self) -> bool:
         """Check if both agents have responded in the current debate round."""
         return len(self.transcript) % 2 == 0
@@ -204,7 +257,7 @@ class Match(BaseModel):
         if self.started_at and self.completed_at:
             return (self.completed_at - self.started_at).total_seconds()
         return None
-    
+
     def get_summary(self) -> Dict[str, Any]:
         """Get a summary of the match."""
         return {
@@ -217,5 +270,5 @@ class Match(BaseModel):
             "duration": self.get_match_duration(),
             "scores": self.final_scores,
             "created_at": self.created_at,
-            "completed_at": self.completed_at
-        } 
+            "completed_at": self.completed_at,
+        }

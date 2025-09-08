@@ -1,0 +1,50 @@
+name: Backend CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+
+jobs:
+  backend-checks:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+          
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          pip install black
+          
+      - name: Check Black formatting
+        working-directory: backend
+        run: |
+          echo "Checking Python code formatting with Black..."
+          black --check --diff .
+          
+      - name: Check FastAPI startup
+        working-directory: backend
+        run: |
+          echo "Validating FastAPI application..."
+          python -c "
+          import sys
+          sys.path.append('.')
+          try:
+              from main import app
+              print('✅ FastAPI app loads successfully')
+          except Exception as e:
+              print(f'❌ FastAPI app failed to load: {e}')
+              sys.exit(1)
+          "
