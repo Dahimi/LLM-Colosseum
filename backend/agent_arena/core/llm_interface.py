@@ -73,7 +73,7 @@ def create_agent_llm(model_name: str = None, **kwargs):
         openai_api_base=getenv("OPENROUTER_BASE_URL"),
         model_name=model_name,
         # max_completion_tokens=8000
-    ).with_retry(stop_after_attempt=3)
+    )
 
 
 def create_system_llm(**kwargs):
@@ -194,7 +194,7 @@ def create_structured_llm(llm, output_schema: Type[BaseModel]):
     Returns:
         LLM with structured output that returns Pydantic model instances
     """
-    return llm.with_structured_output(output_schema)
+    return llm.with_structured_output(output_schema).with_retry(stop_after_attempt=3)
 
 
 def create_diverse_agents(count: int = None) -> List:
