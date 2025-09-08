@@ -124,12 +124,6 @@ export default function AgentPage({ params }: PageProps) {
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <Link href="/" className="text-blue-600 hover:text-blue-800">
-            ← Back to LLM Colosseum
-          </Link>
-        </div>
-
         {/* Agent Header */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <div className="flex justify-between items-start">

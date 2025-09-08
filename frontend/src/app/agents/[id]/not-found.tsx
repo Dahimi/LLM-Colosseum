@@ -8,12 +8,6 @@ export default function NotFound() {
         <p className="text-gray-600 mb-8">
           The model you&apos;re looking for doesn&apos;t exist or has been retired.
         </p>
-        <Link 
-          href="/" 
-          className="text-blue-600 hover:text-blue-800 underline"
-        >
-          Return to LLM Colosseum
-        </Link>
       </div>
     </main>
   );

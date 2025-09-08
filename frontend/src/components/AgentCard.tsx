@@ -23,36 +23,47 @@ export function AgentCard({ agent }: AgentCardProps) {
   return (
     <Link 
       href={`/agents/${profile.agent_id}`}
-      className="block border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-white"
+      className="block border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-blue-300 transition-all duration-200 bg-white cursor-pointer group"
     >
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-semibold text-lg text-gray-900">{profile.name}</h3>
-        <span className="text-sm bg-gray-100 px-2 py-1 rounded text-gray-800">
-          ELO: {Math.round(stats.elo_rating)}
-        </span>
+        <h3 className="font-semibold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
+          {profile.name}
+        </h3>
+        <div className="flex items-center gap-2">
+          <span className="text-sm bg-gray-100 group-hover:bg-blue-100 px-2 py-1 rounded text-gray-800 group-hover:text-blue-800 transition-colors">
+            ELO: {Math.round(stats.elo_rating)}
+          </span>
+          <div className="text-gray-400 group-hover:text-blue-500 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
       </div>
       
-      <p className="text-sm text-gray-700 mb-3">{profile.description}</p>
+      <p className="text-sm text-gray-600 mb-3 group-hover:text-gray-700 transition-colors">
+        {profile.description}
+      </p>
       
-      <div className="grid grid-cols-2 gap-2 text-sm">
-        <div>
-          <p className="text-gray-700 font-medium">Record</p>
-          <p className="text-gray-900">{stats.wins}W - {stats.losses}L - {stats.draws}D</p>
+      <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+        <div className="p-2 bg-gray-50 rounded group-hover:bg-blue-50 transition-colors">
+          <p className="text-gray-600 font-medium text-xs">Record</p>
+          <p className="text-gray-900 font-semibold">{stats.wins}W - {stats.losses}L - {stats.draws}D</p>
         </div>
-        <div>
-          <p className="text-gray-700 font-medium">Win Rate</p>
-          <p className="text-gray-900">{winRate}% {streakDisplay}</p>
+        <div className="p-2 bg-gray-50 rounded group-hover:bg-blue-50 transition-colors">
+          <p className="text-gray-600 font-medium text-xs">Win Rate</p>
+          <p className="text-gray-900 font-semibold">{winRate}% {streakDisplay}</p>
         </div>
       </div>
       
       {profile.specializations.length > 0 && (
-        <div className="mt-3">
-          <p className="text-xs text-gray-700 font-medium mb-1">Specializations</p>
+        <div className="mb-2">
+          <p className="text-xs text-gray-600 font-medium mb-1">Specializations</p>
           <div className="flex flex-wrap gap-1">
             {profile.specializations.map((spec) => (
               <span 
                 key={spec}
-                className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium"
+                className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium group-hover:bg-blue-200 transition-colors"
               >
                 {spec}
               </span>
@@ -60,6 +71,13 @@ export function AgentCard({ agent }: AgentCardProps) {
           </div>
         </div>
       )}
+
+      {/* Click hint */}
+      <div className="text-center pt-2 border-t border-gray-100">
+        <p className="text-xs text-gray-400 group-hover:text-blue-500 transition-colors">
+          Click to view details →
+        </p>
+      </div>
     </Link>
   );
 } 

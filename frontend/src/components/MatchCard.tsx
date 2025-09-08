@@ -56,18 +56,20 @@ export function MatchCard({ match, agents }: MatchCardProps) {
   return (
     <Link 
       href={`/matches/${match.match_id}`}
-      className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200"
+      className="block bg-white rounded-lg shadow-sm hover:shadow-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 cursor-pointer group"
     >
       <div className="p-4">
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="font-semibold text-lg mb-1 text-gray-900">{match.challenge.title}</h3>
+            <h3 className="font-semibold text-lg mb-1 text-gray-900 group-hover:text-blue-600 transition-colors">
+              {match.challenge.title}
+            </h3>
             <div className="flex items-center gap-2">
-              <p className="text-sm text-gray-900">{match.challenge.type}</p>
+              <p className="text-sm text-gray-600">{match.challenge.type}</p>
               {match.match_type === 'DEBATE' && (
                 <span className="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
-                  Debate Match
+                  💬 Debate Match
                 </span>
               )}
               {match.match_type === 'KING_CHALLENGE' && (
@@ -77,35 +79,57 @@ export function MatchCard({ match, agents }: MatchCardProps) {
               )}
             </div>
           </div>
-          <span className={`px-2 py-1 rounded text-sm ${getStatusColor(match.status)}`}>
-            {match.status}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className={`px-2 py-1 rounded text-sm font-medium ${getStatusColor(match.status)}`}>
+              {match.status}
+            </span>
+            <div className="text-gray-400 group-hover:text-blue-500 transition-colors">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
         </div>
 
         {/* Models */}
         <div className="grid grid-cols-3 gap-2 items-center mb-4">
-          <div className="text-center">
+          <div className="text-center p-2 bg-gray-50 rounded-lg group-hover:bg-blue-50 transition-colors">
             <p className="font-medium text-gray-900">{agent1.profile.name}</p>
-            <p className="text-sm text-gray-900">ELO: {Math.round(agent1.stats.elo_rating)}</p>
+            <p className="text-sm text-gray-600">ELO: {Math.round(agent1.stats.elo_rating)}</p>
           </div>
-          <div className="text-center text-2xl font-bold text-gray-500">
+          <div className="text-center text-2xl font-bold text-gray-400 group-hover:text-blue-500 transition-colors">
             VS
           </div>
-          <div className="text-center">
+          <div className="text-center p-2 bg-gray-50 rounded-lg group-hover:bg-blue-50 transition-colors">
             <p className="font-medium text-gray-900">{agent2.profile.name}</p>
-            <p className="text-sm text-gray-900">ELO: {Math.round(agent2.stats.elo_rating)}</p>
+            <p className="text-sm text-gray-600">ELO: {Math.round(agent2.stats.elo_rating)}</p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between items-center text-sm text-gray-900">
+        <div className="flex justify-between items-center text-sm text-gray-600 pt-2 border-t border-gray-100">
           <p>Started: {formatTime(match.created_at)}</p>
           {match.completed_at && <p>Ended: {formatTime(match.completed_at)}</p>}
-          {match.winner_id && agents[match.winner_id] && (
-            <p className="font-medium text-green-800">
-              Winner: {agents[match.winner_id].profile.name}
-            </p>
+          {match.status === MatchStatus.COMPLETED && (
+            <>
+              {match.winner_id && agents[match.winner_id] ? (
+                <p className="font-medium text-green-700 bg-green-50 px-2 py-1 rounded">
+                  🏆 Winner: {agents[match.winner_id].profile.name}
+                </p>
+              ) : (
+                <p className="font-medium text-gray-700 bg-gray-100 px-2 py-1 rounded">
+                  🤝 Draw
+                </p>
+              )}
+            </>
           )}
+        </div>
+        
+        {/* Click hint */}
+        <div className="mt-3 text-center">
+          <p className="text-xs text-gray-400 group-hover:text-blue-500 transition-colors">
+            Click to view match details →
+          </p>
         </div>
       </div>
     </Link>

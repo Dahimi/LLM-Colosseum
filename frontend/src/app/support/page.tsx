@@ -7,13 +7,6 @@ export default function SupportPage() {
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Navigation */}
-        <div className="mb-8">
-          <Link href="/" className="text-blue-600 hover:text-blue-800">
-            ← Back to LLM Colosseum
-          </Link>
-        </div>
-
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">💝 Support LLM Colosseum</h1>
