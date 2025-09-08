@@ -24,11 +24,52 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="LLM Arena API",
-    description="A competitive platform where AI agents battle in intellectual challenges",
+    title="LLM Colosseum API",
+    description="""
+# LLM Colosseum API
+
+A competitive platform where LLM models battle in intellectual challenges using AI-powered evaluation.
+
+## Features
+
+* **Model Management**: View models, their stats, and division rankings
+* **Match System**: Start quick matches, king challenges, and view match history  
+* **Real-time Updates**: Server-Sent Events (SSE) for live match streaming
+* **Challenge Contributions**: Submit custom challenges for models to solve
+* **Tournament Status**: Track the kingdom hierarchy and current king
+
+## Authentication
+
+Most endpoints are public. Admin endpoints require an API key via `X-API-Key` header.
+
+## Rate Limits
+
+- Maximum 2 concurrent live matches
+- SSE connections have automatic reconnection with 15s retry
+
+## Model Divisions
+
+1. **Novice** → **Expert** → **Master** → **King**
+2. Models are promoted/demoted based on performance
+3. Only Master models can challenge the King
+
+## Match Types
+
+- **Quick Match**: Random models from same division
+- **King Challenge**: Master vs current King
+- **Community Challenge**: Test user-contributed challenges
+    """,
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    contact={
+        "name": "LLM Colosseum",
+        "url": "https://github.com/Dahimi/LLM-Colosseum",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://github.com/Dahimi/LLM-Colosseum/blob/main/LICENSE",
+    },
 )
 
 # Define allowed origins
@@ -109,14 +150,15 @@ def match_to_json(match: Match) -> dict:
     
     return match_dict
 
-@app.post("/admin/reload", dependencies=[Depends(verify_api_key)])
+@app.post("/admin/reload", dependencies=[Depends(verify_api_key)], tags=["Admin"], summary="Reload data")
 async def reload_data():
-    """Admin endpoint to reload all data from the database.
+    """
+    Admin endpoint to reload all data from the database.
     
-    This endpoint should be called when changes are made directly to the database
+    **Requires admin API key** via X-API-Key header.
+    
+    Use this when changes are made directly to the database
     and need to be reflected in the running application.
-    
-    Requires admin API key authentication.
     """
     try:
         result = arena.reload_from_db()
@@ -132,140 +174,16 @@ async def reload_data():
             "error": str(e)
         }
 
-# Agent Configuration Management Endpoints
-@app.get("/admin/agent-configs", dependencies=[Depends(verify_api_key)])
-async def get_agent_configs():
-    """Get all agent configurations."""
-    try:
-        from agent_arena.db import supabase
-        response = supabase.table("agent_configs").select("*").execute()
-        return {
-            "success": True,
-            "configs": response.data
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "message": f"Failed to get agent configurations: {str(e)}",
-            "error": str(e)
-        }
-
-@app.get("/admin/agent-configs/{name}", dependencies=[Depends(verify_api_key)])
-async def get_agent_config(name: str):
-    """Get a specific agent configuration."""
-    try:
-        from agent_arena.db import supabase
-        response = supabase.table("agent_configs").select("*").eq("name", name).execute()
-        if not response.data:
-            return {
-                "success": False,
-                "message": f"Agent configuration '{name}' not found"
-            }
-        return {
-            "success": True,
-            "config": response.data[0]
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "message": f"Failed to get agent configuration: {str(e)}",
-            "error": str(e)
-        }
-
-@app.post("/admin/agent-configs", dependencies=[Depends(verify_api_key)])
-async def create_agent_config(config: AgentConfig):
-    """Create a new agent configuration."""
-    try:
-        # Check if config with this name already exists
-        existing = supabase.table("agent_configs").select("*").eq("name", config.name).execute()
-        if existing.data:
-            return {
-                "success": False,
-                "message": f"Agent configuration with name '{config.name}' already exists"
-            }
-        
-        # Insert new config
-        config_dict = config.model_dump()
-        supabase.table("agent_configs").insert(config_dict).execute()
-        
-        # Reload agent configs in arena
-        arena.load_agent_configs_from_db()
-        
-        return {
-            "success": True,
-            "message": f"Agent configuration '{config.name}' created successfully",
-            "config": config_dict
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "message": f"Failed to create agent configuration: {str(e)}",
-            "error": str(e)
-        }
-
-@app.put("/admin/agent-configs/{name}", dependencies=[Depends(verify_api_key)])
-async def update_agent_config(name: str, config: AgentConfig):
-    """Update an existing agent configuration."""
-    try:
-        # Check if config exists
-        existing = supabase.table("agent_configs").select("*").eq("name", name).execute()
-        if not existing.data:
-            return {
-                "success": False,
-                "message": f"Agent configuration '{name}' not found"
-            }
-        
-        # Update config
-        config_dict = config.model_dump()
-        supabase.table("agent_configs").update(config_dict).eq("name", name).execute()
-        
-        # Reload agent configs in arena
-        arena.load_agent_configs_from_db()
-        
-        return {
-            "success": True,
-            "message": f"Agent configuration '{name}' updated successfully",
-            "config": config_dict
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "message": f"Failed to update agent configuration: {str(e)}",
-            "error": str(e)
-        }
-
-@app.delete("/admin/agent-configs/{name}", dependencies=[Depends(verify_api_key)])
-async def delete_agent_config(name: str):
-    """Delete an agent configuration."""
-    try:
-        # Check if config exists
-        existing = supabase.table("agent_configs").select("*").eq("name", name).execute()
-        if not existing.data:
-            return {
-                "success": False,
-                "message": f"Agent configuration '{name}' not found"
-            }
-        
-        # Delete config
-        supabase.table("agent_configs").delete().eq("name", name).execute()
-        
-        # Reload agent configs in arena
-        arena.load_agent_configs_from_db()
-        
-        return {
-            "success": True,
-            "message": f"Agent configuration '{name}' deleted successfully"
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "message": f"Failed to delete agent configuration: {str(e)}",
-            "error": str(e)
-        }
-
-@app.get("/agents")
+@app.get("/agents", tags=["Models"], summary="Get all models")
 async def get_agents():
-    """Get all agents with their current stats and divisions."""
+    """
+    Get all models with their current stats and divisions.
+    
+    Returns a list of all models in the colosseum with:
+    - Profile information (name, description, specializations)
+    - Current division (Novice, Expert, Master, King)
+    - Performance statistics (ELO, wins, losses, streaks)
+    """
     return [
         {
             "profile": {
@@ -280,9 +198,16 @@ async def get_agents():
         for agent in arena.agents
     ]
 
-@app.get("/agents/{agent_id}")
+@app.get("/agents/{agent_id}", tags=["Models"], summary="Get model details")
 async def get_agent(agent_id: str):
-    """Get details for a specific agent."""
+    """
+    Get detailed information for a specific model.
+    
+    Includes:
+    - Complete profile and stats
+    - Recent match history
+    - Division change history
+    """
     for agent in arena.agents:
         if agent.profile.name == agent_id:
             # Get recent matches for this agent
@@ -306,9 +231,18 @@ async def get_agent(agent_id: str):
     raise HTTPException(status_code=404, detail="Agent not found")
 
 # SSE endpoints must come before other /matches endpoints to avoid routing conflicts
-@app.get("/matches/stream")
+@app.get("/matches/stream", tags=["Real-time"], summary="Stream match updates")
 async def stream_matches(request: Request):
-    """SSE endpoint for streaming match updates."""
+    """
+    Server-Sent Events endpoint for real-time match updates.
+    
+    Streams:
+    - Recent matches (last 100)
+    - Currently live matches
+    - Updates every 2 seconds
+    
+    Use EventSource in JavaScript to connect to this endpoint.
+    """
     try:
         # Get the origin from the request headers or use the first allowed origin as default
         origin = request.headers.get("origin", ALLOWED_ORIGINS[0])
@@ -359,9 +293,18 @@ async def match_updates() -> AsyncGenerator[dict, None]:
             }
         await asyncio.sleep(2)  # Wait 2 seconds between updates
 
-@app.get("/matches/{match_id}/stream")
+@app.get("/matches/{match_id}/stream", tags=["Real-time"], summary="Stream specific match")
 async def stream_match(match_id: str, request: Request):
-    """SSE endpoint for streaming specific match updates."""
+    """
+    Server-Sent Events endpoint for streaming a specific match.
+    
+    Provides real-time updates for a single match including:
+    - Match status changes
+    - Model responses as they're generated
+    - Evaluation results
+    
+    Updates every 0.5 seconds for responsive streaming.
+    """
     try:
         # Get the origin from the request headers or use the first allowed origin as default
         origin = request.headers.get("origin", ALLOWED_ORIGINS[0])
@@ -404,29 +347,45 @@ async def specific_match_updates(match_id: str) -> AsyncGenerator[dict, None]:
             }
         await asyncio.sleep(0.5)  # Very frequent updates for streaming responses
 
-@app.get("/matches")
+@app.get("/matches", tags=["Matches"], summary="Get recent matches")
 async def get_matches():
-    """Get recent matches from the arena state."""
+    """Get the 10 most recent matches from the colosseum."""
     matches = arena.match_store.get_recent_matches(limit=10)
     return [match_to_json(match) for match in matches]
 
-@app.get("/matches/live")
+@app.get("/matches/live", tags=["Matches"], summary="Get live matches")
 async def get_live_matches():
-    """Get ongoing matches."""
+    """Get all currently ongoing matches."""
     matches = arena.match_store.get_live_matches()
     return [match_to_json(match) for match in matches]
 
-@app.get("/matches/{match_id}")
+@app.get("/matches/{match_id}", tags=["Matches"], summary="Get match details")
 async def get_match(match_id: str):
-    """Get details for a specific match."""
+    """
+    Get detailed information for a specific match.
+    
+    Includes:
+    - Match participants and challenge
+    - Current status and responses
+    - Evaluation details if completed
+    """
     match = arena.match_store.get_match(match_id)
     if match:
         return match_to_json(match)
     raise HTTPException(status_code=404, detail="Match not found")
 
-@app.post("/matches/quick")
+@app.post("/matches/quick", tags=["Matches"], summary="Start quick match")
 async def start_quick_match(division: str):
-    """Start a quick match between two random agents in the specified division."""
+    """
+    Start a quick match between two random models in the specified division.
+    
+    **Parameters:**
+    - division: "novice", "expert", "master", or "king"
+    
+    **Rate Limits:**
+    - Maximum 20 concurrent live matches
+    - Returns 429 if limit exceeded
+    """
     try:
         # Check if we've reached the maximum number of live matches
         if arena.match_store.has_reached_live_match_limit():
@@ -460,9 +419,16 @@ async def start_quick_match(division: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/matches/king-challenge")
+@app.post("/matches/king-challenge", tags=["Matches"], summary="Start king challenge")
 async def start_king_challenge():
-    """Start a king challenge match between the current king and the best performing master."""
+    """
+    Start a king challenge match between the current king and the best performing master.
+    
+    **Requirements:**
+    - Must have a current king
+    - Must have eligible master models
+    - Respects live match limits
+    """
     try:
         # Check if we've reached the maximum number of live matches
         if arena.match_store.has_reached_live_match_limit():
@@ -487,9 +453,40 @@ async def start_king_challenge():
         raise HTTPException(status_code=500, detail=str(e))
 
 # Challenge Contribution Endpoint
-@app.post("/challenges/contribute")
+@app.post("/challenges/contribute", tags=["Challenges"], summary="Contribute a challenge")
 async def contribute_challenge(challenge_data: dict = Body(...)):
-    """Accept a user-contributed challenge and start a test match with it."""
+    """
+    Accept a user-contributed challenge and start a test match.
+    
+    **Request Body:**
+    ```json
+    {
+        "title": "Challenge title",
+        "description": "Detailed challenge description",
+        "type": "LOGICAL_REASONING",
+        "difficulty": "INTERMEDIATE", 
+        "division": "expert",
+        "answer": "Expected answer (optional)",
+        "tags": ["logic", "reasoning"],
+        "metadata": {
+            "contributor_name": "Your name",
+            "contributor_email": "your@email.com"
+        }
+    }
+    ```
+    
+    **Challenge Types:**
+    - LOGICAL_REASONING
+    - DEBATE  
+    - CREATIVE_PROBLEM_SOLVING
+    - MATHEMATICAL
+    - ABSTRACT_THINKING
+    
+    **Difficulties:**
+    - BEGINNER, INTERMEDIATE, ADVANCED, EXPERT, MASTER
+    
+    Automatically starts a test match if possible.
+    """
     try:
         
         # Validate required fields
@@ -624,9 +621,13 @@ async def contribute_challenge(challenge_data: dict = Body(...)):
         logger.error(f"Error in challenge contribution: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/tournament/start")
+@app.post("/tournament/start", tags=["Tournament"], summary="Start tournament")
 async def start_tournament(num_rounds: int = 1):
-    """Start a new tournament round."""
+    """
+    Start a new tournament round.
+    
+    **Admin endpoint** - requires API key authentication.
+    """
     try:
         arena.run_tournament(num_rounds=num_rounds)
         arena.save_state()
@@ -634,9 +635,17 @@ async def start_tournament(num_rounds: int = 1):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/tournament/status")
+@app.get("/tournament/status", tags=["Tournament"], summary="Get tournament status")
 async def get_tournament_status():
-    """Get the current tournament status."""
+    """
+    Get the current tournament status and kingdom hierarchy.
+    
+    Returns:
+    - Total models and division distribution
+    - Current king and their stats
+    - Top eligible challengers (Master models)
+    - Total matches played
+    """
     # Find the current king
     king = next((a for a in arena.agents if a.division.value == "king"), None)
     
