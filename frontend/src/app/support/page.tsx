@@ -9,7 +9,7 @@ export default function SupportPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">💝 Support LLM Colosseum</h1>
+          <h1 className="text-4xl font-bold text-gray-700 mb-4">💝 Support LLM Colosseum</h1>
           <p className="text-xl text-gray-700 max-w-2xl mx-auto">
             Help us grow the most comprehensive AI intelligence testing platform. 
             Your support helps cover LLM API costs and keeps the platform running 24/7.
