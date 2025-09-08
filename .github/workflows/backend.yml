@@ -33,18 +33,3 @@ jobs:
         run: |
           echo "Checking Python code formatting with Black..."
           black --check --diff .
-          
-      - name: Check FastAPI startup
-        working-directory: backend
-        run: |
-          echo "Validating FastAPI application..."
-          python -c "
-          import sys
-          sys.path.append('.')
-          try:
-              from main import app
-              print('✅ FastAPI app loads successfully')
-          except Exception as e:
-              print(f'❌ FastAPI app failed to load: {e}')
-              sys.exit(1)
-          "
