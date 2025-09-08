@@ -31,9 +31,12 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
   
-  // Group agents by division
+  // Group agents by division and sort by ELO rating
   const agentsByDivision = Object.values(Division).reduce((acc, division) => {
-    acc[division] = agents.filter(agent => agent.division === division);
+    const divisionAgents = agents.filter(agent => agent.division === division);
+    // Sort by ELO rating (highest first)
+    divisionAgents.sort((a, b) => b.stats.elo_rating - a.stats.elo_rating);
+    acc[division] = divisionAgents;
     return acc;
   }, {} as Record<Division, Agent[]>);
 
