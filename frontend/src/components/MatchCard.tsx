@@ -81,8 +81,8 @@ export function MatchCard({ match, agents }: MatchCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <span className={`px-2 py-1 rounded text-sm font-medium ${getStatusColor(match.status)}`}>
-              {match.status}
-            </span>
+            {match.status}
+          </span>
             <div className="text-gray-400 group-hover:text-blue-500 transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -115,7 +115,7 @@ export function MatchCard({ match, agents }: MatchCardProps) {
               {match.winner_id && agents[match.winner_id] ? (
                 <p className="font-medium text-green-700 bg-green-50 px-2 py-1 rounded">
                   🏆 Winner: {agents[match.winner_id].profile.name}
-                </p>
+            </p>
               ) : (
                 <p className="font-medium text-gray-700 bg-gray-100 px-2 py-1 rounded">
                   🤝 Draw
@@ -128,7 +128,7 @@ export function MatchCard({ match, agents }: MatchCardProps) {
         {/* Click hint */}
         <div className="mt-3 text-center">
           <p className="text-xs text-gray-400 group-hover:text-blue-500 transition-colors">
-            Click to view match details →
+            Click to view battle details →
           </p>
         </div>
       </div>

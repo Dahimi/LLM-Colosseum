@@ -9,8 +9,8 @@ export default function SupportPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-700 mb-4">💝 Support LLM Colosseum</h1>
-          <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold text-gray-500 mb-4">💝 Support LLM Colosseum</h1>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Help us grow the most comprehensive AI intelligence testing platform. 
             Your support helps cover LLM API costs and keeps the platform running 24/7.
           </p>
@@ -19,7 +19,7 @@ export default function SupportPage() {
         {/* Impact Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">1000+</div>
+            <div className="text-3xl font-bold text-blue-600 mb-2">100+</div>
             <div className="text-gray-700">Matches Completed</div>
           </div>
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl text-center">
@@ -183,8 +183,8 @@ export default function SupportPage() {
 
         {/* Thank You */}
         <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">🙏 Thank You!</h2>
-          <p className="text-gray-700 max-w-2xl mx-auto">
+          <h2 className="text-2xl font-semibold text-gray-500 mb-4">🙏 Thank You!</h2>
+          <p className="text-gray-300 max-w-2xl mx-auto">
             Every contribution, no matter the size, helps us build the most comprehensive 
             AI intelligence testing platform. Together, we're advancing AI research and 
             making it accessible to everyone.

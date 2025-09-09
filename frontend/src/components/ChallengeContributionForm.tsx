@@ -106,27 +106,27 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
   };
 
   return (
-    <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
       {/* Collapsible Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-6 text-left hover:bg-green-100/50 transition-colors rounded-lg"
+        className="w-full p-6 text-left hover:bg-gray-50 transition-colors rounded-lg"
       >
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-semibold text-green-800 mb-2 flex items-center">
-              🎯 Contribute a Challenge
-              <span className="ml-2 text-sm bg-green-200 text-green-800 px-2 py-1 rounded-full">
-                Optional
+            <h3 className="text-xl font-semibold text-gray-900 mb-2 flex items-center">
+              🎯 Create & Test Your Challenge
+              <span className="ml-2 text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded-full font-medium">
+                Fun!
               </span>
             </h3>
-            <p className="text-green-700 text-sm">
-              Create a new challenge and test it immediately with our models. Your challenge will be added to our database for future matches!
+            <p className="text-gray-600 text-sm font-medium">
+              Design your own challenge and watch models battle it out instantly! Your challenge joins our permanent collection.
             </p>
           </div>
           <div className="flex-shrink-0 ml-4">
             <svg 
-              className={`w-6 h-6 text-green-600 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
+              className={`w-6 h-6 text-gray-500 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -142,9 +142,9 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
         <div className="px-6 pb-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Contributor Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-green-100/50 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
               <div>
-                <label htmlFor="contributorName" className="block text-sm font-medium text-green-800 mb-1">
+                <label htmlFor="contributorName" className="block text-sm font-medium text-gray-700 mb-1">
                   Your Name (optional)
                 </label>
                 <input
@@ -153,12 +153,12 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
                   name="contributorName"
                   value={formData.contributorName}
                   onChange={handleInputChange}
-                  className="block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm text-gray-900"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
                   placeholder="How should we credit you?"
                 />
               </div>
               <div>
-                <label htmlFor="contributorEmail" className="block text-sm font-medium text-green-800 mb-1">
+                <label htmlFor="contributorEmail" className="block text-sm font-medium text-gray-700 mb-1">
                   Email (optional)
                 </label>
                 <input
@@ -167,7 +167,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
                   name="contributorEmail"
                   value={formData.contributorEmail}
                   onChange={handleInputChange}
-                  className="block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm text-gray-900"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
                   placeholder="For updates about your challenge"
                 />
               </div>
@@ -175,7 +175,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
 
             {/* Challenge Details */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-green-800 mb-1">
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
                 Challenge Title *
               </label>
               <input
@@ -185,13 +185,13 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
                 value={formData.title}
                 onChange={handleInputChange}
                 required
-                className="block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm text-gray-900"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
                 placeholder="Give your challenge a descriptive title"
               />
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-green-800 mb-1">
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
                 Challenge Description *
               </label>
               <textarea
@@ -201,17 +201,17 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
                 onChange={handleInputChange}
                 required
                 rows={6}
-                className="block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm text-gray-900"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
                 placeholder="Describe the challenge in detail. You can use Markdown and LaTeX formatting!"
               />
-              <p className="text-xs text-green-700 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                 💡 Tip: Use **bold**, *italic*, `code`, and $$LaTeX$$ for rich formatting
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label htmlFor="type" className="block text-sm font-medium text-green-800 mb-1">
+                <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
                   Challenge Type *
                 </label>
                 <select
@@ -220,7 +220,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
                   value={formData.type}
                   onChange={handleInputChange}
                   required
-                  className="block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm text-gray-900"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
                 >
                   {challengeTypes.map(type => (
                     <option key={type.value} value={type.value}>
@@ -231,7 +231,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
               </div>
 
               <div>
-                <label htmlFor="difficulty" className="block text-sm font-medium text-green-800 mb-1">
+                <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 mb-1">
                   Difficulty *
                 </label>
                 <select
@@ -240,7 +240,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
                   value={formData.difficulty}
                   onChange={handleInputChange}
                   required
-                  className="block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm text-gray-900"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
                 >
                   {difficulties.map(diff => (
                     <option key={diff.value} value={diff.value}>
@@ -251,7 +251,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
               </div>
 
               <div>
-                <label htmlFor="division" className="block text-sm font-medium text-green-800 mb-1">
+                <label htmlFor="division" className="block text-sm font-medium text-gray-700 mb-1">
                   Test Division *
                 </label>
                 <select
@@ -260,7 +260,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
                   value={formData.division}
                   onChange={handleInputChange}
                   required
-                  className="block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm text-gray-900"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
                 >
                   {Object.values(Division).filter(division => division !== Division.KING).map(division => (
                     <option key={division} value={division}>
@@ -272,7 +272,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
             </div>
 
             <div>
-              <label htmlFor="answer" className="block text-sm font-medium text-green-800 mb-1">
+              <label htmlFor="answer" className="block text-sm font-medium text-gray-700 mb-1">
                 Expected Answer/Solution (optional)
               </label>
               <textarea
@@ -281,13 +281,13 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
                 value={formData.answer}
                 onChange={handleInputChange}
                 rows={3}
-                className="block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm text-gray-900"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
                 placeholder="What would be a good answer to this challenge?"
               />
             </div>
 
             <div>
-              <label htmlFor="tags" className="block text-sm font-medium text-green-800 mb-1">
+              <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">
                 Tags (optional)
               </label>
               <input
@@ -296,7 +296,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
                 name="tags"
                 value={formData.tags}
                 onChange={handleInputChange}
-                className="block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm text-gray-900"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
                 placeholder="logic, math, reasoning (comma-separated)"
               />
             </div>
@@ -306,7 +306,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm"
               >
                 {isSubmitting ? (
                   <div className="flex items-center justify-center space-x-2">
