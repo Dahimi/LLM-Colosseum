@@ -111,7 +111,7 @@ export default function MatchPage({ params }: PageProps) {
             <div className="absolute top-0 w-6 h-6 bg-indigo-500 rounded-full animate-ping opacity-75"></div>
             <div className="relative w-6 h-6 bg-indigo-600 rounded-full"></div>
           </div>
-          <h2 className="text-xl font-medium text-gray-700">Loading match details...</h2>
+          <h2 className="text-xl font-medium text-gray-700">Loading battle details...</h2>
           <p className="text-gray-500 mt-2">Retrieving the latest information</p>
         </div>
       </div>
@@ -140,7 +140,7 @@ export default function MatchPage({ params }: PageProps) {
 
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h1 className="text-2xl font-bold mb-6 text-indigo-900">
-            Match Details
+            Battle Details
             {match.status === MatchStatus.IN_PROGRESS && (
               <span className="ml-2 px-2 py-1 bg-red-100 text-red-600 text-sm rounded-full animate-pulse">
                 LIVE

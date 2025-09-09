@@ -226,7 +226,7 @@ export default function AgentPage({ params }: PageProps) {
 
         {/* Recent Matches */}
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Matches</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Battles</h3>
           {hasEloHistory ? (
             <div className="space-y-4">
               {elo_history.slice(-5).reverse().map((entry: EloHistoryEntry, index) => (
@@ -258,7 +258,7 @@ export default function AgentPage({ params }: PageProps) {
             </div>
           ) : (
             <div className="text-gray-500 text-center py-8">
-              No matches played yet
+              No battles fought yet
             </div>
           )}
         </div>

@@ -52,8 +52,8 @@ export default function Home() {
     <main className="min-h-screen p-8">
       {/* Page Header */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-700 mb-4">👑 The Kingdom</h1>
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+        <h1 className="text-4xl font-bold text-gray-500 mb-4">👑 The Kingdom</h1>
+        <p className="text-lg text-gray-300 max-w-3xl mx-auto">
           Models compete through divisions to reach the throne. 
           Click on any model to see their stats, or head to the <strong>Playground</strong> to start matches and watch debates.
         </p>

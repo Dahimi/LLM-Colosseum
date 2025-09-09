@@ -2,7 +2,8 @@
 
 import { fetchAgents, fetchTournamentStatus } from '@/lib/api';
 import { MatchCard } from '@/components/MatchCard';
-import { TournamentStatus } from '@/components/TournamentStatus';
+import { ColosseumStats } from '@/components/ColosseumsStats';
+import { LiveActivityIndicator } from '@/components/LiveActivityIndicator';
 import { TournamentControls } from '@/components/TournamentControls';
 import { QuickMatchControls } from '@/components/QuickMatchControls';
 import { KingChallengeButton } from '@/components/KingChallengeButton';
@@ -17,6 +18,8 @@ export default function MatchesPage() {
   const [tournamentStatus, setTournamentStatus] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [liveMatchCount, setLiveMatchCount] = useState(0);
+  const [totalMatchCount, setTotalMatchCount] = useState(0);
 
   // Function to fetch all data
   const fetchData = async () => {
@@ -50,6 +53,12 @@ export default function MatchesPage() {
     return acc;
   }, {} as { [key: string]: Agent });
 
+  // Handle match data updates from MatchesContent
+  const handleMatchDataUpdate = (liveCount: number, totalCount: number) => {
+    setLiveMatchCount(liveCount);
+    setTotalMatchCount(totalCount);
+  };
+
   if (isLoading) {
     return (
       <main className="min-h-screen p-8">
@@ -75,56 +84,52 @@ export default function MatchesPage() {
       <div className="max-w-6xl mx-auto">
         {/* Page Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-700 mb-2">🎮 Playground</h1>
-          <p className="text-lg text-gray-600">
-            Start matches, watch debates, and contribute challenges
+          <h1 className="text-4xl font-bold text-gray-500 mb-2">🎮 Playground</h1>
+          <p className="text-lg text-gray-300">
+            Start battles, watch debates, and create challenges
           </p>
         </div>
 
-        {/* Tournament Status and Controls */}
+        {/* Colosseum Stats - Flattened horizontal layout */}
         {tournamentStatus && (
-          <div className="mb-6">
-            <div className="bg-white rounded-lg shadow-lg p-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <TournamentStatus status={tournamentStatus} />
-                </div>
-                <div className="space-y-4">
-                  <div className="min-w-[300px]">
-                    <h3 className="text-lg font-medium mb-3 text-gray-900">Platform Controls</h3>
-                    <div className="grid grid-cols-1 gap-3">
-                      <QuickMatchControls />
-                      
-                      {/* King Challenge Button */}
-                      <KingChallengeButton 
-                        currentKing={tournamentStatus.current_king} 
-                        eligibleChallengers={tournamentStatus.eligible_challengers || []} 
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Tournament controls are hidden for now */}
-                  {/* 
-                  <div className="border-t pt-6">
-                    <h3 className="text-lg font-medium mb-4 text-gray-900">Tournament Mode</h3>
-                    <TournamentControls />
-                  </div>
-                  */}
-                </div>
-              </div>
-            </div>
-          </div>
+          <ColosseumStats status={tournamentStatus} />
         )}
 
-        {/* Challenge Contribution */}
-        <div className="mb-6">
+        {/* Live Activity Indicator */}
+        <LiveActivityIndicator 
+          liveMatchCount={liveMatchCount} 
+          totalMatches={totalMatchCount} 
+        />
+
+        {/* Battle Arena - Side by side controls */}
+        <div className="mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <QuickMatchControls />
+            
+            {/* King Challenge Button */}
+            {tournamentStatus && (
+              <KingChallengeButton 
+                currentKing={tournamentStatus.current_king} 
+                eligibleChallengers={tournamentStatus.eligible_challengers || []} 
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Challenge Creation */}
+        <div className="mb-8">
           <ChallengeContributionForm />
         </div>
 
-        {/* Dynamic Content with Auto-refresh */}
-        <Suspense fallback={<div className="text-gray-900">Loading matches...</div>}>
-          <MatchesContent agentsMap={agentsMap} />
-        </Suspense>
+        {/* Live Matches Section */}
+        <div>
+          <Suspense fallback={<div className="text-gray-900">Loading matches...</div>}>
+            <MatchesContent 
+              agentsMap={agentsMap} 
+              onMatchDataUpdate={handleMatchDataUpdate}
+            />
+          </Suspense>
+        </div>
       </div>
     </main>
   );
