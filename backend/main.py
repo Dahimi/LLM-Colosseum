@@ -92,10 +92,32 @@ app.add_middleware(
 ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
 
 
-async def verify_api_key(x_api_key: str = Header(...)):
-    if x_api_key != ADMIN_API_KEY:
-        raise HTTPException(status_code=403, detail="Invalid API key")
-    return x_api_key
+async def verify_access(request: Request, x_api_key: Optional[str] = Header(None)):
+    """
+    Dependency to verify access via API key or Origin header.
+
+    This function checks two conditions:
+    1. If a valid `X-API-Key` is present.
+    2. If the request's `Origin` header is in the `ALLOWED_ORIGINS` list.
+
+    Access is granted if either condition is met. This secures the API
+    from unauthorized scripts while allowing the frontend to operate
+    without an API key.
+    """
+    # Grant access if a valid, non-empty API key is provided
+    if x_api_key and x_api_key == ADMIN_API_KEY:
+        return
+
+    # Grant access if the request is from an allowed origin
+    origin = request.headers.get("origin")
+    if origin and origin in ALLOWED_ORIGINS:
+        return
+
+    # If neither condition is met, deny access
+    raise HTTPException(
+        status_code=403,
+        detail="Access denied. Provide a valid API key or access from an allowed origin.",
+    )
 
 
 arena = Arena()
@@ -157,7 +179,7 @@ def match_to_json(match: Match) -> dict:
 
 @app.post(
     "/admin/reload",
-    dependencies=[Depends(verify_api_key)],
+    dependencies=[Depends(verify_access)],
     tags=["Admin"],
     summary="Reload data",
 )
@@ -185,7 +207,12 @@ async def reload_data():
         }
 
 
-@app.get("/agents", tags=["Models"], summary="Get all models")
+@app.get(
+    "/agents",
+    tags=["Models"],
+    summary="Get all models",
+    dependencies=[Depends(verify_access)],
+)
 async def get_agents():
     """
     Get all models with their current stats and divisions.
@@ -210,7 +237,12 @@ async def get_agents():
     ]
 
 
-@app.get("/agents/{agent_id}", tags=["Models"], summary="Get model details")
+@app.get(
+    "/agents/{agent_id}",
+    tags=["Models"],
+    summary="Get model details",
+    dependencies=[Depends(verify_access)],
+)
 async def get_agent(agent_id: str):
     """
     Get detailed information for a specific model.
@@ -244,7 +276,12 @@ async def get_agent(agent_id: str):
 
 
 # SSE endpoints must come before other /matches endpoints to avoid routing conflicts
-@app.get("/matches/stream", tags=["Real-time"], summary="Stream match updates")
+@app.get(
+    "/matches/stream",
+    tags=["Real-time"],
+    summary="Stream match updates",
+    dependencies=[Depends(verify_access)],
+)
 async def stream_matches(request: Request):
     """
     Server-Sent Events endpoint for real-time match updates.
@@ -306,7 +343,10 @@ async def match_updates() -> AsyncGenerator[dict, None]:
 
 
 @app.get(
-    "/matches/{match_id}/stream", tags=["Real-time"], summary="Stream specific match"
+    "/matches/{match_id}/stream",
+    tags=["Real-time"],
+    summary="Stream specific match",
+    dependencies=[Depends(verify_access)],
 )
 async def stream_match(match_id: str, request: Request):
     """
@@ -360,21 +400,36 @@ async def specific_match_updates(match_id: str) -> AsyncGenerator[dict, None]:
         await asyncio.sleep(0.5)  # Very frequent updates for streaming responses
 
 
-@app.get("/matches", tags=["Matches"], summary="Get recent matches")
+@app.get(
+    "/matches",
+    tags=["Matches"],
+    summary="Get recent matches",
+    dependencies=[Depends(verify_access)],
+)
 async def get_matches():
     """Get the 10 most recent matches from the colosseum."""
     matches = arena.match_store.get_recent_matches(limit=10)
     return [match_to_json(match) for match in matches]
 
 
-@app.get("/matches/live", tags=["Matches"], summary="Get live matches")
+@app.get(
+    "/matches/live",
+    tags=["Matches"],
+    summary="Get live matches",
+    dependencies=[Depends(verify_access)],
+)
 async def get_live_matches():
     """Get all currently ongoing matches."""
     matches = arena.match_store.get_live_matches()
     return [match_to_json(match) for match in matches]
 
 
-@app.get("/matches/{match_id}", tags=["Matches"], summary="Get match details")
+@app.get(
+    "/matches/{match_id}",
+    tags=["Matches"],
+    summary="Get match details",
+    dependencies=[Depends(verify_access)],
+)
 async def get_match(match_id: str):
     """
     Get detailed information for a specific match.
@@ -390,7 +445,12 @@ async def get_match(match_id: str):
     raise HTTPException(status_code=404, detail="Match not found")
 
 
-@app.post("/matches/quick", tags=["Matches"], summary="Start quick match")
+@app.post(
+    "/matches/quick",
+    tags=["Matches"],
+    summary="Start quick match",
+    dependencies=[Depends(verify_access)],
+)
 async def start_quick_match(division: str):
     """
     Start a quick match between two random models in the specified division.
@@ -436,7 +496,12 @@ async def start_quick_match(division: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/matches/king-challenge", tags=["Matches"], summary="Start king challenge")
+@app.post(
+    "/matches/king-challenge",
+    tags=["Matches"],
+    summary="Start king challenge",
+    dependencies=[Depends(verify_access)],
+)
 async def start_king_challenge():
     """
     Start a king challenge match between the current king and the best performing master.
@@ -472,7 +537,10 @@ async def start_king_challenge():
 
 # Challenge Contribution Endpoint
 @app.post(
-    "/challenges/contribute", tags=["Challenges"], summary="Contribute a challenge"
+    "/challenges/contribute",
+    tags=["Challenges"],
+    summary="Contribute a challenge",
+    dependencies=[Depends(verify_access)],
 )
 async def contribute_challenge(challenge_data: dict = Body(...)):
     """
@@ -654,7 +722,12 @@ async def contribute_challenge(challenge_data: dict = Body(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/tournament/start", tags=["Tournament"], summary="Start tournament")
+@app.post(
+    "/tournament/start",
+    tags=["Tournament"],
+    summary="Start tournament",
+    dependencies=[Depends(verify_access)],
+)
 async def start_tournament(num_rounds: int = 1):
     """
     Start a new tournament round.
@@ -669,7 +742,12 @@ async def start_tournament(num_rounds: int = 1):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/tournament/status", tags=["Tournament"], summary="Get tournament status")
+@app.get(
+    "/tournament/status",
+    tags=["Tournament"],
+    summary="Get tournament status",
+    dependencies=[Depends(verify_access)],
+)
 async def get_tournament_status():
     """
     Get the current tournament status and kingdom hierarchy.
