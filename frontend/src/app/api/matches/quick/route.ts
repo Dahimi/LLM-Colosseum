@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,8 +13,17 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (API_KEY) {
+      headers['X-API-Key'] = API_KEY;
+    }
+
     const response = await fetch(`${API_BASE_URL}/matches/quick?division=${division}`, {
       method: 'POST',
+      headers,
     });
 
     const data = await response.json();
