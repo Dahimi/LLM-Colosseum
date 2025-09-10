@@ -18,9 +18,17 @@ export function transformMatch(rawMatch: any): Match {
 }
 
 function transformAgent(rawAgent: any): Agent {
-  // Calculate win_rate from basic stats
-  const totalMatches = rawAgent.stats?.total_matches || 0;
-  const wins = rawAgent.stats?.wins || 0;
+  // Calculate win_rate from current division stats or fallback to legacy
+  const currentDivisionStats = rawAgent.stats?.current_division_stats;
+  const careerStats = rawAgent.stats?.career_stats;
+  
+  // Use current division stats for primary display, fallback to legacy
+  const totalMatches = currentDivisionStats?.matches || rawAgent.stats?.total_matches || 0;
+  const wins = currentDivisionStats?.wins || rawAgent.stats?.wins || 0;
+  const losses = currentDivisionStats?.losses || rawAgent.stats?.losses || 0;
+  const draws = currentDivisionStats?.draws || rawAgent.stats?.draws || 0;
+  const currentStreak = currentDivisionStats?.current_streak || rawAgent.stats?.current_streak || 0;
+  const bestStreak = currentDivisionStats?.best_streak || rawAgent.stats?.best_streak || 0;
   const winRate = totalMatches > 0 ? (wins / totalMatches) * 100 : 0;
   
   return {
@@ -32,14 +40,40 @@ function transformAgent(rawAgent: any): Agent {
     },
     division: rawAgent.division as Division,
     stats: {
-      total_matches: rawAgent.stats?.total_matches || 0,
-      wins: rawAgent.stats?.wins || 0,
-      losses: rawAgent.stats?.losses || 0,
-      draws: rawAgent.stats?.draws || 0,
-      elo_rating: rawAgent.stats?.elo_rating || 1000,
-      current_streak: rawAgent.stats?.current_streak || 0,
-      best_streak: rawAgent.stats?.best_streak || 0,
+      // Include the new division-specific stats
+      current_division_stats: currentDivisionStats ? {
+        matches: currentDivisionStats.matches || 0,
+        wins: currentDivisionStats.wins || 0,
+        losses: currentDivisionStats.losses || 0,
+        draws: currentDivisionStats.draws || 0,
+        win_rate: currentDivisionStats.win_rate || winRate,
+        current_streak: currentDivisionStats.current_streak || 0,
+        best_streak: currentDivisionStats.best_streak || 0,
+      } : undefined,
+      
+      // Include career stats
+      career_stats: careerStats ? {
+        total_matches: careerStats.total_matches || 0,
+        total_wins: careerStats.total_wins || 0,
+        total_losses: careerStats.total_losses || 0,
+        total_draws: careerStats.total_draws || 0,
+        career_win_rate: careerStats.career_win_rate || 0,
+        divisions_reached: careerStats.divisions_reached || [],
+        promotions: careerStats.promotions || 0,
+        demotions: careerStats.demotions || 0,
+      } : undefined,
+      
+      // Legacy properties (computed from current division for backward compatibility)
+      total_matches: totalMatches,
+      wins: wins,
+      losses: losses,
+      draws: draws,
+      current_streak: currentStreak,
+      best_streak: bestStreak,
       win_rate: winRate,
+      
+      // Other stats
+      elo_rating: rawAgent.stats?.elo_rating || 1000,
       elo_history: rawAgent.stats?.elo_history || [],
       consistency_score: rawAgent.stats?.consistency_score || 0,
       innovation_index: rawAgent.stats?.innovation_index || 0,
@@ -68,6 +102,7 @@ export async function fetchAgent(agentId: string): Promise<Agent> {
     throw new Error('Failed to fetch agent');
   }
   const data = await response.json();
+  console.log('Raw agent data:', data);
   return transformAgent(data);
 }
 

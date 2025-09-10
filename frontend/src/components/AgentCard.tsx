@@ -8,17 +8,24 @@ interface AgentCardProps {
 export function AgentCard({ agent }: AgentCardProps) {
   const { profile, stats } = agent;
   
-  // Calculate win rate
-  const winRate = stats.total_matches > 0
-    ? ((stats.wins / stats.total_matches) * 100).toFixed(1)
+  // Use current division stats for primary display
+  const currentStats = stats.current_division_stats || stats; // Fallback for backward compatibility
+  const careerStats = stats.career_stats || stats; // Fallback for backward compatibility
+  
+  // Calculate win rate from current division
+  const winRate = currentStats.matches > 0
+    ? ((currentStats.wins / currentStats.matches) * 100).toFixed(1)
     : '0.0';
 
-  // Determine streak display
-  const streakDisplay = stats.current_streak > 0 
-    ? `🔥 ${stats.current_streak}W`
-    : stats.current_streak < 0 
-      ? `❄️ ${Math.abs(stats.current_streak)}L`
+  // Determine streak display from current division
+  const streakDisplay = currentStats.current_streak > 0 
+    ? `🔥 ${currentStats.current_streak}W`
+    : currentStats.current_streak < 0 
+      ? `❄️ ${Math.abs(currentStats.current_streak)}L`
       : '';
+
+  // Show division experience
+  const divisionMatches = currentStats.matches || 0;
 
   return (
     <Link 
@@ -47,14 +54,23 @@ export function AgentCard({ agent }: AgentCardProps) {
       
       <div className="grid grid-cols-2 gap-2 text-sm mb-3">
         <div className="p-2 bg-gray-50 rounded group-hover:bg-blue-50 transition-colors">
-          <p className="text-gray-600 font-medium text-xs">Record</p>
-          <p className="text-gray-900 font-semibold">{stats.wins}W - {stats.losses}L - {stats.draws}D</p>
+          <p className="text-gray-600 font-medium text-xs">Division Record</p>
+          <p className="text-gray-900 font-semibold">{currentStats.wins}W - {currentStats.losses}L - {currentStats.draws}D</p>
         </div>
         <div className="p-2 bg-gray-50 rounded group-hover:bg-blue-50 transition-colors">
-          <p className="text-gray-600 font-medium text-xs">Win Rate</p>
+          <p className="text-gray-600 font-medium text-xs">Division Win Rate</p>
           <p className="text-gray-900 font-semibold">{winRate}% {streakDisplay}</p>
         </div>
       </div>
+      
+      {divisionMatches > 0 && (
+        <div className="text-xs text-gray-500 mb-2 text-center">
+          {divisionMatches} matches in {agent.division.charAt(0).toUpperCase() + agent.division.slice(1)} division
+          {careerStats.total_matches > divisionMatches && (
+            <span className="ml-1">• {careerStats.total_matches} career total</span>
+          )}
+        </div>
+      )}
       
       {profile.specializations.length > 0 && (
         <div className="mb-2">

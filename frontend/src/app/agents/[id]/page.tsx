@@ -146,55 +146,104 @@ export default function AgentPage({ params }: PageProps) {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Current Division Performance */}
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Division</h3>
             <div className="space-y-3">
               <div>
-                <div className="text-sm text-gray-500">Current ELO</div>
+                <div className="text-sm text-gray-500">ELO Rating</div>
                 <div className="text-2xl font-bold text-gray-900">{Math.round(agent.stats.elo_rating)}</div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Win Rate</div>
-                <div className="text-2xl font-bold text-gray-900">{agent.stats.win_rate.toFixed(1)}%</div>
+                <div className="text-sm text-gray-500">Division Win Rate</div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {agent.stats.current_division_stats?.win_rate?.toFixed(1) || agent.stats.win_rate.toFixed(1)}%
+                </div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">Current Streak</div>
                 <div className={`text-2xl font-bold ${
-                  agent.stats.current_streak > 0 ? 'text-green-600' :
-                  agent.stats.current_streak < 0 ? 'text-red-600' :
+                  (agent.stats.current_division_stats?.current_streak || agent.stats.current_streak) > 0 ? 'text-green-600' :
+                  (agent.stats.current_division_stats?.current_streak || agent.stats.current_streak) < 0 ? 'text-red-600' :
                   'text-gray-900'
                 }`}>
-                  {agent.stats.current_streak > 0 ? `+${agent.stats.current_streak}` : agent.stats.current_streak}
+                  {(agent.stats.current_division_stats?.current_streak || agent.stats.current_streak) > 0 ? 
+                    `+${agent.stats.current_division_stats?.current_streak || agent.stats.current_streak}` : 
+                    (agent.stats.current_division_stats?.current_streak || agent.stats.current_streak)}
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Division Match History */}
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Match History</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Division Record</h3>
             <div className="space-y-3">
               <div>
-                <div className="text-sm text-gray-500">Total Matches</div>
-                <div className="text-2xl font-bold text-gray-900">{agent.stats.total_matches}</div>
+                <div className="text-sm text-gray-500">Matches in {agent.division.charAt(0).toUpperCase() + agent.division.slice(1)}</div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {agent.stats.current_division_stats?.matches || agent.stats.total_matches}
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <div className="text-sm text-gray-500">Wins</div>
-                  <div className="text-xl font-bold text-green-600">{agent.stats.wins}</div>
+                  <div className="text-xl font-bold text-green-600">
+                    {agent.stats.current_division_stats?.wins || agent.stats.wins}
+                  </div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Losses</div>
-                  <div className="text-xl font-bold text-red-600">{agent.stats.losses}</div>
+                  <div className="text-xl font-bold text-red-600">
+                    {agent.stats.current_division_stats?.losses || agent.stats.losses}
+                  </div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Draws</div>
-                  <div className="text-xl font-bold text-gray-600">{agent.stats.draws}</div>
+                  <div className="text-xl font-bold text-gray-600">
+                    {agent.stats.current_division_stats?.draws || agent.stats.draws}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Career Totals */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Career Totals</h3>
+            <div className="space-y-3">
+              <div>
+                <div className="text-sm text-gray-500">Total Matches</div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {agent.stats.career_stats?.total_matches || agent.stats.total_matches}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-500">Career Win Rate</div>
+                <div className="text-xl font-bold text-gray-900">
+                  {agent.stats.career_stats?.career_win_rate?.toFixed(1) || 
+                   (agent.stats.total_matches > 0 ? ((agent.stats.wins / agent.stats.total_matches) * 100).toFixed(1) : '0.0')}%
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-sm">
+                <div>
+                  <div className="text-xs text-gray-500">W</div>
+                  <div className="font-bold text-green-600">{agent.stats.career_stats?.total_wins || agent.stats.wins}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500">L</div>
+                  <div className="font-bold text-red-600">{agent.stats.career_stats?.total_losses || agent.stats.losses}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500">D</div>
+                  <div className="font-bold text-gray-600">{agent.stats.career_stats?.total_draws || agent.stats.draws}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Achievements */}
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Achievements</h3>
             <div className="space-y-3">
@@ -203,8 +252,16 @@ export default function AgentPage({ params }: PageProps) {
                 <div className="text-2xl font-bold text-green-600">+{agent.stats.best_streak}</div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Division Changes</div>
-                <div className="text-2xl font-bold text-indigo-600">{agent.division_change_history.length}</div>
+                <div className="text-sm text-gray-500">Promotions</div>
+                <div className="text-xl font-bold text-blue-600">
+                  {agent.stats.career_stats?.promotions || agent.division_change_history.filter(h => h.type === 'promotion').length}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-500">Divisions Reached</div>
+                <div className="text-sm text-gray-700">
+                  {agent.stats.career_stats?.divisions_reached?.join(', ') || agent.division}
+                </div>
               </div>
             </div>
           </div>

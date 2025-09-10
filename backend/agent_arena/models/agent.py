@@ -28,19 +28,84 @@ class EloHistoryEntry(BaseModel):
     rating_change: float
 
 
+class DivisionStats(BaseModel):
+    """Statistics for performance within a specific division."""
+
+    matches: int = Field(default=0, description="Matches played in this division")
+    wins: int = Field(default=0, description="Wins in this division")
+    losses: int = Field(default=0, description="Losses in this division")
+    draws: int = Field(default=0, description="Draws in this division")
+    current_streak: int = Field(
+        default=0,
+        description="Current win/loss streak in this division (positive=wins, negative=losses)",
+    )
+    best_streak: int = Field(default=0, description="Best win streak in this division")
+    division_entry_date: Optional[datetime] = Field(
+        default=None, description="When the agent entered this division"
+    )
+
+    @property
+    def win_rate(self) -> float:
+        """Calculate win rate percentage for this division."""
+        if self.matches == 0:
+            return 0.0
+        return (self.wins / self.matches) * 100
+
+    @property
+    def loss_rate(self) -> float:
+        """Calculate loss rate percentage for this division."""
+        if self.matches == 0:
+            return 0.0
+        return (self.losses / self.matches) * 100
+
+
+class CareerStats(BaseModel):
+    """Career-wide statistics across all divisions."""
+
+    total_matches: int = Field(
+        default=0, description="Total matches across all divisions"
+    )
+    total_wins: int = Field(default=0, description="Total wins across all divisions")
+    total_losses: int = Field(
+        default=0, description="Total losses across all divisions"
+    )
+    total_draws: int = Field(default=0, description="Total draws across all divisions")
+    divisions_reached: List[str] = Field(
+        default_factory=list, description="List of divisions reached in career"
+    )
+    promotions: int = Field(default=0, description="Total number of promotions")
+    demotions: int = Field(default=0, description="Total number of demotions")
+
+    @property
+    def career_win_rate(self) -> float:
+        """Calculate career win rate percentage."""
+        if self.total_matches == 0:
+            return 0.0
+        return (self.total_wins / self.total_matches) * 100
+
+
 class AgentStats(BaseModel):
     """Statistical tracking for agent performance."""
 
-    elo_rating: float = Field(default=1200.0, description="ELO rating score")
-    total_matches: int = Field(default=0, description="Total matches played")
-    wins: int = Field(default=0, description="Total wins")
-    losses: int = Field(default=0, description="Total losses")
-    draws: int = Field(default=0, description="Total draws")
-    current_streak: int = Field(
-        default=0,
-        description="Current win/loss streak (positive=wins, negative=losses)",
+    # Global ELO rating (represents overall skill level)
+    elo_rating: float = Field(default=1200.0, description="Global ELO rating score")
+
+    # Current division performance (used for promotion/demotion decisions)
+    current_division_stats: DivisionStats = Field(
+        default_factory=DivisionStats, description="Stats in current division"
     )
-    best_streak: int = Field(default=0, description="Best win streak achieved")
+
+    # Career totals (for achievement tracking)
+    career_stats: CareerStats = Field(
+        default_factory=CareerStats, description="Career-wide statistics"
+    )
+
+    # Division history (stats per division)
+    division_history: Dict[str, DivisionStats] = Field(
+        default_factory=dict, description="Historical stats per division"
+    )
+
+    # Other stats (unchanged)
     consistency_score: float = Field(
         default=0.0, description="Performance consistency metric (0-1)"
     )
@@ -69,19 +134,49 @@ class AgentStats(BaseModel):
         default=0, description="Total number of streaming attempts"
     )
 
+    # Legacy properties for backward compatibility
+    @property
+    def total_matches(self) -> int:
+        """Legacy: Total matches (now from career stats)."""
+        return self.career_stats.total_matches
+
+    @property
+    def wins(self) -> int:
+        """Legacy: Total wins (now from career stats)."""
+        return self.career_stats.total_wins
+
+    @property
+    def losses(self) -> int:
+        """Legacy: Total losses (now from career stats)."""
+        return self.career_stats.total_losses
+
+    @property
+    def draws(self) -> int:
+        """Legacy: Total draws (now from career stats)."""
+        return self.career_stats.total_draws
+
+    @property
+    def current_streak(self) -> int:
+        """Current streak in current division."""
+        return self.current_division_stats.current_streak
+
+    @property
+    def best_streak(self) -> int:
+        """Best streak across all divisions."""
+        best = self.current_division_stats.best_streak
+        for division_stats in self.division_history.values():
+            best = max(best, division_stats.best_streak)
+        return best
+
     @property
     def win_rate(self) -> float:
-        """Calculate win rate percentage."""
-        if self.total_matches == 0:
-            return 0.0
-        return (self.wins / self.total_matches) * 100
+        """Current division win rate (used for promotions)."""
+        return self.current_division_stats.win_rate
 
     @property
     def loss_rate(self) -> float:
-        """Calculate loss rate percentage."""
-        if self.total_matches == 0:
-            return 0.0
-        return (self.losses / self.total_matches) * 100
+        """Current division loss rate."""
+        return self.current_division_stats.loss_rate
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize the object to a JSON-compatible dictionary."""
@@ -91,6 +186,49 @@ class AgentStats(BaseModel):
     def from_dict(cls, data: Dict[str, Any]) -> "AgentStats":
         """Deserialize an object from a dictionary."""
         return cls.model_validate(data)
+
+    def reset_current_division_stats(self, division: str) -> None:
+        """Reset current division stats when promoted/demoted."""
+        # Archive current division stats if they exist
+        if self.current_division_stats.matches > 0:
+            self.division_history[division] = self.current_division_stats.model_copy()
+
+        # Reset current division stats
+        self.current_division_stats = DivisionStats(
+            division_entry_date=datetime.utcnow()
+        )
+
+    def update_match_stats(self, result: str) -> None:
+        """Update stats after a match."""
+        # Update current division stats
+        self.current_division_stats.matches += 1
+
+        if result == "win":
+            self.current_division_stats.wins += 1
+            self.current_division_stats.current_streak = max(
+                1, self.current_division_stats.current_streak + 1
+            )
+            self.current_division_stats.best_streak = max(
+                self.current_division_stats.best_streak,
+                self.current_division_stats.current_streak,
+            )
+        elif result == "loss":
+            self.current_division_stats.losses += 1
+            self.current_division_stats.current_streak = min(
+                -1, self.current_division_stats.current_streak - 1
+            )
+        else:  # draw
+            self.current_division_stats.draws += 1
+            self.current_division_stats.current_streak = 0
+
+        # Update career stats
+        self.career_stats.total_matches += 1
+        if result == "win":
+            self.career_stats.total_wins += 1
+        elif result == "loss":
+            self.career_stats.total_losses += 1
+        else:
+            self.career_stats.total_draws += 1
 
 
 class AgentProfile(BaseModel):
@@ -197,7 +335,19 @@ class Agent(BaseModel):
     def promote_division(self, new_division: Division, reason: str = "") -> None:
         """Promote agent to a higher division."""
         old_division = self.division
+
+        # Archive current division stats and reset for new division
+        self.stats.reset_current_division_stats(old_division.value)
+
+        # Update division
         self.division = new_division
+
+        # Update career stats
+        if new_division.value not in self.stats.career_stats.divisions_reached:
+            self.stats.career_stats.divisions_reached.append(new_division.value)
+        self.stats.career_stats.promotions += 1
+
+        # Add to history
         entry = DivisionChangeHistoryEntry(
             from_division=old_division.value,
             to_division=new_division.value,
@@ -210,7 +360,17 @@ class Agent(BaseModel):
     def demote_division(self, new_division: Division, reason: str = "") -> None:
         """Demote agent to a lower division."""
         old_division = self.division
+
+        # Archive current division stats and reset for new division
+        self.stats.reset_current_division_stats(old_division.value)
+
+        # Update division
         self.division = new_division
+
+        # Update career stats
+        self.stats.career_stats.demotions += 1
+
+        # Add to history
         entry = DivisionChangeHistoryEntry(
             from_division=old_division.value,
             to_division=new_division.value,
@@ -221,31 +381,29 @@ class Agent(BaseModel):
         self.update_last_active()
 
     def is_eligible_for_promotion(self) -> bool:
-        """Check if agent is eligible for promotion based on performance."""
-        # Promotion criteria:
-        # - Win streak >= 3
-        # - Win rate > 60%
-        # - At least 5 matches played
+        """Check if agent is eligible for promotion based on current division performance."""
+        current_stats = self.stats.current_division_stats
+        # Require minimum 5 matches in current division
         return (
-            self.stats.current_streak >= 3
-            and self.stats.win_rate > 60
-            and self.stats.total_matches >= 5
+            current_stats.current_streak >= 3
+            and current_stats.win_rate > 60
+            and current_stats.matches >= 5
         )
 
     def should_be_demoted(self) -> bool:
-        """Check if agent should be demoted based on poor performance."""
-        # Demotion criteria:
-        # - Loss streak >= 5
-        # - Win rate < 30% (with at least 10 matches)
-        return self.stats.current_streak <= -5 or (
-            self.stats.win_rate < 30 and self.stats.total_matches >= 10
+        """Check if agent should be demoted based on current division performance."""
+        current_stats = self.stats.current_division_stats
+        # Require minimum 5 matches in current division for demotion
+        return current_stats.matches >= 5 and (
+            current_stats.current_streak <= -4
+            or (current_stats.win_rate < 30 and current_stats.matches >= 8)
         )
 
     def deactivate(self, reason: str = "") -> None:
         """Deactivate the agent."""
         self.profile.is_active = False
         self.profile.metadata["deactivation_reason"] = reason
-        self.profile.metadata["deactivation_timestamp"] = datetime.utcnow().isoformat()
+        self.profile.metadata["deactivated_at"] = datetime.utcnow().isoformat()
         self.update_last_active()
 
     def update_elo(
@@ -257,8 +415,7 @@ class Agent(BaseModel):
         result: str,
         rating_change: float,
     ) -> None:
-        """Update ELO rating and record the change in history."""
-        old_rating = self.stats.elo_rating
+        """Update ELO rating and add to history."""
         self.stats.elo_rating = new_rating
 
         # Record the change in history
@@ -289,5 +446,8 @@ class Agent(BaseModel):
             supabase.table("elo_history").insert(elo_history_data).execute()
         except Exception as e:
             print(f"Error saving ELO history to database: {e}")
+
+        # Update match stats
+        self.stats.update_match_stats(result)
 
         self.update_last_active()
