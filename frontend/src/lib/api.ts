@@ -2,7 +2,22 @@ import { Agent, Division } from '@/types/arena';
 import { Match, MatchStatus, ChallengeType } from '@/types/matches';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 export { API_BASE_URL };
+
+// Helper function to create headers with API key
+function createHeaders(additionalHeaders: Record<string, string> = {}): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...additionalHeaders,
+  };
+  
+  if (API_KEY) {
+    headers['X-API-Key'] = API_KEY;
+  }
+  
+  return headers;
+}
 
 export function transformMatch(rawMatch: any): Match {
   if (!rawMatch) return rawMatch;
@@ -88,7 +103,9 @@ function transformAgent(rawAgent: any): Agent {
 }
 
 export async function fetchAgents(): Promise<Agent[]> {
-  const response = await fetch(`${API_BASE_URL}/agents`);
+  const response = await fetch(`${API_BASE_URL}/agents`, {
+    headers: createHeaders(),
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch agents');
   }
@@ -97,7 +114,9 @@ export async function fetchAgents(): Promise<Agent[]> {
 }
 
 export async function fetchAgent(agentId: string): Promise<Agent> {
-  const response = await fetch(`${API_BASE_URL}/agents/${agentId}`);
+  const response = await fetch(`${API_BASE_URL}/agents/${agentId}`, {
+    headers: createHeaders(),
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch agent');
   }
@@ -107,7 +126,9 @@ export async function fetchAgent(agentId: string): Promise<Agent> {
 }
 
 export async function fetchMatches(): Promise<Match[]> {
-  const response = await fetch(`${API_BASE_URL}/matches`);
+  const response = await fetch(`${API_BASE_URL}/matches`, {
+    headers: createHeaders(),
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch matches');
   }
@@ -117,7 +138,9 @@ export async function fetchMatches(): Promise<Match[]> {
 }
 
 export async function fetchMatch(matchId: string): Promise<Match> {
-  const response = await fetch(`${API_BASE_URL}/matches/${matchId}`);
+  const response = await fetch(`${API_BASE_URL}/matches/${matchId}`, {
+    headers: createHeaders(),
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch match');
   }
@@ -126,7 +149,9 @@ export async function fetchMatch(matchId: string): Promise<Match> {
 }
 
 export async function fetchLiveMatches(): Promise<Match[]> {
-  const response = await fetch(`${API_BASE_URL}/matches/live`);
+  const response = await fetch(`${API_BASE_URL}/matches/live`, {
+    headers: createHeaders(),
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch live matches');
   }
@@ -137,7 +162,8 @@ export async function fetchLiveMatches(): Promise<Match[]> {
 
 export async function startKingChallenge(): Promise<Match> {
   const response = await fetch(`${API_BASE_URL}/matches/king-challenge`, {
-    method: 'POST'
+    method: 'POST',
+    headers: createHeaders(),
   });
   
   if (!response.ok) {
@@ -151,7 +177,8 @@ export async function startKingChallenge(): Promise<Match> {
 
 export async function startTournament(numRounds: number = 1): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/tournament/start?num_rounds=${numRounds}`, {
-    method: 'POST'
+    method: 'POST',
+    headers: createHeaders(),
   });
   if (!response.ok) {
     throw new Error('Failed to start tournament');
@@ -159,7 +186,9 @@ export async function startTournament(numRounds: number = 1): Promise<void> {
 }
 
 export async function fetchTournamentStatus(): Promise<any> {
-  const response = await fetch(`${API_BASE_URL}/tournament/status`);
+  const response = await fetch(`${API_BASE_URL}/tournament/status`, {
+    headers: createHeaders(),
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch tournament status');
   }
