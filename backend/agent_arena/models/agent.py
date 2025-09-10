@@ -180,7 +180,17 @@ class AgentStats(BaseModel):
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize the object to a JSON-compatible dictionary."""
-        return self.model_dump(mode="json")
+        data = self.model_dump(mode="json")
+        
+        # Manually add computed properties that Pydantic doesn't serialize
+        if "current_division_stats" in data and data["current_division_stats"]:
+            data["current_division_stats"]["win_rate"] = self.current_division_stats.win_rate
+            data["current_division_stats"]["loss_rate"] = self.current_division_stats.loss_rate
+        
+        if "career_stats" in data and data["career_stats"]:
+            data["career_stats"]["career_win_rate"] = self.career_stats.career_win_rate
+        
+        return data
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "AgentStats":
