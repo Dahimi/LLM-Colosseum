@@ -8,17 +8,32 @@ interface AgentCardProps {
 export function AgentCard({ agent }: AgentCardProps) {
   const { profile, stats } = agent;
   
-  // Calculate win rate
-  const winRate = stats.total_matches > 0
-    ? ((stats.wins / stats.total_matches) * 100).toFixed(1)
+  // Use current division stats for primary display
+  const currentDivisionStats = stats.current_division_stats;
+  const careerStats = stats.career_stats;
+  
+  // Get values with proper fallbacks
+  const matches = currentDivisionStats?.matches || stats.total_matches;
+  const wins = currentDivisionStats?.wins || stats.wins;
+  const losses = currentDivisionStats?.losses || stats.losses;
+  const draws = currentDivisionStats?.draws || stats.draws;
+  const currentStreak = currentDivisionStats?.current_streak || stats.current_streak;
+  const totalCareerMatches = careerStats?.total_matches || stats.total_matches;
+  
+  // Calculate win rate from current division
+  const winRate = matches > 0
+    ? ((wins / matches) * 100).toFixed(1)
     : '0.0';
 
-  // Determine streak display
-  const streakDisplay = stats.current_streak > 0 
-    ? `🔥 ${stats.current_streak}W`
-    : stats.current_streak < 0 
-      ? `❄️ ${Math.abs(stats.current_streak)}L`
+  // Determine streak display from current division
+  const streakDisplay = currentStreak > 0 
+    ? `🔥 ${currentStreak}W`
+    : currentStreak < 0 
+      ? `❄️ ${Math.abs(currentStreak)}L`
       : '';
+
+  // Show division experience
+  const divisionMatches = matches;
 
   return (
     <Link 
@@ -47,14 +62,23 @@ export function AgentCard({ agent }: AgentCardProps) {
       
       <div className="grid grid-cols-2 gap-2 text-sm mb-3">
         <div className="p-2 bg-gray-50 rounded group-hover:bg-blue-50 transition-colors">
-          <p className="text-gray-600 font-medium text-xs">Record</p>
-          <p className="text-gray-900 font-semibold">{stats.wins}W - {stats.losses}L - {stats.draws}D</p>
+          <p className="text-gray-600 font-medium text-xs">Division Record</p>
+          <p className="text-gray-900 font-semibold">{wins}W - {losses}L - {draws}D</p>
         </div>
         <div className="p-2 bg-gray-50 rounded group-hover:bg-blue-50 transition-colors">
-          <p className="text-gray-600 font-medium text-xs">Win Rate</p>
+          <p className="text-gray-600 font-medium text-xs">Division Win Rate</p>
           <p className="text-gray-900 font-semibold">{winRate}% {streakDisplay}</p>
         </div>
       </div>
+      
+      {divisionMatches > 0 && (
+        <div className="text-xs text-gray-500 mb-2 text-center">
+          {divisionMatches} matches in {agent.division.charAt(0).toUpperCase() + agent.division.slice(1)} division
+          {totalCareerMatches > divisionMatches && (
+            <span className="ml-1">• {totalCareerMatches} career total</span>
+          )}
+        </div>
+      )}
       
       {profile.specializations.length > 0 && (
         <div className="mb-2">
