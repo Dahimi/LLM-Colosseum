@@ -276,12 +276,7 @@ async def get_agent(agent_id: str):
 
 
 # SSE endpoints must come before other /matches endpoints to avoid routing conflicts
-@app.get(
-    "/matches/stream",
-    tags=["Real-time"],
-    summary="Stream match updates",
-    dependencies=[Depends(verify_access)],
-)
+@app.get("/matches/stream", tags=["Real-time"], summary="Stream match updates")
 async def stream_matches(request: Request):
     """
     Server-Sent Events endpoint for real-time match updates.
@@ -343,10 +338,7 @@ async def match_updates() -> AsyncGenerator[dict, None]:
 
 
 @app.get(
-    "/matches/{match_id}/stream",
-    tags=["Real-time"],
-    summary="Stream specific match",
-    dependencies=[Depends(verify_access)],
+    "/matches/{match_id}/stream", tags=["Real-time"], summary="Stream specific match"
 )
 async def stream_match(match_id: str, request: Request):
     """
