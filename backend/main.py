@@ -337,7 +337,9 @@ async def match_updates() -> AsyncGenerator[dict, None]:
         await asyncio.sleep(2)  # Wait 2 seconds between updates
 
 
-@app.get("/matches/{match_id}/stream", tags=["Real-time"], summary="Stream specific match")
+@app.get(
+    "/matches/{match_id}/stream", tags=["Real-time"], summary="Stream specific match"
+)
 async def stream_match(match_id: str, request: Request):
     """
     Server-Sent Events endpoint for streaming a specific match.
