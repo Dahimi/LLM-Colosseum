@@ -56,13 +56,13 @@ export function MatchesContent({ agentsMap: initialAgentsMap, onMatchDataUpdate 
           
           // Notify parent of match data changes
           onMatchDataUpdate?.(transformedLiveMatches.length, transformedMatches.length);
-          
+        
           // Check for new matches
           const currentMatchIds = new Set(transformedMatches.map(m => m.match_id));
           const previousMatchIds = new Set(previousMatchesRef.current.map(m => m.match_id));
           
           const newMatches = transformedMatches.filter(m => !previousMatchIds.has(m.match_id));
-          
+
           if (newMatches.length > 0) {
             console.log(`🎉 ${newMatches.length} new match(es) detected!`);
             refreshAgents();

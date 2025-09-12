@@ -91,8 +91,8 @@ class Arena:
 
         return match
 
-    def start_quick_match(self, division: str) -> Match:
-        """Start a quick match between random agents in a division."""
+    def start_quick_match(self, division: str, agent1_id: str = None, agent2_id: str = None) -> Match:
+        """Start a quick match between agents in a division (random or specific selection)."""
         # Check if we've reached the maximum number of live matches
         if self.match_store.has_reached_live_match_limit():
             raise ValueError(
@@ -110,8 +110,28 @@ class Arena:
         if len(division_agents) < 2:
             raise ValueError(f"Not enough active agents in {division} division")
 
-        # Select random agents and challenge
-        agent1, agent2 = random.sample(division_agents, 2)
+        # Agent selection logic
+        if agent1_id and agent2_id:
+            # Manual selection: find specific agents
+            agent1 = None
+            agent2 = None
+            
+            for agent in division_agents:
+                if agent.profile.name == agent1_id:
+                    agent1 = agent
+                elif agent.profile.name == agent2_id:
+                    agent2 = agent
+            
+            if not agent1:
+                raise ValueError(f"Agent '{agent1_id}' not found in {division} division or not active")
+            if not agent2:
+                raise ValueError(f"Agent '{agent2_id}' not found in {division} division or not active")
+            if agent1_id == agent2_id:
+                raise ValueError("Cannot start a match between the same agent")
+                
+        else:
+            # Random selection (default behavior)
+            agent1, agent2 = random.sample(division_agents, 2)
 
         # Select appropriate challenge directly from the database
         if division.lower() == Division.NOVICE.value:

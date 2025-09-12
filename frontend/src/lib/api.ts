@@ -175,6 +175,25 @@ export async function startKingChallenge(): Promise<Match> {
   return transformMatch(data);
 }
 
+export async function startQuickMatch(division: string, agent1Id?: string, agent2Id?: string): Promise<Match> {
+  const params = new URLSearchParams({ division });
+  if (agent1Id) params.append('agent1_id', agent1Id);
+  if (agent2Id) params.append('agent2_id', agent2Id);
+
+  const response = await fetch(`${API_BASE_URL}/matches/quick?${params}`, {
+    method: 'POST',
+    headers: createHeaders(),
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Failed to start quick match');
+  }
+  
+  const data = await response.json();
+  return transformMatch(data);
+}
+
 export async function startTournament(numRounds: number = 1): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/tournament/start?num_rounds=${numRounds}`, {
     method: 'POST',
