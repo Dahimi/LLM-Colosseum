@@ -443,12 +443,23 @@ async def get_match(match_id: str):
     summary="Start quick match",
     dependencies=[Depends(verify_access)],
 )
-async def start_quick_match(division: str):
+async def start_quick_match(
+    division: str,
+    agent1_id: Optional[str] = None,
+    agent2_id: Optional[str] = None
+):
     """
-    Start a quick match between two random models in the specified division.
+    Start a quick match between models in the specified division.
 
     **Parameters:**
     - division: "novice", "expert", "master", or "king"
+    - agent1_id: (Optional) Specific model ID for first participant
+    - agent2_id: (Optional) Specific model ID for second participant
+    
+    **Behavior:**
+    - If both agent IDs provided: Start match between those specific models
+    - If no agent IDs provided: Random selection (default behavior)
+    - Both agents must be in the specified division
 
     **Rate Limits:**
     - Maximum 20 concurrent live matches
@@ -467,8 +478,8 @@ async def start_quick_match(division: str):
                 },
             )
 
-        # Start the match asynchronously
-        match = arena.start_quick_match(division)
+        # Start the match asynchronously (with optional agent selection)
+        match = arena.start_quick_match(division, agent1_id, agent2_id)
 
         # Return immediately with the match info
         return match_to_json(match)
