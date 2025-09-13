@@ -89,6 +89,9 @@ class AgentStats(BaseModel):
 
     # Global ELO rating (represents overall skill level)
     elo_rating: float = Field(default=1200.0, description="Global ELO rating score")
+    
+    # Starting ELO rating (what the agent began with)
+    starting_elo: float = Field(default=1200.0, description="Starting ELO rating for this agent")
 
     # Current division performance (used for promotion/demotion decisions)
     current_division_stats: DivisionStats = Field(
