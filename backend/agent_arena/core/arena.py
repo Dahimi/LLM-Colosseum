@@ -202,6 +202,7 @@ class Arena:
                         key: agent_data[key]
                         for key in [
                             "elo_rating",
+                            "starting_elo",
                             "current_division_stats",
                             "career_stats",
                             "division_history",
@@ -214,6 +215,10 @@ class Arena:
                         ]
                         if key in agent_data
                     }
+                    
+                    # If starting_elo is not in the database, set it to current elo_rating
+                    if "starting_elo" not in stats_data:
+                        stats_data["starting_elo"] = agent_data.get("elo_rating", 1200.0)
 
                 agent = Agent(
                     profile=AgentProfile(**profile_data),
@@ -235,8 +240,8 @@ class Arena:
                     )
 
                     if elo_history_response.data:
-                        # Start with base rating and reconstruct historical ratings
-                        historical_rating = 1200.0  # Base ELO rating
+                        # Start with agent's starting ELO and reconstruct historical ratings
+                        historical_rating = agent.stats.starting_elo
 
                         for entry in elo_history_response.data:
                             # Get the rating change from this match
@@ -356,6 +361,7 @@ class Arena:
                 "best_streak": agent.stats.best_streak,
                 # Other stats
                 "elo_rating": stats_data.get("elo_rating"),
+                "starting_elo": stats_data.get("starting_elo"),
                 "consistency_score": stats_data.get("consistency_score"),
                 "innovation_index": stats_data.get("innovation_index"),
                 "challenges_created": stats_data.get("challenges_created"),
@@ -935,11 +941,36 @@ class Arena:
         self.save_state()
 
     def apply_realistic_division_changes(self, context: str = "match"):
-        """Apply promotion and demotion rules based on performance metrics."""
+        """Apply promotion and demotion rules based on performance metrics and ELO ranking."""
         changes = []
         eligible_challengers = []
 
+        # Group active agents by division for ELO ranking comparisons
+        division_agents = {}
         for agent in self.agents:
+            if agent.profile.is_active:
+                if agent.division not in division_agents:
+                    division_agents[agent.division] = []
+                division_agents[agent.division].append(agent)
+
+        # Helper function to check if agent has highest ELO in their division
+        def has_highest_elo_in_division(agent: Agent) -> bool:
+            agents_in_division = division_agents.get(agent.division, [])
+            if len(agents_in_division) <= 1:
+                return True  # Only agent in division
+            return agent.stats.elo_rating == max(a.stats.elo_rating for a in agents_in_division)
+
+        # Helper function to check if agent has lowest ELO in their division
+        def has_lowest_elo_in_division(agent: Agent) -> bool:
+            agents_in_division = division_agents.get(agent.division, [])
+            if len(agents_in_division) <= 1:
+                return True  # Only agent in division
+            return agent.stats.elo_rating == min(a.stats.elo_rating for a in agents_in_division)
+
+        for agent in self.agents:
+            if not agent.profile.is_active:
+                continue
+                
             # Use current division stats for promotion/demotion decisions
             current_stats = agent.stats.current_division_stats
             win_rate = current_stats.win_rate
@@ -947,29 +978,29 @@ class Arena:
             matches = current_stats.matches
             elo = agent.stats.elo_rating
 
-            # Promotion logic - minimum 5 matches in current division
-            if matches >= 5:
+            # Promotion logic - minimum 5 matches in current division + highest ELO in division
+            if matches >= 5 and has_highest_elo_in_division(agent):
                 if agent.division == Division.NOVICE and (
                     win_rate >= 60 or streak >= 3
                 ):
                     agent.promote_division(
                         Division.EXPERT,
-                        f"Promoted with {win_rate:.1f}% win rate in Novice division ({matches} matches, {elo:.0f} ELO)",
+                        f"Promoted with {win_rate:.1f}% win rate in Novice division ({matches} matches, {elo:.0f} ELO, highest in division)",
                     )
                     self.update_agent_in_db(agent)
                     changes.append(
-                        f"🔺 {agent.profile.name}: NOVICE → EXPERT (Division stats: {win_rate:.1f}% WR, {matches} matches)"
+                        f"🔺 {agent.profile.name}: NOVICE → EXPERT (Top ELO + {win_rate:.1f}% WR, {matches} matches)"
                     )
                 elif agent.division == Division.EXPERT and (
                     win_rate >= 70 or streak >= 4
                 ):
                     agent.promote_division(
                         Division.MASTER,
-                        f"Promoted with {win_rate:.1f}% win rate in Expert division ({matches} matches, {elo:.0f} ELO)",
+                        f"Promoted with {win_rate:.1f}% win rate in Expert division ({matches} matches, {elo:.0f} ELO, highest in division)",
                     )
                     self.update_agent_in_db(agent)
                     changes.append(
-                        f"🔺 {agent.profile.name}: EXPERT → MASTER (Division stats: {win_rate:.1f}% WR, {matches} matches)"
+                        f"🔺 {agent.profile.name}: EXPERT → MASTER (Top ELO + {win_rate:.1f}% WR, {matches} matches)"
                     )
                 elif agent.division == Division.MASTER and (
                     win_rate >= 75 or streak >= 5
@@ -984,11 +1015,11 @@ class Arena:
                         # No current King, so promote this Master to King
                         agent.promote_division(
                             Division.KING,
-                            f"Crowned with {win_rate:.1f}% win rate in Master division ({matches} matches, {elo:.0f} ELO)",
+                            f"Crowned with {win_rate:.1f}% win rate in Master division ({matches} matches, {elo:.0f} ELO, highest in division)",
                         )
                         self.update_agent_in_db(agent)
                         changes.append(
-                            f"👑 {agent.profile.name}: MASTER → KING (CROWNED! Division stats: {win_rate:.1f}% WR, {matches} matches)"
+                            f"👑 {agent.profile.name}: MASTER → KING (CROWNED! Top ELO + {win_rate:.1f}% WR, {matches} matches)"
                         )
                     else:
                         # There's already a King, so this Master is now eligible to challenge
@@ -997,44 +1028,44 @@ class Arena:
                             f"{agent.profile.name} qualifies for King promotion but must challenge {king.profile.name} for the crown"
                         )
                         changes.append(
-                            f"⚔️  {agent.profile.name} is now ELIGIBLE TO CHALLENGE THE KING! (Division stats: {win_rate:.1f}% WR, {matches} matches)"
+                            f"⚔️  {agent.profile.name} is now ELIGIBLE TO CHALLENGE THE KING! (Top ELO + {win_rate:.1f}% WR, {matches} matches)"
                         )
                         # Add to eligible challengers list
                         eligible_challengers.append(agent)
                         # We don't automatically start a challenge here - that's done through the king-challenge endpoint
 
-            # Demotion logic - minimum 5 matches in current division
-            if matches >= 5:
+            # Demotion logic - minimum 5 matches in current division + lowest ELO in division
+            if matches >= 5 and has_lowest_elo_in_division(agent):
                 if agent.division == Division.KING and (win_rate <= 40 or streak <= -3):
                     agent.demote_division(
                         Division.MASTER,
-                        f"Dethroned with {win_rate:.1f}% win rate in King division ({matches} matches, {elo:.0f} ELO)",
+                        f"Dethroned with {win_rate:.1f}% win rate in King division ({matches} matches, {elo:.0f} ELO, lowest in division)",
                     )
                     self.update_agent_in_db(agent)
                     changes.append(
-                        f"🔻 {agent.profile.name}: KING → MASTER (DETHRONED! Division stats: {win_rate:.1f}% WR, {matches} matches)"
+                        f"🔻 {agent.profile.name}: KING → MASTER (DETHRONED! Lowest ELO + {win_rate:.1f}% WR, {matches} matches)"
                     )
                 elif agent.division == Division.MASTER and (
                     win_rate <= 35 or streak <= -4
                 ):
                     agent.demote_division(
                         Division.EXPERT,
-                        f"Demoted with {win_rate:.1f}% win rate in Master division ({matches} matches, {elo:.0f} ELO)",
+                        f"Demoted with {win_rate:.1f}% win rate in Master division ({matches} matches, {elo:.0f} ELO, lowest in division)",
                     )
                     self.update_agent_in_db(agent)
                     changes.append(
-                        f"🔻 {agent.profile.name}: MASTER → EXPERT (Division stats: {win_rate:.1f}% WR, {matches} matches)"
+                        f"🔻 {agent.profile.name}: MASTER → EXPERT (Lowest ELO + {win_rate:.1f}% WR, {matches} matches)"
                     )
                 elif agent.division == Division.EXPERT and (
                     win_rate <= 30 or streak <= -4
                 ):
                     agent.demote_division(
                         Division.NOVICE,
-                        f"Demoted with {win_rate:.1f}% win rate in Expert division ({matches} matches, {elo:.0f} ELO)",
+                        f"Demoted with {win_rate:.1f}% win rate in Expert division ({matches} matches, {elo:.0f} ELO, lowest in division)",
                     )
                     self.update_agent_in_db(agent)
                     changes.append(
-                        f"🔻 {agent.profile.name}: EXPERT → NOVICE (Division stats: {win_rate:.1f}% WR, {matches} matches)"
+                        f"🔻 {agent.profile.name}: EXPERT → NOVICE (Lowest ELO + {win_rate:.1f}% WR, {matches} matches)"
                     )
 
         # Automatically trigger a king challenge if there are eligible challengers
