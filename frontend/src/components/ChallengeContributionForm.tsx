@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Division } from '@/types/arena';
+import { useState, useEffect } from 'react';
+import { Division, Agent } from '@/types/arena';
+import { fetchAgents } from '@/lib/api';
 
 interface ChallengeContributionFormProps {
   onChallengeSubmit?: (challengeData: any) => void;
@@ -24,6 +25,35 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [testMatchType, setTestMatchType] = useState<'random' | 'manual'>('random');
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [selectedAgent1, setSelectedAgent1] = useState<string>('');
+  const [selectedAgent2, setSelectedAgent2] = useState<string>('');
+
+  // Load agents when component mounts
+  useEffect(() => {
+    const loadAgents = async () => {
+      try {
+        const allAgents = await fetchAgents();
+        setAgents(allAgents);
+      } catch (e) {
+        console.error('Failed to load agents:', e);
+      }
+    };
+    loadAgents();
+  }, []);
+
+  // Reset agent selections when division or test match type changes
+  useEffect(() => {
+    setSelectedAgent1('');
+    setSelectedAgent2('');
+  }, [formData.division, testMatchType]);
+
+  // Get agents in the selected division
+  const divisionAgents = agents.filter(agent => 
+    agent.division.toLowerCase() === formData.division.toLowerCase() && 
+    agent.profile.name // Ensure agent has a name
+  );
 
   const challengeTypes = [
     { value: 'LOGICAL_REASONING', label: 'Logical Reasoning' },
@@ -53,11 +83,26 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
     setSuccessMessage(null);
 
     try {
+      // Validate manual selection
+      if (testMatchType === 'manual') {
+        if (!selectedAgent1 || !selectedAgent2) {
+          throw new Error('Please select both models for the test match');
+        }
+        if (selectedAgent1 === selectedAgent2) {
+          throw new Error('Please select two different models for the test match');
+        }
+      }
+
       // Prepare challenge data
       const challengeData = {
         ...formData,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
         source: 'community',
+        // Add agent selection for test match
+        ...(testMatchType === 'manual' && {
+          agent1_id: selectedAgent1,
+          agent2_id: selectedAgent2,
+        }),
         metadata: {
           contributor_name: formData.contributorName,
           contributor_email: formData.contributorEmail,
@@ -81,7 +126,16 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
 
       const result = await response.json();
       
-      setSuccessMessage(`Challenge "${formData.title}" submitted successfully! Test match started: ${result.match_id}`);
+      // Show the combatants' names instead of match ID
+      const combatants = result.test_match ? 
+        [result.test_match.agent1_id, result.test_match.agent2_id] : 
+        [result.agent1_id, result.agent2_id];
+      
+      const combatantsText = combatants && combatants.length === 2 ? 
+        ` Test battle: ${combatants.join(' vs ')}!` : 
+        ` Test match started!`;
+        
+      setSuccessMessage(`Challenge "${formData.title}" submitted successfully!${combatantsText}`);
       onChallengeSubmit?.(result);
       
       // Reset form
@@ -96,6 +150,9 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
         contributorName: '',
         contributorEmail: ''
       });
+      setTestMatchType('random');
+      setSelectedAgent1('');
+      setSelectedAgent2('');
 
     } catch (e) {
       console.error('Error submitting challenge:', e);
@@ -271,6 +328,91 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
               </div>
             </div>
 
+            {/* Test Match Type Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Test Match Type</label>
+              <div className="flex gap-4">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="testMatchType"
+                    value="random"
+                    checked={testMatchType === 'random'}
+                    onChange={(e) => setTestMatchType(e.target.value as 'random' | 'manual')}
+                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                    disabled={isSubmitting}
+                  />
+                  <span className="text-sm text-gray-700">🎲 Random Models</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="testMatchType"
+                    value="manual"
+                    checked={testMatchType === 'manual'}
+                    onChange={(e) => setTestMatchType(e.target.value as 'random' | 'manual')}
+                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                    disabled={isSubmitting}
+                  />
+                  <span className="text-sm text-gray-700">🎯 Choose Models</span>
+                </label>
+              </div>
+              <p className="text-xs text-gray-600 mt-1">
+                Select which models will test your challenge in the initial battle
+              </p>
+            </div>
+
+            {/* Manual Agent Selection for Test Match */}
+            {testMatchType === 'manual' && (
+              <div className="grid grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div>
+                  <label htmlFor="testAgent1" className="block text-sm font-medium text-gray-700 mb-1">
+                    Test Model 1 *
+                  </label>
+                  <select
+                    id="testAgent1"
+                    value={selectedAgent1}
+                    onChange={(e) => setSelectedAgent1(e.target.value)}
+                    required={testMatchType === 'manual'}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
+                    disabled={isSubmitting}
+                  >
+                    <option value="">Select model...</option>
+                    {divisionAgents.map((agent) => (
+                      <option key={agent.profile.agent_id} value={agent.profile.name}>
+                        {agent.profile.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="testAgent2" className="block text-sm font-medium text-gray-700 mb-1">
+                    Test Model 2 *
+                  </label>
+                  <select
+                    id="testAgent2"
+                    value={selectedAgent2}
+                    onChange={(e) => setSelectedAgent2(e.target.value)}
+                    required={testMatchType === 'manual'}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
+                    disabled={isSubmitting}
+                  >
+                    <option value="">Select model...</option>
+                    {divisionAgents.filter(agent => agent.profile.name !== selectedAgent1).map((agent) => (
+                      <option key={agent.profile.agent_id} value={agent.profile.name}>
+                        {agent.profile.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-xs text-blue-700 bg-blue-100 p-2 rounded">
+                    💡 Your challenge will be tested with these specific models to ensure it works properly before being added to the arena
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div>
               <label htmlFor="answer" className="block text-sm font-medium text-gray-700 mb-1">
                 Expected Answer/Solution (optional)
@@ -305,7 +447,7 @@ export function ChallengeContributionForm({ onChallengeSubmit }: ChallengeContri
             <div className="flex flex-col gap-3">
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || (testMatchType === 'manual' && (!selectedAgent1 || !selectedAgent2 || selectedAgent1 === selectedAgent2))}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm"
               >
                 {isSubmitting ? (
