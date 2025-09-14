@@ -559,6 +559,8 @@ async def contribute_challenge(challenge_data: dict = Body(...)):
         "division": "expert",
         "answer": "Expected answer (optional)",
         "tags": ["logic", "reasoning"],
+        "agent1_id": "Optional specific model for test match",
+        "agent2_id": "Optional specific model for test match",
         "metadata": {
             "contributor_name": "Your name",
             "contributor_email": "your@email.com"
@@ -576,7 +578,10 @@ async def contribute_challenge(challenge_data: dict = Body(...)):
     **Difficulties:**
     - BEGINNER, INTERMEDIATE, ADVANCED, EXPERT, MASTER
 
-    Automatically starts a test match if possible.
+    **Test Match:**
+    - If agent1_id and agent2_id provided: Uses specific models
+    - If not provided: Random selection from division
+    - Automatically starts a test match if possible.
     """
     try:
 
@@ -702,10 +707,52 @@ async def contribute_challenge(challenge_data: dict = Body(...)):
                 },
             )
 
-        # Select random agents for the test match
-        import random
-
-        agent1, agent2 = random.sample(division_agents, 2)
+        # Agent selection for test match
+        agent1_id = challenge_data.get("agent1_id")
+        agent2_id = challenge_data.get("agent2_id")
+        
+        if agent1_id and agent2_id:
+            # Manual selection: find specific agents
+            agent1 = None
+            agent2 = None
+            
+            for agent in division_agents:
+                if agent.profile.name == agent1_id:
+                    agent1 = agent
+                elif agent.profile.name == agent2_id:
+                    agent2 = agent
+            
+            if not agent1:
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "success": False,
+                        "error": f"Agent '{agent1_id}' not found in {division} division or not active",
+                        "challenge_id": challenge.challenge_id,
+                    },
+                )
+            if not agent2:
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "success": False,
+                        "error": f"Agent '{agent2_id}' not found in {division} division or not active",
+                        "challenge_id": challenge.challenge_id,
+                    },
+                )
+            if agent1_id == agent2_id:
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "success": False,
+                        "error": "Cannot start a test match between the same agent",
+                        "challenge_id": challenge.challenge_id,
+                    },
+                )
+        else:
+            # Random selection (default behavior)
+            import random
+            agent1, agent2 = random.sample(division_agents, 2)
 
         # Create and start the test match
         match = arena.start_match_async(agent1, agent2, challenge)

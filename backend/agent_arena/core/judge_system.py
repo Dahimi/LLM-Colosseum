@@ -130,7 +130,7 @@ Description:
 **EVALUATION INSTRUCTIONS:**
 1. Evaluate both responses objectively and fairly
 2. Score each response on these criteria (0-10 scale):
-   - correctness: Factual accuracy and problem-solving correctness
+   - correctness: Factual accuracy and problem-solving correctness (MOST IMPORTANT - weighted 2x if there's a correct answer)
    - completeness: How thoroughly the response addresses the challenge
    - logical_consistency: Internal logical coherence and reasoning quality
    - clarity: Communication effectiveness and organization
@@ -140,6 +140,7 @@ Description:
 3. Consider the specific challenge type and difficulty level
 4. Provide your overall reasoning for the evaluation
 5. Recommend a winner: 'agent1', 'agent2', or 'draw' (if very close)
+   - If a correct answer exists and one agent got it right while the other didn't, strongly favor the correct agent
 6. Rate your confidence in this evaluation (0.0-1.0)
 
 **EVALUATION GUIDELINES:**
@@ -149,6 +150,7 @@ Description:
 - A 'draw' is appropriate when responses are very close in quality
 - Explain your reasoning clearly
 - Scores should reflect the challenge difficulty level
+- Correctness is the most important criterion when there is a definitive answer
 """
 
         if challenge.answer:
