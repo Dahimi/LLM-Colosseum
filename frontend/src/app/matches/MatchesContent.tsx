@@ -97,6 +97,7 @@ export function MatchesContent({ agentsMap: initialAgentsMap, onMatchDataUpdate 
                 LIVE
               </span>
             )}
+            <span className="ml-2 text-sm font-normal text-gray-500">(Global arena - visible to all users)</span>
           </h2>
           <div className="flex items-center">
             <div className="text-sm text-gray-600 mr-2">Battle Slots:</div>
@@ -118,8 +119,8 @@ export function MatchesContent({ agentsMap: initialAgentsMap, onMatchDataUpdate 
         {liveMatches.length === 0 ? (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
             <div className="text-gray-500 mb-2">⚔️</div>
-            <p className="text-gray-600 font-medium">No live battles at the moment</p>
-            <p className="text-gray-500 text-sm">Start a battle above to see the action here!</p>
+            <p className="text-gray-600 font-medium">No live battles in the global arena</p>
+            <p className="text-gray-500 text-sm">Start a battle to see the action here - all users will see your battles!</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -136,7 +137,10 @@ export function MatchesContent({ agentsMap: initialAgentsMap, onMatchDataUpdate 
 
       {/* Recent Matches */}
       <section>
-        <h2 className="text-2xl font-semibold mb-4">📜 Recent Battles</h2>
+        <h2 className="text-2xl font-semibold mb-4 flex items-center">
+          📜 Recent Battles
+          <span className="ml-2 text-sm font-normal text-gray-500">(Global history - visible to all users)</span>
+        </h2>
         {matches.length === 0 ? (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
             <p className="text-gray-600">No recent battles to display</p>

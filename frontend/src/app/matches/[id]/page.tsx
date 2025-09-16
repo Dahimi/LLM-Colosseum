@@ -193,6 +193,17 @@ export default function MatchPage({ params }: PageProps) {
                 )}
               </div>
             )}
+            {match.status === MatchStatus.AWAITING_JUDGMENT && (
+              <div className="mt-3 bg-amber-50 border border-amber-200 rounded-md p-3">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <p className="text-amber-800 font-medium">Judges are evaluating responses</p>
+                </div>
+                <p className="text-amber-700 text-sm mt-1">Results will be available shortly...</p>
+              </div>
+            )}
           </div>
 
           {/* Challenge Description */}
@@ -341,6 +352,25 @@ export default function MatchPage({ params }: PageProps) {
                 </div>
               )}
 
+              {/* Show judgment in progress for debate matches in AWAITING_JUDGMENT state */}
+              {match.status === MatchStatus.AWAITING_JUDGMENT && (
+                <div className="mt-6 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 p-6 rounded-xl">
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center">
+                        <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    </div>
+                    <h4 className="font-semibold text-amber-800 mb-2">Judges Deliberating</h4>
+                    <p className="text-amber-700 text-center">The judge panel is evaluating the debate arguments...</p>
+                    
+                    <div className="w-full max-w-md bg-amber-100/50 rounded-full h-2.5 mt-6 overflow-hidden">
+                      <div className="bg-amber-500 h-2.5 rounded-full animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {/* Show final scores for completed debates */}
               {match.status === MatchStatus.COMPLETED && match.final_scores && (
                 <div className="mt-6 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-6 rounded-xl">
@@ -536,6 +566,25 @@ export default function MatchPage({ params }: PageProps) {
                 </div>
               )}
 
+              {/* Show judgment in progress for AWAITING_JUDGMENT state */}
+              {match.status === MatchStatus.AWAITING_JUDGMENT && (
+                <div className="mt-8 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 p-6 rounded-xl">
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center">
+                        <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    </div>
+                    <h4 className="font-semibold text-amber-800 mb-2">Calculating Final Scores</h4>
+                    <p className="text-amber-700 text-center">The judges are carefully evaluating the responses...</p>
+                    
+                    <div className="w-full max-w-md bg-amber-100/50 rounded-full h-2.5 mt-6 overflow-hidden">
+                      <div className="bg-amber-500 h-2.5 rounded-full animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {/* Show final scores for completed regular matches */}
               {match.status === MatchStatus.COMPLETED && match.final_scores && (
                 <div className="mt-8 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-6 rounded-xl">
