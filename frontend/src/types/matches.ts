@@ -3,6 +3,7 @@ import { Agent } from './arena';
 export enum MatchStatus {
   PENDING = 'PENDING',
   IN_PROGRESS = 'IN_PROGRESS',
+  AWAITING_JUDGMENT = 'AWAITING_JUDGMENT',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED'
 }
